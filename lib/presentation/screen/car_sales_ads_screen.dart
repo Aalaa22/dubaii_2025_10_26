@@ -683,32 +683,32 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
 
     // فحص حالة التحقق من الحساب قبل الانتقال لصفحة الإعلان
     final authProvider = context.read<AuthProvider>();
-    if (authProvider.verifyAccount == false) {
-      // إظهار رسالة التحقق مع زر الانتقال للبروفايل
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('تفعيل الحساب مطلوب'),
-            content: const Text('يجب تفعيل حسابك أولاً لتتمكن من إضافة الإعلانات'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('إلغاء'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  context.push('/edit_profile');
-                },
-                child: const Text('الذهاب للبروفايل'),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
+    // if (authProvider.verifyAccount == false) {
+    //   // إظهار رسالة التحقق مع زر الانتقال للبروفايل
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: const Text('تفعيل الحساب مطلوب'),
+    //         content: const Text('يجب تفعيل حسابك أولاً لتتمكن من إضافة الإعلانات'),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () => Navigator.of(context).pop(),
+    //             child: const Text('إلغاء'),
+    //           ),
+    //           ElevatedButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop();
+    //               context.push('/edit_profile');
+    //             },
+    //             child: const Text('الذهاب للبروفايل'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    //   return;
+    // }
 
     // الانتقال إلى صفحة اختيار نوع الإعلان مع تمرير البيانات
     final result = await context.push('/placeAnAd', extra: adData);

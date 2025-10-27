@@ -13,6 +13,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/constant/image_url_helper.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -45,6 +47,10 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
   File? _mainImageFile;
   final List<File> _thumbnailImageFiles = [];
   final ImagePicker _picker = ImagePicker();
+  // الصور الموجودة بالفعل من الإعلان
+  List<String> _existingThumbnailUrls = [];
+  // لإخفاء صورة قديمة من المعاينة فقط (لا يُحذف من السيرفر)
+  final List<String> _removedExistingThumbnailUrls = [];
   
   @override
   void initState() {
@@ -74,6 +80,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         _descriptionController.text = ad.description;
         selectedPhoneNumber = ad.phoneNumber;
         selectedWhatsAppNumber = ad.whatsapp;
+        // تجهيز الصور المصغرة الموجودة للعرض
+        _existingThumbnailUrls = List<String>.from(ad.thumbnailImages);
       });
     }
   }
@@ -88,31 +96,52 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
   }
 
   Future<void> _pickThumbnailImages() async {
+    // الحد الأقصى 14 صورة (يتضمن الصور القديمة والجديدة)
+    const int maxThumbnails = 14;
+    final int currentTotal = _existingThumbnailUrls.length + _thumbnailImageFiles.length;
+
+    if (currentTotal >= maxThumbnails) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('لا يمكن إضافة المزيد من الصور. الحد الأقصى $maxThumbnails صور'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final List<XFile> images = await _picker.pickMultiImage();
     if (images.isNotEmpty) {
-      // حساب العدد الحالي للصور المختارة
-      int currentCount = _thumbnailImageFiles.length;
-      int availableSlots = 19 - currentCount;
-      
+      final int remainingSlots = maxThumbnails - currentTotal;
       List<File> newImages = images.map((xfile) => File(xfile.path)).toList();
-      
-      // إذا كان العدد الجديد يتجاوز الحد المسموح
-      if (newImages.length > availableSlots) {
-        // أخذ فقط العدد المسموح به
-        newImages = newImages.take(availableSlots).toList();
-        
+
+      if (newImages.length > remainingSlots) {
+        newImages = newImages.take(remainingSlots).toList();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تم اختيار ${newImages.length} صورة فقط. الحد الأقصى هو 19 صورة إجمالية'),
+            content: Text('تم اختيار ${newImages.length} صورة فقط. الحد الأقصى $maxThumbnails صورة إجمالية'),
             backgroundColor: Colors.orange,
           ),
         );
       }
-      
+
       setState(() {
         _thumbnailImageFiles.addAll(newImages);
       });
     }
+  }
+
+  void _removeThumbnailImage(int index) {
+    setState(() {
+      _thumbnailImageFiles.removeAt(index);
+    });
+  }
+
+  void _removeExistingThumbnail(int index) {
+    setState(() {
+      _removedExistingThumbnailUrls.add(_existingThumbnailUrls[index]);
+      _existingThumbnailUrls.removeAt(index);
+    });
   }
 
   void _onSaveChanges() async {
@@ -146,12 +175,22 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         updateData['whatsapp'] = whatsapp;
       }
       
-      // Images handling: send file if picked; otherwise send existing image as string
+      // Images handling:
+      // - إذا لم يتم اختيار صورة رئيسية جديدة، أعِد إرسال الصورة الحالية كنص للحفاظ عليها
+      // - أعِد إرسال الصور المصغّرة الحالية (بعد إزالة ما أخفاه المستخدم) كقائمة نصوص
+      // - أرسل الصور الجديدة كملفات
       if (_mainImageFile != null) {
         updateData['mainImage'] = _mainImageFile;
       } else if (ad != null && ad.mainImage.isNotEmpty) {
-        updateData['main_image'] = ad.mainImage; // keep current image via string
+        updateData['main_image'] = ad.mainImage; // يُعاد إرسال الصورة الرئيسية الحالية كنص
       }
+
+      // الصور المصغرة: نُعيد إرسال الباقي من الصور القديمة كقائمة نصوص للحفاظ عليها
+      final List<String> existingThumbsToKeep = List<String>.from(_existingThumbnailUrls);
+      if (existingThumbsToKeep.isNotEmpty) {
+        updateData['existing_thumbnail_images'] = existingThumbsToKeep;
+      }
+      // الصور الجديدة كملفات
       if (_thumbnailImageFiles.isNotEmpty) {
         updateData['thumbnailImages'] = _thumbnailImageFiles;
       }
@@ -162,7 +201,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
 
       // Diagnostics to verify payload shape
       print('--- Save Edit: updateData keys --- ${updateData.keys.toList()}');
-      print('Main image file? ${_mainImageFile != null}, string? ${updateData.containsKey('main_image')}');
+      print('Main image file? ${_mainImageFile != null}, string main_image included? ${updateData.containsKey('main_image')}');
+      print('Existing thumbnails count to keep: ${existingThumbsToKeep.length}');
       
       bool success = await provider.updateAd(widget.adId.toString(), updateData);
 
@@ -196,7 +236,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               ? Center(child: Text('حدث خطأ أثناء جلب البيانات: ${provider.detailsError}'))
               : provider.adDetails == null
                   ? const Center(child: Text('لم يتم العثور على الإعلان.'))
-                  : _buildFormUI(provider.adDetails!), // بناء الواجهة بعد جلب البيانات
+          : _buildFormUI(provider.adDetails!), // بناء الواجهة بعد جلب البيانات
     );
   }
   
@@ -293,11 +333,12 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               TitledDescriptionBox(title: s.describeYourCar, controller: _descriptionController, borderColor: borderColor),
               const SizedBox(height: 10),
               
-              // التعامل مع الصور
+              // الصور: الرئيسية + المصغرات (عرض الموجودة والجديدة)
+              // القسم الخاص بالصورة الرئيسية
               _buildImageButton(s.addMainImage, Icons.add_a_photo_outlined, borderColor, onPressed: _pickMainImage),
-              if(_mainImageFile != null) ...[
-                const SizedBox(height: 4), 
-                Text('  تم اختيار صورة رئيسية جديدة', style: TextStyle(color: Colors.green)),
+              const SizedBox(height: 6),
+              if (_mainImageFile != null) ...[
+                Text('تم اختيار صورة رئيسية جديدة', style: const TextStyle(color: Colors.green)),
                 const SizedBox(height: 8),
                 Container(
                   height: 100,
@@ -311,41 +352,173 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
                     child: Image.file(_mainImageFile!, fit: BoxFit.cover),
                   ),
                 ),
-              ],
-              const SizedBox(height: 7),
-              _buildImageButton(s.add14Images, Icons.add_photo_alternate_outlined, borderColor, onPressed: _pickThumbnailImages),
-              if(_thumbnailImageFiles.isNotEmpty) ...[
-                const SizedBox(height: 4), 
-                Text('  تم اختيار ${_thumbnailImageFiles.length} صورة مصغرة جديدة', style: TextStyle(color: Colors.green)),
+              ] else if (ad.mainImage.isNotEmpty) ...[
+                Text('الصورة الرئيسية الحالية', style: TextStyle(color: KTextColor, fontSize: 12.sp, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
-                SizedBox(
+                Container(
                   height: 100,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _thumbnailImageFiles.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        width: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(_thumbnailImageFiles[index], fit: BoxFit.cover),
-                        ),
-                      );
-                    },
+                  width: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: ImageUrlHelper.getMainImageUrl(ad.mainImage),
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.grey),
+                    ),
                   ),
                 ),
               ],
+              const SizedBox(height: 10),
+              // القسم الخاص بالصور المصغرة
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(s.add14Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+                  Text(
+                    '${_existingThumbnailUrls.length + _thumbnailImageFiles.length}/14',
+                    style: TextStyle(
+                      color: (_existingThumbnailUrls.length + _thumbnailImageFiles.length) >= 14 ? Colors.red : KTextColor,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              SizedBox(
+                height: 100,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _existingThumbnailUrls.length + _thumbnailImageFiles.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index < _existingThumbnailUrls.length) {
+                      // صور موجودة مسبقاً (شبكة)
+                      return Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: CachedNetworkImage(
+                                  imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]),
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    color: Colors.grey[300],
+                                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                  ),
+                                  errorWidget: (context, url, error) => Container(
+                                    color: Colors.grey[300],
+                                    child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 30)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: () => _removeExistingThumbnail(index),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (index < _existingThumbnailUrls.length + _thumbnailImageFiles.length) {
+                      // صور جديدة من الجهاز
+                      final imageIndex = index - _existingThumbnailUrls.length;
+                      return Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(_thumbnailImageFiles[imageIndex], fit: BoxFit.cover),
+                              ),
+                            ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: () => _removeThumbnailImage(imageIndex),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      // زر إضافة
+                      return GestureDetector(
+                        onTap: _pickThumbnailImages,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: borderColor),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_photo_alternate_outlined, color: KTextColor, size: 24),
+                              const SizedBox(height: 4),
+                              Text('Add', style: TextStyle(color: KTextColor, fontSize: 12.sp)),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
               const SizedBox(height: 10),
 
               // باقي الواجهة
               Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
               SizedBox(height: 4.h),
-              Directionality(textDirection: TextDirection.ltr, child: Row(children: [ SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h), SizedBox(width: 8.w), Expanded(child: Text("${ad.location}' : ''}", style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500))),],),),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Row(
+                  children: [
+                    SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        ad.location.isNotEmpty ? ad.location : '',
+                        style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(height: 8.h),
               _buildMapSection(context),
               const SizedBox(height: 10),

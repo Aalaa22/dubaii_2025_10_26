@@ -18,6 +18,11 @@ class CarRentAdProvider extends ChangeNotifier {
   String? _error;
   int _totalAds = 0;
 
+  // Single ad details
+  CarRentAdModel? _currentAd;
+  bool _isLoadingAdDetails = false;
+  String? _adDetailsError;
+
   // Loading states for different operations
   bool _isLoadingMakesAndModels = false;
   bool _isLoadingSpecs = false;
@@ -93,19 +98,31 @@ class CarRentAdProvider extends ChangeNotifier {
   String? get error => _error;
   int get totalAds => _totalAds;
 
+  // Getters for single ad details
+  CarRentAdModel? get currentAd => _currentAd;
+  bool get isLoadingAdDetails => _isLoadingAdDetails;
+  String? get adDetailsError => _adDetailsError;
+
   // Getters for specifications
   bool get isLoadingMakesAndModels => _isLoadingMakesAndModels;
   bool get isLoadingSpecs => _isLoadingSpecs;
   bool get isLoadingContactInfo => _isLoadingContactInfo;
   bool get isAddingContactItem => _isAddingContactItem;
   bool get isSubmittingAd => _isSubmittingAd;
-  bool get loading => _isLoading || _isLoadingMakesAndModels || _isLoadingSpecs || _isLoadingContactInfo || _isAddingContactItem || _isSubmittingAd;
+  bool get isSubmitting => _isSubmittingAd; // Alias for compatibility
+  bool get loading => _isLoading || _isLoadingMakesAndModels || _isLoadingSpecs || _isLoadingContactInfo || _isAddingContactItem || _isSubmittingAd || _isLoadingAdDetails;
   String? get makesAndModelsError => _makesAndModelsError;
   String? get specsError => _specsError;
   String? get contactInfoError => _contactInfoError;
   String? get addContactItemError => _addContactItemError;
   String? get createAdError => _createAdError;
-  String? get allErrors => _error ?? _makesAndModelsError ?? _specsError ?? _contactInfoError ?? _addContactItemError ?? _createAdError;
+  String? get submissionError => _createAdError; // Alias for submission error
+  String? get allErrors => _error ?? _makesAndModelsError ?? _specsError ?? _contactInfoError ?? _addContactItemError ?? _createAdError ?? _adDetailsError;
+  
+  // Additional getters for compatibility
+  CarRentAdModel? get editAd => _currentAd; // Alias for currentAd
+  List<String> get interiorColor => _interiorColors; // Alias for interiorColors
+  List<String> get seatsNo => _seatsNumbers; // Alias for seatsNumbers
   
   List<String> get makes => _makes;
   List<String> get models => _models;
@@ -159,6 +176,74 @@ class CarRentAdProvider extends ChangeNotifier {
       case 'steeringSide': return 'Steering Side';
       case 'advertiserType': return 'Advertiser Type';
       default: return fieldName;
+    }
+  }
+
+  /// Fetch single car rent ad details by ID
+  Future<void> fetchAdDetails(String adId, {String? token}) async {
+    // print('=== CarRentAdProvider.fetchAdDetails ===');
+    // print('Ad ID: $adId');
+    
+    _isLoadingAdDetails = true;
+    _adDetailsError = null;
+    _currentAd = null;
+    notifyListeners();
+
+    try {
+      final authToken = token ?? await _storage.read(key: 'auth_token');
+      // print('Calling repository.getCarRentAdDetails with ID: $adId');
+      final ad = await _repository.getCarRentAdDetails(adId: adId, token: authToken);
+      // print('Ad details fetched successfully: ${ad.title}');
+      
+      _currentAd = ad;
+    } catch (e) {
+      // print('Error in fetchAdDetails: $e');
+      _adDetailsError = e.toString();
+    } finally {
+      _isLoadingAdDetails = false;
+      notifyListeners();
+    }
+  }
+
+  /// Update car rent ad
+  Future<bool> updateCarRentAd(String adId, Map<String, dynamic> adData, {String? token}) async {
+    // print('=== CarRentAdProvider.updateCarRentAd ===');
+    // print('Ad ID: $adId');
+    
+    _isSubmittingAd = true;
+    _createAdError = null;
+    safeNotifyListeners();
+
+    try {
+      final authToken = token ?? await _storage.read(key: 'auth_token');
+      if (authToken == null) {
+        _createAdError = 'Authentication token not found';
+        // print('❌ No auth token found');
+        return false;
+      }
+
+      // print('✅ Auth token found: ${authToken.substring(0, 20)}...');
+
+      // Use repository to update the ad
+      await _repository.updateCarRentAd(
+        adId: int.parse(adId),
+        token: authToken,
+        adData: adData,
+      );
+
+      // print('✅ Car rent ad updated successfully');
+      
+      // Refresh the current ad details after update
+      await fetchAdDetails(adId, token: authToken);
+      
+      return true;
+    } catch (e) {
+      _createAdError = e.toString();
+      // print('❌ Exception updating car rent ad: $e');
+      return false;
+    } finally {
+      _isSubmittingAd = false;
+      safeNotifyListeners();
     }
   }
 
@@ -385,6 +470,7 @@ class CarRentAdProvider extends ChangeNotifier {
   /// Clear all data
   void clearData() {
     _ads.clear();
+    _currentAd = null;
     _makes.clear();
     _models.clear();
     _trims.clear();
@@ -412,6 +498,7 @@ class CarRentAdProvider extends ChangeNotifier {
     _fieldLabels.clear();
     
     _error = null;
+    _adDetailsError = null;
     _makesAndModelsError = null;
     _specsError = null;
     _contactInfoError = null;
@@ -601,6 +688,7 @@ class CarRentAdProvider extends ChangeNotifier {
 
   void clearError() {
     _error = null;
+    _adDetailsError = null;
     _makesAndModelsError = null;
     _specsError = null;
     _contactInfoError = null;

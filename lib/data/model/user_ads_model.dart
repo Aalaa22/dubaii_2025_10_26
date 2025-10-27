@@ -151,7 +151,10 @@ class UserAd implements FavoriteItemInterface {
   final String? serviceType;
   final String? serviceName;
   final String location; // Changed from String? to String
-
+  final String product_name;
+  final String section_type;
+  final String job_name;
+  final String salary;
   // FavoriteItemInterface implementation
   @override
   String get line1 => title;
@@ -176,7 +179,16 @@ class UserAd implements FavoriteItemInterface {
   AdPriority get priority => AdPriority.free;
   final int? activeOffersBoxRank;
 
-  UserAd(this.km, this.specs, this.emirate, this.area, this.contract_type, this.property_type, this.district, {
+  UserAd(
+    this.section_type,
+    this.product_name,
+    this.km,
+    this.specs,
+    this.emirate,
+    this.area,
+    this.contract_type,
+    this.property_type,
+    this.district, this.job_name, this.salary, {
     required this.id,
     required this.userId,
     required this.title,
@@ -206,7 +218,7 @@ class UserAd implements FavoriteItemInterface {
     required this.thumbnailImagesUrls,
     required this.status,
     required this.section,
-    
+
     // خصائص إضافية
     this.make,
     this.model,
@@ -236,6 +248,10 @@ class UserAd implements FavoriteItemInterface {
       json['contract_type']?.toString() ?? '',
       json['property_type']?.toString() ?? '',
       json['district']?.toString() ?? '',
+      json["product_name"]?.toString() ?? '',
+      json['section_type']?.toString() ?? '',
+      json['salary']?.toString() ?? '',
+      json['job_name']?.toString() ?? '',
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
       title: json['title']?.toString() ?? '',

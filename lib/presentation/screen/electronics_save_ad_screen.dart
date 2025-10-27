@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/electronic_details_provider.dart';
+import 'package:advertising_app/presentation/providers/electronics_info_provider.dart';
+import 'package:advertising_app/utils/phone_number_formatter.dart';
 import 'package:advertising_app/data/model/electronics_ad_model.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:advertising_app/data/repository/electronics_repository.dart';
@@ -17,6 +19,7 @@ import 'package:image_picker/image_picker.dart';
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
 const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
+final Color borderColor = Color.fromRGBO(8, 194, 201, 1);
 
 class ElectronicsSaveAdScreen extends StatefulWidget {
   // استقبال دالة تغيير اللغة و معرف الإعلان
@@ -30,12 +33,312 @@ class ElectronicsSaveAdScreen extends StatefulWidget {
   _ElectronicsSaveAdScreenState createState() => _ElectronicsSaveAdScreenState();
 }
 
+class TitledSelectOrAddField extends StatelessWidget {
+  final String title;
+  final String? value;
+  final List<String> items;
+  final Function(String) onChanged;
+  final bool isNumeric;
+  final Function(String)? onAddNew;
+
+  const TitledSelectOrAddField({
+    Key? key,
+    required this.title,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+    this.isNumeric = false,
+    this.onAddNew,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+        const SizedBox(height: 4),
+        GestureDetector(
+          onTap: () async {
+            final result = await showModalBottomSheet<String>(
+              context: context,
+              backgroundColor: Colors.white,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+              builder: (_) => _SearchableSelectOrAddBottomSheet(
+                title: title,
+                items: items,
+                isNumeric: isNumeric,
+                onAddNew: onAddNew,
+              ),
+            );
+            if (result != null && result.isNotEmpty) {
+              onChanged(result);
+            }
+          },
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    value ?? s.chooseAnOption,
+                    style: TextStyle(
+                      fontWeight: value == null ? FontWeight.normal : FontWeight.w500,
+                      color: value == null ? Colors.grey.shade500 : KTextColor,
+                      fontSize: 12.sp,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
+  final String title;
+  final List<String> items;
+  final bool isNumeric;
+  final Function(String)? onAddNew;
+
+  const _SearchableSelectOrAddBottomSheet({
+    required this.title,
+    required this.items,
+    this.isNumeric = false,
+    this.onAddNew,
+  });
+
+  @override
+  _SearchableSelectOrAddBottomSheetState createState() => _SearchableSelectOrAddBottomSheetState();
+}
+
+class _SearchableSelectOrAddBottomSheetState extends State<_SearchableSelectOrAddBottomSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _addController = TextEditingController();
+  List<String> _filteredItems = [];
+  String _selectedCountryCode = '+971';
+  final Map<String, String> _countryCodes = PhoneNumberFormatter.countryCodes;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = List.from(widget.items);
+    _searchController.addListener(_filterItems);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _addController.dispose();
+    super.dispose();
+  }
+
+  void _filterItems() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredItems = widget.items
+          .where((i) => i.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        top: 16,
+        left: 16,
+        right: 16,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18.sp,
+                color: KTextColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _searchController,
+              style: const TextStyle(color: KTextColor),
+              decoration: InputDecoration(
+                hintText: s.search,
+                prefixIcon: const Icon(Icons.search, color: KTextColor),
+                hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: borderColor),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: KPrimaryColor, width: 2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Divider(),
+            Expanded(
+              child: _filteredItems.isEmpty
+                  ? Center(
+                      child: Text(
+                        s.noResultsFound,
+                        style: const TextStyle(color: KTextColor),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _filteredItems.length,
+                      itemBuilder: (context, index) {
+                        final item = _filteredItems[index];
+                        return ListTile(
+                          title: Text(
+                            item,
+                            style: const TextStyle(color: KTextColor),
+                          ),
+                          onTap: () => Navigator.pop(context, item),
+                        );
+                      },
+                    ),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.isNumeric) ...[
+                  SizedBox(
+                    width: 90,
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCountryCode,
+                      items: _countryCodes.entries
+                          .map(
+                            (entry) => DropdownMenuItem<String>(
+                              value: entry.value,
+                              child: Text(
+                                entry.value,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: KTextColor,
+                                  fontSize: 12.sp,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) => setState(() => _selectedCountryCode = value!),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: borderColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: borderColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: KPrimaryColor, width: 2),
+                        ),
+                      ),
+                      isExpanded: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: TextFormField(
+                    controller: _addController,
+                    keyboardType: widget.isNumeric ? TextInputType.number : TextInputType.text,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: KTextColor,
+                      fontSize: 12.sp,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: widget.isNumeric ? s.phoneNumber : s.addNew,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: borderColor),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: borderColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: KPrimaryColor, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    String result = _addController.text.trim();
+                    if (widget.isNumeric && result.isNotEmpty) {
+                      result = '$_selectedCountryCode$result';
+                    }
+                    if (result.isNotEmpty) {
+                      if (widget.onAddNew != null) await widget.onAddNew!(result);
+                      Navigator.pop(context, result);
+                    }
+                  },
+                  child: Text(
+                    s.add,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: KPrimaryColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    minimumSize: const Size(60, 48),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
   // Controllers for editable fields
   late TextEditingController _priceController;
   late TextEditingController _descriptionController;
   late TextEditingController _phoneController;
   late TextEditingController _whatsappController;
+  String? selectedPhoneNumber;
+  String? selectedWhatsAppNumber;
   
   // Image handling variables
   File? _mainImageFile;
@@ -96,6 +399,8 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
       _descriptionController.text = _adData!.description ?? '';
       _phoneController.text = _adData!.phoneNumber ?? '';
       _whatsappController.text = _adData!.whatsappNumber ?? '';
+      selectedPhoneNumber = _adData!.phoneNumber;
+      selectedWhatsAppNumber = _adData!.whatsappNumber;
     }
   }
 
@@ -150,14 +455,23 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
       }
 
       final repository = ElectronicsRepository(ApiService());
-      
+
+      final String phone = (selectedPhoneNumber?.trim().isNotEmpty ?? false)
+          ? selectedPhoneNumber!.trim()
+          : (_adData?.phoneNumber ?? _phoneController.text).trim();
+      final String? whatsapp = (selectedWhatsAppNumber?.trim().isNotEmpty ?? false)
+          ? selectedWhatsAppNumber!.trim()
+          : (_adData?.whatsappNumber?.trim().isNotEmpty ?? false)
+              ? _adData!.whatsappNumber!.trim()
+              : null;
+
       await repository.updateElectronicsAd(
         adId: widget.adId,
         token: token,
         price: _priceController.text,
         description: _descriptionController.text,
-        phoneNumber: _phoneController.text,
-        whatsappNumber: _whatsappController.text.isNotEmpty ? _whatsappController.text : null,
+        phoneNumber: phone,
+        whatsappNumber: whatsapp,
         mainImage: _mainImageFile,
         thumbnailImages: _thumbnailImageFiles.isNotEmpty ? _thumbnailImageFiles : null,
       );
@@ -287,8 +601,52 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
               const SizedBox(height: 7),
 
               _buildFormRow([
-                _buildEditablePhoneField(s.phoneNumber, _phoneController, borderColor),
-                _buildEditablePhoneField(s.whatsApp, _whatsappController, borderColor),
+                Consumer<ElectronicsInfoProvider>(
+                  builder: (context, infoProvider, child) {
+                    final phoneItems = infoProvider.phoneNumbers.isNotEmpty
+                        ? infoProvider.phoneNumbers
+                        : [_adData!.phoneNumber ?? ''];
+                    return TitledSelectOrAddField(
+                      title: s.phoneNumber,
+                      value: selectedPhoneNumber,
+                      items: phoneItems,
+                      onChanged: (newValue) => setState(() => selectedPhoneNumber = newValue),
+                      isNumeric: true,
+                      onAddNew: (value) async {
+                        final token = await const FlutterSecureStorage().read(key: 'auth_token');
+                        if (token != null) {
+                          final success = await infoProvider.addContactItem('phone_numbers', value, token: token);
+                          if (success && mounted) {
+                            setState(() => selectedPhoneNumber = value);
+                          }
+                        }
+                      },
+                    );
+                  },
+                ),
+                Consumer<ElectronicsInfoProvider>(
+                  builder: (context, infoProvider, child) {
+                    final whatsappItems = infoProvider.whatsappNumbers.isNotEmpty
+                        ? infoProvider.whatsappNumbers
+                        : [_adData!.whatsappNumber ?? ''];
+                    return TitledSelectOrAddField(
+                      title: s.whatsApp,
+                      value: selectedWhatsAppNumber,
+                      items: whatsappItems,
+                      onChanged: (newValue) => setState(() => selectedWhatsAppNumber = newValue),
+                      isNumeric: true,
+                      onAddNew: (value) async {
+                        final token = await const FlutterSecureStorage().read(key: 'auth_token');
+                        if (token != null) {
+                          final success = await infoProvider.addContactItem('whatsapp_numbers', value, token: token);
+                          if (success && mounted) {
+                            setState(() => selectedWhatsAppNumber = value);
+                          }
+                        }
+                      },
+                    );
+                  },
+                ),
               ]),
               const SizedBox(height: 7),
 

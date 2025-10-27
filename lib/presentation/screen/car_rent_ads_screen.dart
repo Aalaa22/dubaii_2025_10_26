@@ -143,7 +143,7 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
         final int totalAfterAdding =
             _thumbnailImages.length + pickedImages.length;
         if (totalAfterAdding > maxImages) {
-          final int allowedCount = maxImages - _thumbnailImages.length;
+          final int allowedCount = maxImages - _thumbnailImages.length - 1;
           final List<XFile> allowedImages =
               pickedImages.take(allowedCount).toList();
           setState(() => _thumbnailImages

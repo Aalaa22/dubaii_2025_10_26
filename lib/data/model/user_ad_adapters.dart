@@ -115,7 +115,7 @@ class CarServiceAdAdapter implements FavoriteItemInterface {
   CarServiceAdAdapter(this.userAd);
 
   @override
-  String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
+  String get contact => userAd.advertiserName;
 
   @override
   String get details => userAd.description;
@@ -224,33 +224,31 @@ class ElectronicsAdAdapter implements FavoriteItemInterface {
   String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
 
   @override
-  String get details => userAd.description;
+  String get details => userAd.product_name;
 
   @override
-  String get imageUrl => userAd.mainImageUrl;
+  String get imageUrl => ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
 
   @override
-  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty 
-      ? userAd.thumbnailImagesUrls 
-      : [userAd.mainImageUrl];
+  List<String> get images => [imageUrl, ... userAd.thumbnailImages].where((img) => img.isNotEmpty).toList();
 
   @override
-  String get line1 => userAd.title;
+  String get line1 => userAd.section_type;
 
   @override
-  String get line2 => userAd.category;
+  String get line2 => userAd.product_name;
 
   @override
   String get price => userAd.price;
 
   @override
-  String get location => userAd.location;
+  String get location => "${userAd.emirate ?? ''} ${userAd.district ?? ''} ${userAd.area ?? ''}".trim(); 
 
   @override
-  String get title => userAd.title;
+  String get title => userAd.product_name;
 
   @override
-  String get date => userAd.createdAt;
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   bool get isPremium => userAd.planType != null && userAd.planType!.isNotEmpty;
@@ -275,33 +273,32 @@ class JobAdAdapter implements FavoriteItemInterface {
   String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
 
   @override
-  String get details => userAd.description;
+  String get details => "${userAd.contract_type ?? 'N/A'} ${userAd.section_type ?? 'N/A'} "; // Job Category Type
+ 
 
   @override
-  String get imageUrl => userAd.mainImageUrl;
+  String get imageUrl => ImageUrlHelper.getMainImageUrl(userAd.mainImageUrl);
 
   @override
-  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty 
-      ? userAd.thumbnailImagesUrls 
-      : [userAd.mainImageUrl];
+  List<String> get images =>  [imageUrl, ...userAd.thumbnailImages].where((img) => img.isNotEmpty).toList();
 
   @override
-  String get line1 => userAd.title;
+  String get line1 => userAd.job_name;
 
   @override
-  String get line2 => userAd.category;
+  String get line2 => userAd.salary;
 
   @override
   String get price => userAd.price;
 
   @override
-  String get location => userAd.location;
+  String get location => '${userAd.emirate ?? ''} ${userAd.district ?? ''}  ${userAd.area ?? ''}';
 
   @override
   String get title => userAd.title;
 
   @override
-  String get date => userAd.createdAt;
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   bool get isPremium => userAd.planType != null && userAd.planType!.isNotEmpty;

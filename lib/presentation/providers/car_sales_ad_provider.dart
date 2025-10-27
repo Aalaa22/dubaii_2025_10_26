@@ -10,6 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class CarAdProvider with ChangeNotifier {
   final CarAdRepository _carAdRepository;
@@ -78,6 +81,24 @@ class CarAdProvider with ChangeNotifier {
   bool get isLoadingMakes => _isLoadingMakes;
   bool get isLoadingModels => _isLoadingModels;
   bool get isLoadingTrims => _isLoadingTrims;
+
+  // Download an image URL/path to a temporary file for multipart upload
+  Future<File?> _downloadImageToTempFile(String url) async {
+    try {
+      final String fullUrl = ImageUrlHelper.getFullImageUrl(url);
+      final dio = Dio();
+      final response = await dio.get(fullUrl, options: Options(responseType: ResponseType.bytes));
+      final List<int> bytes = (response.data as List<int>);
+      final tempDir = await getTemporaryDirectory();
+      final filename = p.basename(Uri.parse(fullUrl).path);
+      final file = File(p.join(tempDir.path, '${DateTime.now().millisecondsSinceEpoch}_$filename'));
+      await file.writeAsBytes(bytes);
+      return file;
+    } catch (e) {
+      debugPrint('Failed to download image "$url" to temp file: $e');
+      return null;
+    }
+  }
 
   // --- SECTION 5: Selected Filters State ---
   MakeModel? _selectedMake;
@@ -535,6 +556,8 @@ class CarAdProvider with ChangeNotifier {
         mainImageFile = adData['mainImage'] as File;
       } else if (adData['main_image'] is File) {
         mainImageFile = adData['main_image'] as File;
+      } else if (adData['main_image'] is String && (adData['main_image'] as String).trim().isNotEmpty) {
+        mainImageFile = await _downloadImageToTempFile(adData['main_image'] as String);
       }
 
       // Handle thumbnail images - check both possible key names
@@ -551,6 +574,25 @@ class CarAdProvider with ChangeNotifier {
         
         if (files.isNotEmpty) {
           thumbnailImages = files;
+        }
+      }
+
+      // Include existing thumbnail URLs by downloading them into files
+      if (adData['existing_thumbnail_images'] is List) {
+        final urls = (adData['existing_thumbnail_images'] as List)
+            .whereType<String>()
+            .where((s) => s.trim().isNotEmpty)
+            .toList();
+        if (urls.isNotEmpty) {
+          thumbnailImages ??= [];
+          for (final url in urls) {
+            final file = await _downloadImageToTempFile(url);
+            if (file != null) {
+              thumbnailImages.add(file);
+            } else {
+              debugPrint('Skipping existing thumbnail "$url" due to download failure');
+            }
+          }
         }
       }
 
@@ -612,6 +654,7 @@ class CarAdProvider with ChangeNotifier {
           'plan_days': (adData['plan_days'] ?? adData['planDays']).toString(),
         if (adData['plan_expires_at'] != null || adData['planExpiresAt'] != null)
           'plan_expires_at': (adData['plan_expires_at'] ?? adData['planExpiresAt']).toString(),
+
       };
 
       print('=== CarAdProvider.updateAd: POST with form-data ===');
@@ -620,6 +663,12 @@ class CarAdProvider with ChangeNotifier {
       print('Input data keys: ${adData.keys.toList()}');
       print('Main image file: ${mainImageFile != null} (from key: ${adData['mainImage'] != null ? 'mainImage' : adData['main_image'] != null ? 'main_image' : 'none'})');
       print('Thumbnail files count: ${thumbnailImages?.length ?? 0} (from key: ${adData['thumbnailImages'] != null ? 'thumbnailImages' : adData['thumbnail_images'] != null ? 'thumbnail_images' : 'none'})');
+      final existingThumbsCount = (adData['existing_thumbnail_images'] is List)
+          ? (adData['existing_thumbnail_images'] as List).whereType<String>().length
+          : 0;
+      if (existingThumbsCount > 0) {
+        print('Existing thumbnail URLs provided: $existingThumbsCount (downloaded into files)');
+      }
       print('Form fields: ${formData.keys.toList()}');
       print('===============================================');
 

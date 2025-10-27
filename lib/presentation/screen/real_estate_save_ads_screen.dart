@@ -20,6 +20,7 @@ import '../../../constant/string.dart';
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
 const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
+const Color borderColor = Color.fromRGBO(8, 194, 201, 1);
 
 class RealEstateSaveAdScreen extends StatefulWidget {
   // استقبال دالة تغيير اللغة ومعرف الإعلان
@@ -589,156 +590,6 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
 // ++++    الودجت المخصصة المأخوذة من الملف المرجعي          ++++
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// TitledSelectOrAddField widget definition
-class TitledSelectOrAddField extends StatefulWidget {
-  final String title;
-  final String? value;
-  final List<String> items;
-  final Function(String?) onChanged;
-  final Function(String) onAddNew;
-  final bool isNumeric;
-
-  const TitledSelectOrAddField({
-    Key? key,
-    required this.title,
-    this.value,
-    required this.items,
-    required this.onChanged,
-    required this.onAddNew,
-    this.isNumeric = false,
-  }) : super(key: key);
-
-  @override
-  _TitledSelectOrAddFieldState createState() => _TitledSelectOrAddFieldState();
-}
-
-class _TitledSelectOrAddFieldState extends State<TitledSelectOrAddField> {
-  late TextEditingController _controller;
-  bool _isAdding = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    
-    if (_isAdding) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  keyboardType: widget.isNumeric ? TextInputType.phone : TextInputType.text,
-                  decoration: InputDecoration(
-                    hintText: widget.isNumeric ? 'أدخل رقم الهاتف' : 'أدخل القيمة الجديدة',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color.fromRGBO(8, 194, 201, 1)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Color.fromRGBO(8, 194, 201, 1)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: KPrimaryColor, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_controller.text.isNotEmpty) {
-                    await widget.onAddNew(_controller.text);
-                    _controller.clear();
-                    setState(() => _isAdding = false);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: KPrimaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text('إضافة', style: TextStyle(color: Colors.white)),
-              ),
-              const SizedBox(width: 4),
-              TextButton(
-                onPressed: () => setState(() => _isAdding = false),
-                child: Text('إلغاء', style: TextStyle(color: Colors.grey)),
-              ),
-            ],
-          ),
-        ],
-      );
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Color.fromRGBO(8, 194, 201, 1)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          if (widget.items.isNotEmpty)
-            Container(
-              height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: widget.value,
-                  isExpanded: true,
-                  hint: Text('اختر من القائمة'),
-                  items: widget.items.map((String item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
-                    );
-                  }).toList(),
-                  onChanged: widget.onChanged,
-                ),
-              ),
-            ),
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: KPrimaryColor,
-              borderRadius: widget.items.isEmpty 
-                  ? BorderRadius.circular(8)
-                  : BorderRadius.only(
-                      bottomLeft: Radius.circular(8),
-                      bottomRight: Radius.circular(8),
-                    ),
-            ),
-            child: TextButton(
-              onPressed: () => setState(() => _isAdding = true),
-              child: Text(
-                'إضافة جديد',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class TitledTextFieldWithAction extends StatefulWidget {
   final String title;
   final String initialValue;
@@ -846,6 +697,249 @@ class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ++++    الودجت المخصصة المأخوذة من الملف المرجعي          ++++
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// TitledSelectOrAddField widget definition
+class TitledSelectOrAddField extends StatefulWidget {
+  final String title;
+  final String? value;
+  final List<String> items;
+  final Function(String?) onChanged;
+  final Function(String) onAddNew;
+  final bool isNumeric;
+
+  const TitledSelectOrAddField({
+    Key? key,
+    required this.title,
+    this.value,
+    required this.items,
+    required this.onChanged,
+    required this.onAddNew,
+    this.isNumeric = false,
+  }) : super(key: key);
+
+  @override
+  _TitledSelectOrAddFieldState createState() => _TitledSelectOrAddFieldState();
+}
+
+class _TitledSelectOrAddFieldState extends State<TitledSelectOrAddField> {
+  late String? _selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // العنوان خارجي بالفعل من _buildContactField
+        GestureDetector(
+          onTap: () async {
+            final result = await showModalBottomSheet<String>(
+              context: context,
+              backgroundColor: Colors.white,
+              isScrollControlled: true,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+              builder: (_) => _SearchableSelectOrAddBottomSheet(
+                title: widget.title,
+                items: widget.items,
+                isNumeric: widget.isNumeric,
+                onAddNew: widget.onAddNew,
+              ),
+            );
+            if (result != null && result.isNotEmpty) {
+              setState(() => _selectedValue = result);
+              widget.onChanged(result);
+            }
+          },
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(color: Colors.white, border: Border.all(color: borderColor), borderRadius: BorderRadius.circular(8)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    _selectedValue ?? s.chooseAnOption,
+                    style: TextStyle(
+                      fontWeight: _selectedValue == null ? FontWeight.normal : FontWeight.w500,
+                      color: _selectedValue == null ? Colors.grey.shade500 : KTextColor,
+                      fontSize: 12.sp,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
+  final String title;
+  final List<String> items;
+  final bool isNumeric;
+  final Function(String)? onAddNew;
+
+  const _SearchableSelectOrAddBottomSheet({
+    required this.title,
+    required this.items,
+    this.isNumeric = false,
+    this.onAddNew,
+  });
+
+  @override
+  State<_SearchableSelectOrAddBottomSheet> createState() => _SearchableSelectOrAddBottomSheetState();
+}
+
+class _SearchableSelectOrAddBottomSheetState extends State<_SearchableSelectOrAddBottomSheet> {
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _addController = TextEditingController();
+  List<String> _filteredItems = [];
+  String _selectedCountryCode = '+971';
+  final Map<String, String> _countryCodes = PhoneNumberFormatter.countryCodes;
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredItems = List.from(widget.items);
+    _searchController.addListener(_filterItems);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _addController.dispose();
+    super.dispose();
+  }
+
+  void _filterItems() {
+    final q = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredItems = widget.items.where((i) => i.toLowerCase().contains(q)).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, top: 16, left: 16, right: 16),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp, color: KTextColor)),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _searchController,
+              style: const TextStyle(color: KTextColor),
+              decoration: InputDecoration(
+                hintText: s.search,
+                prefixIcon: const Icon(Icons.search, color: KTextColor),
+                hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: KPrimaryColor, width: 2)),
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Divider(),
+            Expanded(
+              child: _filteredItems.isEmpty
+                  ? Center(child: Text(s.noResultsFound, style: const TextStyle(color: KTextColor)))
+                  : ListView.builder(
+                      itemCount: _filteredItems.length,
+                      itemBuilder: (context, index) {
+                        final item = _filteredItems[index];
+                        return ListTile(
+                          title: Text(item, style: const TextStyle(color: KTextColor)),
+                          onTap: () => Navigator.pop(context, item),
+                        );
+                      },
+                    ),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.isNumeric) ...[
+                  SizedBox(
+                    width: 90,
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCountryCode,
+                      items: _countryCodes.entries
+                          .map((e) => DropdownMenuItem<String>(
+                                value: e.value,
+                                child: Text(e.value, style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp)),
+                              ))
+                          .toList(),
+                      onChanged: (v) => setState(() => _selectedCountryCode = v ?? _selectedCountryCode),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: KPrimaryColor, width: 2)),
+                      ),
+                      isDense: true,
+                      isExpanded: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                Expanded(
+                  child: TextFormField(
+                    controller: _addController,
+                    keyboardType: widget.isNumeric ? TextInputType.number : TextInputType.text,
+                    style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
+                    decoration: InputDecoration(
+                      hintText: widget.isNumeric ? s.phoneNumber : s.addNew,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: KPrimaryColor, width: 2)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () async {
+                    String result = _addController.text.trim();
+                    if (widget.isNumeric && result.isNotEmpty) {
+                      result = '$_selectedCountryCode$result';
+                    }
+                    if (result.isNotEmpty) {
+                      Navigator.pop(context, result);
+                      if (widget.onAddNew != null) {
+                        Future.microtask(() => widget.onAddNew!(result));
+                      }
+                    }
+                  },
+                  child: Text(s.add, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12.sp)),
+                  style: ElevatedButton.styleFrom(backgroundColor: KPrimaryColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), minimumSize: const Size(60, 48)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 }

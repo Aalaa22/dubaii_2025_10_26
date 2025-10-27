@@ -615,9 +615,9 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
               if ((slug.contains('car') && (slug.contains('sale') || slug.contains('sales'))) || category.contains('cars sales')) {
                 context.push('/car_sales_save_ads/${ad.id}');
               } else if (slug.contains('real') || slug.contains('estate') || category.contains('real estate') || category.contains('real state')) {
-                context.push('/real_estate_save_ads');
+                context.push('/real_estate_save_ads/${ad.id}');
               } else if ((slug.contains('car') && slug.contains('rent')) || category.contains('car rent')) {
-                context.push('/car_rent_save_ads');
+                context.push('/car_rent_save_ads/${ad.id}');
               } else if ((slug.contains('car') && (slug.contains('service') || slug.contains('services'))) || category.contains('car services')) {
                 context.push('/car_services_save_ads');
               } else if (slug.contains('restaurant') || category.contains('restaurant')) {

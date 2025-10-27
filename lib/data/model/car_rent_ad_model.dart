@@ -31,6 +31,10 @@ class CarRentAdModel {
   final String? description;
   final String? addCategory;
 
+  // Getters for compatibility with screen code
+  String? get interiorColor => interior_color;
+  String? get seatsNo => seats_no;
+
   CarRentAdModel(
     this.carType,
     this.transType,

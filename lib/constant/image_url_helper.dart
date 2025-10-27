@@ -31,9 +31,17 @@ class ImageUrlHelper {
     if (cleanPath.startsWith('file://')) {
       // إزالة المخطط file:// والحفاظ على الشرطة المائلة الأولى إن كانت موجودة
       final withoutScheme = cleanPath.substring('file://'.length).trim();
-      final normalized = withoutScheme.startsWith('/') ? withoutScheme : '/$withoutScheme';
-      final finalUrl = '$_baseUrl$normalized';
-      return finalUrl;
+      // إذا كان المسار يحتوي على /storage/ بالفعل، استخدمه مباشرة
+      if (withoutScheme.contains('/storage/')) {
+        final normalized = withoutScheme.startsWith('/') ? withoutScheme : '/$withoutScheme';
+        final finalUrl = '$_baseUrl$normalized';
+        return finalUrl;
+      } else {
+        // إضافة /storage/ إذا لم يكن موجوداً
+        final normalized = withoutScheme.startsWith('/') ? withoutScheme.substring(1) : withoutScheme;
+        final finalUrl = '$_baseUrl/storage/$normalized';
+        return finalUrl;
+      }
     }
 
     // Handle malformed URLs that might contain embedded full URLs with backticks

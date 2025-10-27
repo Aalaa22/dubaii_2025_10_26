@@ -414,6 +414,16 @@ GoRouter createRouter({
         path: '/car_rent_save_ads',
         builder: (context, state) => CarsRentSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
+      GoRoute(
+        path: '/car_rent_save_ads/:adId',
+        builder: (context, state) {
+          final adId = state.pathParameters['adId'];
+          return CarsRentSaveAdScreen(
+            adId: adId,
+            onLanguageChange: (locale) => changeLocale(context, locale),
+          );
+        },
+      ),
        GoRoute(
         path: '/resturant_ads',
         builder: (context, state) => RestaurantsAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),

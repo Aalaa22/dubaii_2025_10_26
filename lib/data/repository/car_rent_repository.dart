@@ -33,6 +33,34 @@ class CarRentRepository {
         'API response format is not as expected for CarRentAdResponse.');
   }
 
+  // --- دالة لجلب تفاصيل إعلان إيجار واحد بالـ ID ---
+  Future<CarRentAdModel> getCarRentAdDetails({
+    required String adId,
+    String? token,
+  }) async {
+    // print('=== CarRentRepository.getCarRentAdDetails ===');
+    // print('Ad ID: $adId');
+    // print('API endpoint: /api/car-rent-ads/$adId');
+
+    final response = await _apiService.get('/api/car-rent/$adId', token: token);
+
+    // print('Raw API response type: ${response.runtimeType}');
+    // print('Raw API response: $response');
+
+    if (response is Map<String, dynamic>) {
+      // Check if the response has a 'data' field or is the ad data directly
+      if (response.containsKey('data') && response['data'] is Map<String, dynamic>) {
+        return CarRentAdModel.fromJson(response['data']);
+      } else if (response.containsKey('id')) {
+        // Direct ad data without wrapper
+        return CarRentAdModel.fromJson(response);
+      } else {
+        throw Exception('Invalid response format for car rent ad details');
+      }
+    }
+    throw Exception('API response format is not as expected for CarRentAdModel.');
+  }
+
   // --- دوال لجلب بيانات الفلاتر لشاشة الإضافة ---
   Future<List<EmirateModel>> getEmirates({String? token}) async {
     final response =
@@ -133,6 +161,34 @@ class CarRentRepository {
         'plan_days': adData['planDays'],
         'plan_expires_at': adData['planExpiresAt'],
       },
+      mainImage: adData['mainImage'],
+      thumbnailImages: adData['thumbnailImages'],
+      token: token,
+    );
+  }
+
+  // دالة تحديث إعلان تأجير سيارات موجود
+  Future<void> updateCarRentAd({
+    required int adId,
+    required String token,
+    required Map<String, dynamic> adData,
+  }) async {
+    // Prepare the data map with existing images information
+    final Map<String, dynamic> requestData = {
+      '_method': 'PUT', // Laravel method spoofing for PUT request
+      'price': adData['price'],
+      'day_rent': adData['day_rent'],
+      'month_rent': adData['month_rent'],
+      'phone_number': adData['phone_number'],
+      'whatsapp': adData['whatsapp'],
+      'advertiser_name': adData['advertiser_name'],
+      'description': adData['description'],
+      'location': adData['location'],
+    };
+
+    await _apiService.postFormData(
+      '/api/car-rent-ads/$adId',
+      data: requestData,
       mainImage: adData['mainImage'],
       thumbnailImages: adData['thumbnailImages'],
       token: token,
