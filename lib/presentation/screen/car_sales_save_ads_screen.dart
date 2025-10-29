@@ -96,8 +96,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
   }
 
   Future<void> _pickThumbnailImages() async {
-    // الحد الأقصى 14 صورة (يتضمن الصور القديمة والجديدة)
-    const int maxThumbnails = 14;
+    // الحد الأقص صورة (يتضمن الصور القديمة والجديدة)
+    const int maxThumbnails = 19;
     final int currentTotal = _existingThumbnailUrls.length + _thumbnailImageFiles.length;
 
     if (currentTotal >= maxThumbnails) {
@@ -120,7 +120,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تم اختيار ${newImages.length} صورة فقط. الحد الأقصى $maxThumbnails صورة إجمالية'),
-            backgroundColor: Colors.orange,
+            backgroundColor:Color.fromRGBO(1, 84, 126, 1),
           ),
         );
       }
@@ -375,130 +375,94 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               ],
               const SizedBox(height: 10),
               // القسم الخاص بالصور المصغرة
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(s.add14Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
-                  Text(
-                    '${_existingThumbnailUrls.length + _thumbnailImageFiles.length}/14',
-                    style: TextStyle(
-                      color: (_existingThumbnailUrls.length + _thumbnailImageFiles.length) >= 14 ? Colors.red : KTextColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
               SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _existingThumbnailUrls.length + _thumbnailImageFiles.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index < _existingThumbnailUrls.length) {
-                      // صور موجودة مسبقاً (شبكة)
-                      return Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: CachedNetworkImage(
-                                  imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]),
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Container(
-                                    color: Colors.grey[300],
-                                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                  ),
-                                  errorWidget: (context, url, error) => Container(
-                                    color: Colors.grey[300],
-                                    child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 30)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () => _removeExistingThumbnail(index),
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (index < _existingThumbnailUrls.length + _thumbnailImageFiles.length) {
-                      // صور جديدة من الجهاز
-                      final imageIndex = index - _existingThumbnailUrls.length;
-                      return Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.file(_thumbnailImageFiles[imageIndex], fit: BoxFit.cover),
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () => _removeThumbnailImage(imageIndex),
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      // زر إضافة
-                      return GestureDetector(
-                        onTap: _pickThumbnailImages,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: borderColor),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add_photo_alternate_outlined, color: KTextColor, size: 24),
-                              const SizedBox(height: 4),
-                              Text('Add', style: TextStyle(color: KTextColor, fontSize: 12.sp)),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.add_photo_alternate_outlined, color: KTextColor),
+                  label: Text(s.add19Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)),
+                  onPressed: _pickThumbnailImages,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: borderColor),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                  ),
                 ),
               ),
+              const SizedBox(height: 7),
+              if (_existingThumbnailUrls.isNotEmpty || _thumbnailImageFiles.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 100,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _existingThumbnailUrls.length + _thumbnailImageFiles.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final bool isExisting = index < _existingThumbnailUrls.length;
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Stack(
+                          children: [
+                            if (isExisting)
+                              Builder(builder: (context) {
+                                final url = ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]);
+                                final uri = Uri.tryParse(url);
+                                if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                                  return CachedNetworkImage(
+                                    imageUrl: url,
+                                    width: 120,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                    errorWidget: (context, errorUrl, error) {
+                                      return Image.asset(
+                                        'assets/images/salesCar.jpg',
+                                        width: 120,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  );
+                                }
+                                return Image.asset(
+                                  'assets/images/salesCar.jpg',
+                                  width: 120,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                );
+                              })
+                            else
+                              Image.file(
+                                _thumbnailImageFiles[index - _existingThumbnailUrls.length],
+                                width: 120,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (isExisting) {
+                                    _removeExistingThumbnail(index);
+                                  } else {
+                                    _removeThumbnailImage(index - _existingThumbnailUrls.length);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
 
               // باقي الواجهة

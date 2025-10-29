@@ -515,7 +515,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                     const SizedBox(height: 7),
                     _buildTitledTextFormField(
                         s.title, _titleController, borderColor, currentLocale,
-                          minLines: 3, maxLines: 4, maxWords: 93, isRequired: true, hintText: 'enter your title'),
+                          minLines: 3, maxLines: 4, isRequired: true, hintText: 'enter your title'),
                     const SizedBox(height: 7),
                     TitledSelectOrAddField(
                         title: s.advertiserName,
@@ -592,7 +592,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                                       height: 150, fit: BoxFit.cover)))),
                     const SizedBox(height: 7),
                     _buildImageButton(
-                        '${s.add9Images} (${(_mainImage != null ? 1 : 0) + _thumbnailImages.length}/9)',
+                        '${s.add9Images} (${(_thumbnailImages.length)}/9)',
                         Icons.add_photo_alternate_outlined,
                         borderColor,
                         onPressed: _pickThumbnailImages),
@@ -709,7 +709,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
           controller: controller,
           minLines: minLines,
           maxLines: maxLines,
-          maxLength: maxLines != null && maxLines > 1 ? 93 : null,
+          maxLength: maxLines != null && maxLines > 1 ? 100 : null,
           style: TextStyle(
               fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
@@ -718,7 +718,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
             if (maxWords != null || maxLines != null) {
               final lines = value.split('\n');
               final words = value.trim().split(RegExp(r'\s+')).where((word) => word.isNotEmpty).length;
-              
+
               // Check if exceeds max lines
               if (maxLines != null && lines.length > maxLines) {
                 final truncatedLines = lines.take(maxLines).join('\n');
@@ -728,7 +728,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                 );
                 return;
               }
-              
+
               // Check if exceeds max words
               if (maxWords != null && words > maxWords) {
                 final wordsList = value.trim().split(RegExp(r'\s+'));
@@ -763,6 +763,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
               hintText: hintText,
               hintStyle:
                   TextStyle(color: Colors.grey.shade400, fontSize: 12.sp),
+              counterText: "",
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: borderColor)),

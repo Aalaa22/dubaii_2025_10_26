@@ -143,7 +143,7 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
         final int totalAfterAdding =
             _thumbnailImages.length + pickedImages.length;
         if (totalAfterAdding > maxImages) {
-          final int allowedCount = maxImages - _thumbnailImages.length - 1;
+          final int allowedCount = maxImages - _thumbnailImages.length ;
           final List<XFile> allowedImages =
               pickedImages.take(allowedCount).toList();
           setState(() => _thumbnailImages
@@ -555,14 +555,12 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
                           isRequired: true),
                       _buildSingleSelectField(context, s.make, selectedMake,
                           infoProvider.makeNamesForAds, (selection) async {
-                        final token = await const FlutterSecureStorage()
-                            .read(key: 'auth_token');
                         setState(() {
                           selectedMake = selection;
                           selectedModel = null;
                           selectedTrim = null;
                         });
-                        if (selection != null && token != null) {
+                        if (selection != null) {
                           if (selection == 'Other') {
                             // عند اختيار Other في make، نقوم بمسح الـ models والـ trims ونضع قائمة فارغة
                             infoProvider.clearModelsAndTrims();
@@ -570,8 +568,7 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
                             try {
                               final makeObject = infoProvider.makes
                                   .firstWhere((m) => m.name == selection);
-                              await infoProvider.fetchModelsForMake(makeObject,
-                                  token: token);
+                              await infoProvider.fetchModelsForMake(makeObject);
                             } catch (e) {
                               debugPrint(
                                   "Make object not found for $selection");
@@ -590,20 +587,15 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
                               ? ['Other']
                               : infoProvider.modelNamesForAds,
                           (selection) async {
-                        final token = await const FlutterSecureStorage()
-                            .read(key: 'auth_token');
                         setState(() {
                           selectedModel = selection;
                           selectedTrim = null;
                         });
-                        if (selection != null &&
-                            token != null &&
-                            selectedMake != 'Other') {
+                        if (selection != null && selectedMake != 'Other') {
                           try {
                             final modelObject = infoProvider.models
                                 .firstWhere((m) => m.name == selection);
-                            await infoProvider.fetchTrimsForModel(modelObject,
-                                token: token);
+                            await infoProvider.fetchTrimsForModel(modelObject);
                           } catch (e) {
                             debugPrint("Model object not found for $selection");
                           }
@@ -641,10 +633,8 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
                         s.title, _titleController, borderColor, currentLocale,
                         hintText: null,
                         isRequired: true,
-                        minLines: 2,
-                        maxWords: 93,
-                        maxLines: 2,
-                        maxLength: 93),
+                        minLines: 3,
+                        maxLines: 4),
                     const SizedBox(height: 7),
                     _buildFormRow([
                       _buildSingleSelectField(
@@ -787,7 +777,7 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
                                       height: 150, fit: BoxFit.cover)))),
                     const SizedBox(height: 7),
                     _buildImageButton(
-                        '${s.add10Images} (${_thumbnailImages.length}/10)',
+                        '(${_thumbnailImages.length}/10)',
                         Icons.add_photo_alternate_outlined,
                         borderColor,
                         onPressed: _pickThumbnailImages),
@@ -905,7 +895,7 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
           controller: controller,
           minLines: minLines,
           maxLines: maxLines ?? (minLines > 1 ? minLines + 2 : 1),
-          maxLength: maxLength,
+          maxLength: (maxLines != null && maxLines > 1) ? 100 : null,
           style: TextStyle(
               fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
@@ -927,10 +917,9 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
             if (isRequired && (value == null || value.trim().isEmpty)) {
               return 'This field is required';
             }
-            if (maxLength != null &&
-                value != null &&
-                value.length > maxLength) {
-              return 'Maximum $maxLength characters allowed';
+            // Character count limit aligned with car sales screen
+            if ((maxLines != null && maxLines > 1) && value != null && value.length > 100) {
+              return 'Maximum 100 characters allowed';
             }
             if (maxWords != null && value != null) {
               int wordCount = value
@@ -948,16 +937,10 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
                 return 'Maximum $maxLines lines allowed';
               }
             }
-            // Additional validation for title to ensure it doesn't exceed 2 lines
-            if (title == S.of(context).title && value != null) {
-              int lineCount = value.split('\n').length;
-              if (lineCount > 2) {
-                return 'Title cannot exceed 2 lines';
-              }
-            }
             return null;
           },
           decoration: InputDecoration(
+              counterText: "",
               hintText: hintText,
               hintStyle:
                   TextStyle(color: Colors.grey.shade400, fontSize: 12.sp),

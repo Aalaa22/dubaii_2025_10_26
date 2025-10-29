@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "ad": MessageLookupByLibrary.simpleMessage("عدد الإعلانات"),
     "add": MessageLookupByLibrary.simpleMessage("إضافة"),
     "add10Images": MessageLookupByLibrary.simpleMessage("إضافة 10 صور"),
+    "add19Images": MessageLookupByLibrary.simpleMessage("إضافة 19 صورة"),
     "add14Images": MessageLookupByLibrary.simpleMessage("إضافة 14 صورة"),
     "add3Images": MessageLookupByLibrary.simpleMessage("إضافة 3 صور"),
     "add4Images": MessageLookupByLibrary.simpleMessage("إضافة 4 صور"),

@@ -1605,6 +1605,16 @@ class S {
     );
   }
 
+  /// `Add 19 Images`
+  String get add19Images {
+    return Intl.message(
+      'Add 19 Images',
+      name: 'add19Images',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Restaurants Ads`
   String get restaurantsAds {
     return Intl.message(

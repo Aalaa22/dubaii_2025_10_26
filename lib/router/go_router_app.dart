@@ -379,6 +379,16 @@ GoRouter createRouter({
         builder: (context, state) => CarServicesSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
       GoRoute(
+        path: '/car_services_save_ads/:adId',
+        builder: (context, state) {
+          final adId = int.tryParse(state.pathParameters['adId'] ?? '') ?? 0;
+          return CarServicesSaveAdScreen(
+            onLanguageChange: (locale) => changeLocale(context, locale),
+            adId: adId,
+          );
+        },
+      ),
+      GoRoute(
         path: '/real_estate_ads',
         builder: (context, state) => RealEstateAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
@@ -433,12 +443,23 @@ GoRouter createRouter({
         builder: (context, state) => RestaurantsSaveAdScreen(adId: state.pathParameters['adId'] ?? '0'),
       ),
        GoRoute(
-        path: '/other_servics_ads',
+       path: '/other_servics_ads',
         builder: (context, state) => OtherServicesAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
        GoRoute(
         path: '/other_service_save_ads',
         builder: (context, state) => OtherServicesSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
+      ),
+      GoRoute(
+        path: '/other_service_save_ads/:adId',
+        builder: (context, state) {
+          final adIdParam = state.pathParameters['adId'];
+          final int? adId = int.tryParse(adIdParam ?? '');
+          return OtherServicesSaveAdScreen(
+            adId: adId,
+            onLanguageChange: (locale) => changeLocale(context, locale),
+          );
+        },
       ),
       GoRoute(
         path: '/job_ads',
@@ -447,6 +468,16 @@ GoRouter createRouter({
       GoRoute(
         path: '/job_save_ads',
         builder: (context, state) => JobsSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
+      ),
+      GoRoute(
+        path: '/job_save_ads/:adId',
+        builder: (context, state) {
+          final adId = int.tryParse(state.pathParameters['adId'] ?? '');
+          return JobsSaveAdScreen(
+            adId: adId,
+            onLanguageChange: (locale) => changeLocale(context, locale),
+          );
+        },
       ),
       GoRoute(
         path: '/payment',

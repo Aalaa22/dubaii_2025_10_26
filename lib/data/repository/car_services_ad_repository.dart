@@ -19,7 +19,6 @@ class CarServicesAdRepository {
       final List<dynamic> serviceTypesJson = response['service_types'];
       return serviceTypesJson.map((json) => ServiceTypeModel.fromJson(json)).toList();
     }
-    
     throw Exception('Failed to parse service types from API response.');
   }
 
@@ -32,7 +31,6 @@ class CarServicesAdRepository {
       final List<dynamic> emiratesJson = response['emirates'];
       return emiratesJson.map((json) => EmirateModel.fromJson(json)).toList();
     }
-    
     throw Exception('Failed to parse emirates from API response.');
   }
 
@@ -54,8 +52,8 @@ class CarServicesAdRepository {
     required File mainImage,
     List<File>? thumbnailImages, // جعلها اختيارية
     // بيانات خطة الإعلان التي ستأتي من الصفحة التالية
-    required String planType, 
-    required int planDays, 
+    required String planType,
+    required int planDays,
     required String planExpiresAt,
   }) async {
     final Map<String, dynamic> textData = {
@@ -75,10 +73,7 @@ class CarServicesAdRepository {
       'plan_days': planDays,
       'plan_expires_at': planExpiresAt,
     };
-    
-    // ملاحظة مهمة: في وصف الـ API الذي أرسلته، كان اسم حقل الصور المصغرة هو
-    // 'thumbnail_images_urls[]'. ولكن بما أننا نرفع ملفات، يجب أن يكون
-    // 'thumbnail_images[]' كما في قسم السيارات. سأعتمد هذه الصيغة.
+
     try {
       await _apiService.postFormData(
         '/api/car-services-ads',
@@ -88,7 +83,6 @@ class CarServicesAdRepository {
         token: token,
       );
     } catch (e) {
-      // إعادة رمي الخطأ مع رسالة أوضح
       if (e.toString().contains('500')) {
         throw Exception('حدث خطأ في الخادم، يرجى المحاولة مرة أخرى لاحقاً');
       } else if (e.toString().contains('401') || e.toString().contains('403')) {
@@ -101,7 +95,7 @@ class CarServicesAdRepository {
     }
   }
 
- Future<CarServiceAdResponse> getCarServiceAds({
+  Future<CarServiceAdResponse> getCarServiceAds({
     String? token,
     Map<String, dynamic>? query, // سيستخدم للفلترة لاحقًا
   }) async {
@@ -110,14 +104,10 @@ class CarServicesAdRepository {
     try {
       final response = await _apiService.get(endpoint, token: token, query: query);
 
-      // Handle different response formats
       if (response is Map<String, dynamic>) {
-        // Check if response has the expected structure with 'data' key
         if (response.containsKey('data')) {
           return CarServiceAdResponse.fromJson(response);
         }
-        
-        // Check if response has 'ads' key (alternative format)
         if (response.containsKey('ads')) {
           final transformedResponse = {
             'data': response['ads'],
@@ -126,18 +116,13 @@ class CarServicesAdRepository {
           };
           return CarServiceAdResponse.fromJson(transformedResponse);
         }
-        
-        // Check if it's an error response
         if (response.containsKey('error') || response.containsKey('message')) {
           final errorMessage = response['error'] ?? response['message'] ?? 'Unknown API error';
           throw Exception('API Error: $errorMessage');
         }
-        
-        // If response is a map but doesn't have expected keys, throw error
         throw Exception('Unexpected API response format: ${response.keys.join(', ')}');
       }
-      
-      // Handle direct list response
+
       if (response is List) {
         final transformedResponse = {
           'data': response,
@@ -146,8 +131,7 @@ class CarServicesAdRepository {
         };
         return CarServiceAdResponse.fromJson(transformedResponse);
       }
-      
-      // Handle null or empty response
+
       if (response == null) {
         final emptyResponse = {
           'data': <Map<String, dynamic>>[],
@@ -156,76 +140,146 @@ class CarServicesAdRepository {
         };
         return CarServiceAdResponse.fromJson(emptyResponse);
       }
-      
+
       throw Exception('Unexpected response type: ${response.runtimeType}');
-      
     } catch (e) {
-      // Re-throw with more context if it's already an Exception
       if (e is Exception) {
         rethrow;
       }
-      
-      // Wrap other errors
       throw Exception('Failed to fetch car service ads: $e');
     }
   }
 
-
-Future<List<BestAdvertiser>> getTopGarages({String? token, String? category}) async {
-  // استخدام الـ category في الـ endpoint مباشرة بدلاً من query parameter
-  String endpoint = '/api/best-advertisers';
-  if (category != null) {
-    endpoint = '/api/best-advertisers/$category';
-  }
-  
-  final response = await _apiService.get(endpoint);
-  
-  if (response is List) {
-    // استخدام الـ filterByCategory في الـ fromJson مباشرة
-    List<BestAdvertiser> advertisers = response
-        .map((json) => BestAdvertiser.fromJson(json, filterByCategory: category))
-        .where((advertiser) => advertiser.ads.isNotEmpty) // فقط الـ advertisers الذين لديهم إعلانات
-        .toList();
-    return advertisers;
-  } 
-  else if (response is Map<String, dynamic> && response['data'] is List) {
-    List<BestAdvertiser> advertisers = (response['data'] as List)
-        .map((json) => BestAdvertiser.fromJson(json, filterByCategory: category))
-        .where((advertiser) => advertiser.ads.isNotEmpty) // فقط الـ advertisers الذين لديهم إعلانات
-        .toList();
-    return advertisers;
-  }
-  
-  throw Exception('Failed to parse Top Garages list from API response.');
-}
-
-// جلب إعلانات صندوق العروض مع فلاتر اختيارية
-Future<List<CarServiceModel>> getOfferAds({String? token, Map<String, String>? filters}) async {
-  try {
-    String endpoint = '/api/car-services/offers-box/ads';
-    
-    // إضافة الفلاتر كـ query parameters
-    Map<String, dynamic>? queryParams;
-    if (filters != null && filters.isNotEmpty) {
-      queryParams = Map<String, dynamic>.from(filters);
+  Future<List<BestAdvertiser>> getTopGarages({String? token, String? category}) async {
+    String endpoint = '/api/best-advertisers';
+    if (category != null) {
+      endpoint = '/api/best-advertisers/$category';
     }
-    
-    final response = await _apiService.get(endpoint, query: queryParams);
-    
+
+    final response = await _apiService.get(endpoint);
+
     if (response is List) {
-      return response.map((json) => CarServiceModel.fromJson(json)).toList();
+      List<BestAdvertiser> advertisers = response
+          .map((json) => BestAdvertiser.fromJson(json, filterByCategory: category))
+          .where((advertiser) => advertiser.ads.isNotEmpty)
+          .toList();
+      return advertisers;
     } else if (response is Map<String, dynamic> && response['data'] is List) {
-      return (response['data'] as List).map((json) => CarServiceModel.fromJson(json)).toList();
-    } else {
-      throw Exception('Unexpected response format for offer ads');
+      List<BestAdvertiser> advertisers = (response['data'] as List)
+          .map((json) => BestAdvertiser.fromJson(json, filterByCategory: category))
+          .where((advertiser) => advertiser.ads.isNotEmpty)
+          .toList();
+      return advertisers;
     }
-  } catch (e) {
-    throw Exception('Failed to fetch offer ads: $e');
+
+    throw Exception('Failed to parse Top Garages list from API response.');
   }
-}
 
+  // جلب إعلانات صندوق العروض مع فلاتر اختيارية
+  Future<List<CarServiceModel>> getOfferAds({String? token, Map<String, String>? filters}) async {
+    try {
+      String endpoint = '/api/car-services/offers-box/ads';
 
+      Map<String, dynamic>? queryParams;
+      if (filters != null && filters.isNotEmpty) {
+        queryParams = Map<String, dynamic>.from(filters);
+      }
 
+      final response = await _apiService.get(endpoint, query: queryParams);
 
+      if (response is List) {
+        return response.map((json) => CarServiceModel.fromJson(json)).toList();
+      } else if (response is Map<String, dynamic> && response['data'] is List) {
+        return (response['data'] as List).map((json) => CarServiceModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Unexpected response format for offer ads');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch offer ads: $e');
+    }
+  }
 
+  // جلب تفاصيل إعلان خدمات سيارات محدد
+  Future<CarServiceModel> getCarServiceAdDetails({required int adId, String? token}) async {
+    final response = await _apiService.get('/api/car-services-ads/$adId', token: token);
+    if (response is Map<String, dynamic>) {
+      final json = response['data'] ?? response;
+      return CarServiceModel.fromJson(json);
+    }
+    throw Exception('Failed to parse car service ad details.');
+  }
+
+  // طريقة أبسط كما اقترحت: جلب إعلان الخدمة مباشرة عبر `/api/car-services/:id`
+  Future<CarServiceModel> getCarServiceById({required int adId}) async {
+    final response = await _apiService.get('/api/car-services/$adId');
+
+    // دعم أشكال متعددة من الردود من الـ API
+    // 1) { data: { ...obj } }
+    // 2) { car_service: { ...obj } } أو { ad: { ...obj } }
+    // 3) { ...obj } مباشرةً
+    // 4) [ { ...obj } ] قائمة تحتوي عنصر واحد
+    if (response is Map<String, dynamic>) {
+      final dynamic dataField = response['data'];
+
+      if (dataField is Map<String, dynamic>) {
+        return CarServiceModel.fromJson(dataField);
+      }
+      if (dataField is List && dataField.isNotEmpty && dataField.first is Map<String, dynamic>) {
+        return CarServiceModel.fromJson(dataField.first as Map<String, dynamic>);
+      }
+
+      // مفاتيح بديلة محتملة
+      final altKeys = ['car_service', 'ad', 'item', 'result'];
+      for (final key in altKeys) {
+        final val = response[key];
+        if (val is Map<String, dynamic>) {
+          return CarServiceModel.fromJson(val);
+        }
+      }
+
+      // إذا كان الرد نفسه يمثل الكائن مباشرةً (يحتوي على id)
+      if (response.containsKey('id')) {
+        return CarServiceModel.fromJson(response);
+      }
+
+      throw Exception('Unexpected API response shape for car service by id: ${response.keys.join(', ')}');
+    }
+
+    if (response is List) {
+      if (response.isNotEmpty && response.first is Map<String, dynamic>) {
+        return CarServiceModel.fromJson(response.first as Map<String, dynamic>);
+      }
+      throw Exception('Empty list returned for car service details.');
+    }
+
+    throw Exception('Failed to parse car service details by id. Type: ${response.runtimeType}');
+  }
+
+  // تحديث إعلان خدمات سيارات موجود (الحقول القابلة للتعديل فقط)
+  Future<void> updateCarServiceAd({
+    required int adId,
+    required String token,
+    required String price,
+    required String description,
+    required String phoneNumber,
+    String? whatsapp,
+    File? mainImage,
+    List<File>? thumbnailImages,
+  }) async {
+    final Map<String, dynamic> textData = {
+      '_method': 'PUT',
+      'price': price,
+      'description': description,
+      'phone_number': phoneNumber,
+      'whatsapp': whatsapp,
+    };
+
+    await _apiService.postFormData(
+      '/api/car-services-ads/$adId',
+      data: textData,
+      mainImage: mainImage,
+      thumbnailImages: thumbnailImages,
+      token: token,
+    );
+  }
 }

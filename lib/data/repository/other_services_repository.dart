@@ -216,5 +216,34 @@ class OtherServicesRepository {
     return adListJson.map((json) => OtherServiceAdModel.fromJson(json)).toList();
   }
 
+  // Update existing Other Service ad (editable fields only)
+  Future<void> updateOtherServiceAd({
+    required int adId,
+    required String token,
+    String? price,
+    String? description,
+    String? phoneNumber,
+    String? whatsappNumber,
+    File? mainImage,
+    List<File>? thumbnailImages,
+  }) async {
+    final Map<String, dynamic> textData = {
+      '_method': 'PUT',
+    };
+
+    if (price != null) textData['price'] = price;
+    if (description != null) textData['description'] = description;
+    if (phoneNumber != null) textData['phone_number'] = phoneNumber;
+    if (whatsappNumber != null) textData['whatsapp_number'] = whatsappNumber;
+
+    await _apiService.postFormData(
+      '/api/other-services/$adId',
+      data: textData,
+      mainImage: mainImage,
+      thumbnailImages: thumbnailImages,
+      token: token,
+    );
+  }
+
 
 }

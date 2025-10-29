@@ -7,6 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import '../providers/google_maps_provider.dart';
 
 import '../../generated/l10n.dart';
 import '../providers/real_estate_details_provider.dart';
@@ -16,6 +20,7 @@ import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:advertising_app/utils/phone_number_formatter.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import '../../../constant/string.dart';
+import '../../../constant/image_url_helper.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -50,6 +55,9 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
   File? _mainImage;
   List<File> _thumbnailImages = [];
   final ImagePicker _picker = ImagePicker();
+  // صور موجودة من السيرفر + صور جديدة يضيفها المستخدم
+  List<String> _existingThumbnailUrls = [];
+  List<String> _removedExistingThumbnailUrls = [];
   
   // State management
   bool _isLoading = false;
@@ -71,14 +79,17 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
   }
 
   Future<void> _loadData() async {
-    if (widget.adId == null) return;
-
+    // إذا كان المعرف فارغًا أو قيمة افتراضية من الراوتر، لا نحاول الجلب
+    if (widget.adId.trim().isEmpty || widget.adId.trim() == '0') {
+      setState(() => _isLoading = false);
+      return;
+    }
     setState(() => _isLoading = true);
 
     try {
       // Fetch real estate details
       final detailsProvider = Provider.of<RealEstateDetailsProvider>(context, listen: false);
-      await detailsProvider.fetchRealEstateDetails(widget.adId!);
+      await detailsProvider.fetchRealEstateDetails(widget.adId);
 
       // Fetch contact info
       final infoProvider = Provider.of<RealEstateInfoProvider>(context, listen: false);
@@ -91,6 +102,12 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
         _descriptionController.text = ad.description ?? '';
         selectedPhoneNumber = ad.phoneNumber;
         selectedWhatsAppNumber = ad.whatsappNumber;
+        // حفظ الصور الفرعية القادمة مع الإعلان
+        try {
+          _existingThumbnailUrls = List<String>.from(ad.thumbnailImages ?? []);
+        } catch (_) {
+          _existingThumbnailUrls = [];
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -213,7 +230,7 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
                     );
                   },
                 ),
-                const SizedBox(width: 10),
+               // const SizedBox(width:5),
                 Consumer<RealEstateInfoProvider>(
                   builder: (context, infoProvider, child) {
                     return Expanded(
@@ -244,8 +261,57 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
                       const SizedBox(height: 10),
                       
                       _buildImageButton(s.addMainImage, Icons.add_a_photo_outlined, borderColor, _pickMainImage),
+                      if (_mainImage != null) ...[
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            _mainImage!,
+                            height: 140,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ] else if (ad.mainImage != null && ad.mainImage!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Builder(
+                            builder: (context) {
+                              final mainUrl = ImageUrlHelper.getMainImageUrl(ad.mainImage!);
+                              if (mainUrl.isNotEmpty) {
+                                final uri = Uri.tryParse(mainUrl);
+                                if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                                  return Image.network(
+                                    mainUrl,
+                                    height: 140,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/realEstate.jpg',
+                                        height: 140,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  );
+                                }
+                              }
+                              return Image.asset(
+                                'assets/images/realEstate.jpg',
+                                height: 140,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 7),
                       _buildImageButton(s.add9Images, Icons.add_photo_alternate_outlined, borderColor, _pickThumbnailImages),
+                      const SizedBox(height: 7),
+                      _buildThumbnailsPreview(),
                       const SizedBox(height: 7),
                       
                       Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
@@ -258,7 +324,7 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
                             SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
                             SizedBox(width: 8.w),
                             Expanded(
-                              child: Text('${ad.emirate ?? ''} ${ad.district ?? ''}', 
+                              child: Text('${ad.location ?? ''}', 
                                 style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500)),
                             ),
                           ],
@@ -435,29 +501,133 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
     return SizedBox(width: double.infinity, child: OutlinedButton.icon(icon: Icon(icon, color: KTextColor), label: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)), onPressed: onPressed, style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: BorderSide(color: borderColor), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)))));
   }
 
-  Widget _buildMapSection(BuildContext context) {
+  Widget _buildThumbnailsPreview() {
+    if (_existingThumbnailUrls.isEmpty && _thumbnailImages.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final s = S.of(context);
-    return SizedBox(
-        height: 220.h, width: double.infinity,
-        child: Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Positioned.fill(child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.asset('assets/images/map.png', fit: BoxFit.cover))),
-            Positioned(top: 80.h, left: 0, right: 0, child: Icon(Icons.location_pin, color: Colors.red, size: 40.sp)),
-            Positioned(
-              bottom: 10, left: 10,
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.location_on_outlined, color: Colors.white, size: 24.sp),
-                label: Text(s.locateMe, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16.sp)),
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF01547E),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
-            ),
+            Text(s.add9Images, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp, color: KTextColor)),
+            Text('${_existingThumbnailUrls.length + _thumbnailImages.length}/9', style: TextStyle(color: Colors.grey.shade600)),
           ],
-        ));
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 96,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _existingThumbnailUrls.length + _thumbnailImages.length,
+            itemBuilder: (context, i) {
+              final bool isExisting = i < _existingThumbnailUrls.length;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: SizedBox(
+                        width: 96, height: 96,
+                        child: isExisting
+                            ? CachedNetworkImage(
+                                imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[i]),
+                                fit: BoxFit.cover,
+                                placeholder: (c, _) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                errorWidget: (c, _, __) => const Icon(Icons.broken_image),
+                              )
+                            : Image.file(_thumbnailImages[i - _existingThumbnailUrls.length], fit: BoxFit.cover),
+                      ),
+                    ),
+                    Positioned(
+                      right: 0, top: 0,
+                      child: InkWell(
+                        onTap: () {
+                          if (isExisting) {
+                            _removeExistingThumbnail(i);
+                          } else {
+                            _removeNewThumbnail(i - _existingThumbnailUrls.length);
+                          }
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                          padding: const EdgeInsets.all(4),
+                          child: const Icon(Icons.close, color: Colors.white, size: 18),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMapSection(BuildContext context) {
+    final provider = context.watch<RealEstateDetailsProvider>();
+    final ad = provider.realEstateDetails;
+
+    return Consumer<GoogleMapsProvider>(
+      builder: (context, mapsProvider, child) {
+        return Container(
+          height: 320.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: FutureBuilder<LatLng>(
+              future: _getAdLocation(ad),
+              builder: (context, snapshot) {
+                LatLng adLocation = const LatLng(25.2048, 55.2708);
+                if (snapshot.hasData) {
+                  adLocation = snapshot.data!;
+                }
+
+                return GoogleMap(
+                  initialCameraPosition: CameraPosition(target: adLocation, zoom: 14.0),
+                  onMapCreated: (GoogleMapController controller) {
+                    mapsProvider.onMapCreated(controller);
+                    if (snapshot.hasData) {
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        mapsProvider.moveCameraToLocation(adLocation.latitude, adLocation.longitude, zoom: 14.0);
+                      });
+                    }
+                  },
+                  mapType: MapType.normal,
+                  myLocationEnabled: false,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: true,
+                  compassEnabled: true,
+                  zoomGesturesEnabled: true,
+                  scrollGesturesEnabled: true,
+                  rotateGesturesEnabled: true,
+                  tiltGesturesEnabled: true,
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('ad_location'),
+                      position: adLocation,
+                      infoWindow: InfoWindow(
+                        title: ad?.location.isNotEmpty == true ? 'الموقع المحدد' : (ad?.emirate ?? 'الموقع'),
+                        snippet: ad?.location.isNotEmpty == true ? ad!.location : (ad?.area ?? ''),
+                      ),
+                    ),
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   // Contact info and image handling methods
@@ -498,19 +668,48 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
   }
 
   Future<void> _pickThumbnailImages() async {
+    const int maxThumbs = 9;
     try {
       final List<XFile> images = await _picker.pickMultiImage();
-      
-      if (images.isNotEmpty) {
-        setState(() {
-          _thumbnailImages = images.take(9).map((xfile) => File(xfile.path)).toList();
-        });
+      if (images.isEmpty) return;
+      final int already = _existingThumbnailUrls.length + _thumbnailImages.length;
+      final int remaining = maxThumbs - already;
+      if (remaining <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('يمكنك اختيار حتى 9 صور فقط')),
+        );
+        return;
+      }
+      final filesToAdd = images.take(remaining).map((xfile) => File(xfile.path)).toList();
+      setState(() {
+        _thumbnailImages.addAll(filesToAdd);
+      });
+      final extra = images.length - filesToAdd.length;
+      if (extra > 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('يمكنك اختيار حتى 9 صور فقط')),
+        );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('خطأ في اختيار الصور: $e')),
       );
     }
+  }
+
+  void _removeExistingThumbnail(int index) {
+    if (index < 0 || index >= _existingThumbnailUrls.length) return;
+    setState(() {
+      _removedExistingThumbnailUrls.add(_existingThumbnailUrls[index]);
+      _existingThumbnailUrls.removeAt(index);
+    });
+  }
+
+  void _removeNewThumbnail(int index) {
+    if (index < 0 || index >= _thumbnailImages.length) return;
+    setState(() {
+      _thumbnailImages.removeAt(index);
+    });
   }
 
   // Save functionality
@@ -549,11 +748,18 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
         ));
       }
 
-      // Add thumbnail images if selected
-      for (int i = 0; i < _thumbnailImages.length; i++) {
+      // دمج الصور الفرعية: الموجودة التي تم الإبقاء عليها + الجديدة
+      final List<File> allThumbs = [];
+      for (final url in _existingThumbnailUrls) {
+        final f = await _downloadImageToTempFile(ImageUrlHelper.getFullImageUrl(url));
+        if (f != null) allThumbs.add(f);
+      }
+      allThumbs.addAll(_thumbnailImages);
+      final merged = allThumbs.take(9).toList();
+      for (int i = 0; i < merged.length; i++) {
         formData.files.add(MapEntry(
-          'thumbnail_images[$i]',
-          await MultipartFile.fromFile(_thumbnailImages[i].path),
+          'thumbnail_images[]',
+          await MultipartFile.fromFile(merged[i].path),
         ));
       }
 
@@ -584,6 +790,62 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
       setState(() => _isLoading = false);
     }
   }
+
+  Future<File?> _downloadImageToTempFile(String imageUrl) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(imageUrl, options: Options(responseType: ResponseType.bytes));
+      final filename = 'thumb_${DateTime.now().millisecondsSinceEpoch}_${imageUrl.hashCode}.jpg';
+      final file = File('${Directory.systemTemp.path}/$filename');
+      await file.writeAsBytes(response.data);
+      return file;
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+// Helper: resolve ad location to coordinates
+Future<LatLng> _getAdLocation(dynamic ad) async {
+  // Try geocoding using precise location string
+  try {
+    final String? loc = ad?.location;
+    if (loc != null && loc.trim().isNotEmpty) {
+      final locations = await locationFromAddress(loc);
+      if (locations.isNotEmpty) {
+        final first = locations.first;
+        return LatLng(first.latitude, first.longitude);
+      }
+    }
+  } catch (e) {
+    debugPrint('Geocoding failed for real estate location: $e');
+  }
+
+  // Fallback to emirate-based defaults
+  final String? emirate = ad?.emirate;
+  if (emirate != null && emirate.isNotEmpty) {
+    switch (emirate.toLowerCase()) {
+      case 'dubai':
+        return const LatLng(25.2048, 55.2708);
+      case 'abu dhabi':
+        return const LatLng(24.4539, 54.3773);
+      case 'sharjah':
+        return const LatLng(25.3463, 55.4209);
+      case 'ajman':
+        return const LatLng(25.4052, 55.5136);
+      case 'ras al khaimah':
+        return const LatLng(25.7889, 55.9598);
+      case 'fujairah':
+        return const LatLng(25.1288, 56.3264);
+      case 'umm al quwain':
+        return const LatLng(25.5641, 55.6550);
+      default:
+        return const LatLng(25.2048, 55.2708);
+    }
+  }
+
+  // Final fallback: Dubai
+  return const LatLng(25.2048, 55.2708);
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

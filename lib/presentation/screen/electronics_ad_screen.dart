@@ -427,11 +427,11 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
                     ]),
                     const SizedBox(height: 7),
                     _buildFormRow([
-                      _buildTitledTextFormField(s.productName, _productNameController, borderColor, currentLocale, hintText: 'iPhone 17', isRequired: true),
+                      _buildTitledTextFormField(s.productName, _productNameController, borderColor, currentLocale, hintText: 'Enter product name', isRequired: true),
                       _buildSingleSelectField(context, s.sectionType, selectedSectionType, infoProvider.sectionTypes, (selection) => setState(() => selectedSectionType = selection), isRequired: true),
                     ]),
                     const SizedBox(height: 7),
-                    _buildTitledTextFormField(s.title, _titleController, borderColor, currentLocale, hintText: 'Enter your title', minLines: 2, isRequired: true),
+                    _buildTitledTextFormField(s.title, _titleController, borderColor, currentLocale, hintText: 'Enter your title', minLines: 3, maxLines: 4, isRequired: true),
                     const SizedBox(height: 4),
                     TitledSelectOrAddField(
                       title: s.advertiserName, value: selectedAdvertiserName, items: infoProvider.advertiserNames,
@@ -471,7 +471,36 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
   }
 
    Widget _buildFormRow(List<Widget> children) { return Row(crossAxisAlignment: CrossAxisAlignment.start, children: children.map((child) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: child))).toList());}
-   Widget _buildTitledTextFormField(String title, TextEditingController controller, Color borderColor, String currentLocale, {bool isNumber = false, String? hintText, int minLines = 1, bool isRequired = false}) { return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)), const SizedBox(height: 4), TextFormField(controller: controller, minLines: minLines, maxLines: minLines, style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp), textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left, keyboardType: isNumber ? TextInputType.number : TextInputType.text, validator: isRequired ? (value) { if (value == null || value.trim().isEmpty) return 'Required'; return null;} : null, decoration: InputDecoration(hintText: hintText, hintStyle: TextStyle(color: Colors.grey.shade400), border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), fillColor: Colors.white, filled: true))]); }
+Widget _buildTitledTextFormField(String title, TextEditingController controller, Color borderColor, String currentLocale, {bool isNumber = false, String? hintText, int minLines = 1, int? maxLines, bool isRequired = false}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+      const SizedBox(height: 4),
+      TextFormField(
+        controller: controller,
+        minLines: minLines,
+        maxLines: maxLines ?? minLines,
+        maxLength: (maxLines != null && maxLines > 1) ? 100 : null,
+        style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
+        textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        validator: isRequired ? (value) { if (value == null || value.trim().isEmpty) return 'Required'; return null;} : null,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          counterText: "",
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          fillColor: Colors.white,
+          filled: true,
+        ),
+      )
+    ],
+  );
+}
    Widget _buildSingleSelectField(BuildContext context, String title, String? selectedValue, List<String> allItems, Function(String?) onConfirm, {double? titleFontSize, bool isRequired = false}) { final s = S.of(context); return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: titleFontSize ?? 14.sp)), const SizedBox(height: 4), FormField<String>(validator: isRequired ? (value) { if (selectedValue == null) return 'Required'; return null; } : null, builder: (FormFieldState<String> state) { return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ GestureDetector(onTap: allItems.isEmpty ? null : () async { final result = await _showSingleSelectPicker(context, title: title, items: allItems); onConfirm(result); state.didChange(result); }, child: Container(height: 48, width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16), alignment: Alignment.centerLeft, decoration: BoxDecoration(color: allItems.isEmpty ? Colors.grey.shade200 : Colors.white, border: Border.all(color: state.hasError ? Colors.red : borderColor), borderRadius: BorderRadius.circular(8)), child: Text(selectedValue ?? s.chooseAnOption, style: TextStyle(fontWeight: selectedValue == null ? FontWeight.normal : FontWeight.w500, color: selectedValue == null ? Colors.grey.shade500 : KTextColor, fontSize: 12.sp), overflow: TextOverflow.ellipsis, maxLines: 1))), if(state.hasError) Padding(padding: const EdgeInsets.only(top: 5, left: 10), child: Text(state.errorText!, style: TextStyle(color: Colors.red, fontSize: 10.sp)))]);})]); }
    Future<String?> _showSingleSelectPicker(BuildContext context, { required String title, required List<String> items}) { return showModalBottomSheet<String>(context: context, backgroundColor: Colors.white, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (context) => _SingleSelectBottomSheet(title: title, items: items));}
    Widget _buildImageButton(String title, IconData icon, Color borderColor, {required VoidCallback onPressed}) { return SizedBox(width: double.infinity, child: OutlinedButton.icon(icon: Icon(icon, color: KTextColor), label: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)), onPressed: onPressed, style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: BorderSide(color: borderColor), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)))));}

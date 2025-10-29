@@ -139,5 +139,41 @@ Future<JobAdModel> getJobAdDetails({required int adId, String? token}) async {
     throw Exception('API response format is not as expected for JobAdModel.');
   }
 
+  Future<void> updateJobAd(int adId, Map<String, dynamic> data, String token) async {
+    try {
+      // نستخدم POST مع form-data مع _method=PUT حسب متطلبات الـ API
+      final Map<String, dynamic> textData = {
+        '_method': 'PUT',
+      };
 
+      // تحويل مفاتيح الواجهة إلى مفاتيح الـ API وإرسال الحقول المطلوبة فقط
+      final dynamic priceValue = data['salary'] ?? data['price'];
+      if (priceValue != null && priceValue.toString().trim().isNotEmpty) {
+        // في إعلانات الوظائف، الحقل المقابل هو "salary"
+        textData['salary'] = priceValue.toString();
+      }
+
+      final dynamic descriptionValue = data['description'];
+      if (descriptionValue != null && descriptionValue.toString().trim().isNotEmpty) {
+        textData['description'] = descriptionValue.toString();
+      }
+
+      // دعم contact_info كحقل موحد لمعلومات التواصل
+      final dynamic contactInfoValue = data['contact_info'] ?? data['contactInfo'] ?? data['contact'];
+      if (contactInfoValue != null && contactInfoValue.toString().trim().isNotEmpty) {
+        textData['contact_info'] = contactInfoValue.toString();
+      }
+
+      final response = await _apiService.postFormData(
+        '/api/jobs/$adId',
+        data: textData,
+        token: token,
+      );
+      // اطبع الاستجابة في الترمنال للتشخيص
+      print('=== JOB UPDATE RESPONSE ===');
+      print(response);
+    } catch (e) {
+      throw Exception('Failed to update job ad: $e');
+    }
+  }
 }

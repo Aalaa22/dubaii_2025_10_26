@@ -532,6 +532,8 @@ class _SettingScreenState extends State<SettingScreen> {
 
       // Success - Update user_type in cache to advertiser
       await _storage.write(key: 'user_type', value: 'advertiser');
+      // Ensure global auth state reflects the new advertiser role immediately
+      await context.read<AuthProvider>().checkStoredSession();
       
       Navigator.of(context).pop(); // Close dialog
       ScaffoldMessenger.of(context).showSnackBar(

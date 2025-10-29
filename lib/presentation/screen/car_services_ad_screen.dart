@@ -495,7 +495,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                              _buildSingleSelectField(context, s.district, selectedDistrict, infoProvider.getDistrictsForEmirate(selectedEmirate), (selection) {
                                setState(() => selectedDistrict = selection);
                              }, isRequired: true),
-                          _buildTitledTextFormField(s.area, _areaController, borderColor, currentLocale, hintText: "Industrial Area 2", isRequired: true),
+                          _buildTitledTextFormField(s.area, _areaController, borderColor, currentLocale, hintText: "Enter Area", isRequired: true),
                
                           
                           ]),
@@ -516,7 +516,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                           ]),
                            const SizedBox(height: 7),
                           
-                          _buildTitledTextFormField(s.title, _titleController, borderColor, currentLocale, hintText: "Enter your title", minLines: 2, maxLines: 2, isRequired: true),
+                          _buildTitledTextFormField(s.title, _titleController, borderColor, currentLocale, hintText: "Enter your title", minLines: 3, maxLines: 4, isRequired: true),
                           const SizedBox(height: 7),
                           
                            Consumer<CarServicesInfoProvider>(
@@ -671,7 +671,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
             controller: controller,
             minLines: minLines,
         maxLines: maxLines,
-        maxLength: maxLines > 1 ? 90 : null,
+        maxLength: maxLines > 1 ? 100 : null,
         maxLengthEnforcement: MaxLengthEnforcement.enforced,
             style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
             textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
@@ -691,6 +691,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                 return null;
               } : null,
             decoration: InputDecoration(
+              counterText: "",
               hintText: hintText, hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),

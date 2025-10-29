@@ -364,7 +364,7 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                     _buildFormRow([
                       _buildTitledTextFormField(
                           s.area, _areaController, borderColor, currentLocale,
-                          hintText: 'Jumeira1', isRequired: true),
+                          hintText: 'Enter Area', isRequired: true),
                       _buildTitledTextFormField(
                           s.price, _priceController, borderColor, currentLocale,
                           hintText: '1000', isNumber: true, isRequired: true),
@@ -373,7 +373,7 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                     _buildFormRow([
                       _buildTitledTextFormField(s.serviceName,
                           _serviceNameController, borderColor, currentLocale,
-                          hintText: 'Account Audit', isRequired: true),
+                          hintText: 'Enter service name', isRequired: true),
                       _buildSingleSelectField(
                           context,
                           s.sectionType,
@@ -386,10 +386,10 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                     const SizedBox(height: 7),
                     _buildTitledTextFormField(
                         s.title, _titleController, borderColor, currentLocale,
-                        minLines: 2,
+                        minLines: 3,
                         hintText: "Enter your title",
                         isRequired: true,
-                        maxLength: 93),
+                        maxLength: 100),
                     const SizedBox(height: 7),
                     TitledSelectOrAddField(
                         title: s.advertiserName,

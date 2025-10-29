@@ -7,7 +7,6 @@ import 'package:advertising_app/presentation/providers/google_maps_provider.dart
 import 'package:advertising_app/utils/phone_number_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +18,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:dio/dio.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -70,14 +70,17 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.adId != null) {
-      // Use addPostFrameCallback to avoid setState during build
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _fetchAdDetails();
-        }
-      });
-    }
+    // بعد الإطار الأول: جلب معلومات الاتصال ثم تفاصيل الإعلان إن وُجدت
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final infoProvider = Provider.of<CarRentInfoProvider>(context, listen: false);
+      final token = await const FlutterSecureStorage().read(key: 'auth_token');
+      await infoProvider.fetchContactInfo(token: token);
+
+      if (widget.adId != null) {
+        _fetchAdDetails();
+      }
+    });
   }
   
   @override
@@ -112,6 +115,13 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
     
     // Set existing thumbnail URLs
     _existingThumbnailUrls = List<String>.from(ad.thumbnailImages ?? []);
+
+    // تهيئة القيم المختارة لحقول الاتصال من بيانات الإعلان
+    setState(() {
+      selectedPhoneNumber = ad.phoneNumber;
+      selectedWhatsAppNumber = ad.whatsapp;
+      selectedAdvertiserName = ad.advertiserName;
+    });
   }
 
   @override
@@ -164,7 +174,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
 
                   Center(
                     child: Text(
-                      widget.adId != null ? 'Edit Ad' : s.carsRentAds,
+                       s.carsRentAds,
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 24.sp,
@@ -198,7 +208,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     const SizedBox(height: 7),
                     
                     _buildTitleBox(context, s.title, ad.title ?? '', borderColor, currentLocale, 
-                        controller: _descriptionController),
+                         readOnly: true),
                     const SizedBox(height: 7),
                     
                     _buildFormRow([
@@ -215,25 +225,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     ]),
                     const SizedBox(height: 7),
                     
-                    Consumer<CarRentInfoProvider>(
-                      builder: (context, infoProvider, child) {
-                        return TitledSelectOrAddField(
-                          title: s.advertiserName,
-                          value: selectedAdvertiserName,
-                          items: infoProvider.advertiserNames.isNotEmpty 
-                              ? infoProvider.advertiserNames 
-                              : [ad.advertiserName ?? ''],
-                          onChanged: (newValue) => setState(() => selectedAdvertiserName = newValue),
-                          onAddNew: (value) async {
-                            final token = await const FlutterSecureStorage().read(key: 'auth_token') ?? '';
-                            final success = await infoProvider.addContactItem('advertiser_names', value, token: token);
-                            if (success) {
-                              setState(() => selectedAdvertiserName = value);
-                            }
-                          },
-                        );
-                      },
-                    ),
+                    _buildReadOnlyField(s.advertiserName, ad.advertiserName ?? '', borderColor),
                     const SizedBox(height: 7),
                     
                     _buildFormRow([
@@ -280,11 +272,11 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     ]),
                     const SizedBox(height: 7),
                     
-                    _buildFormRow([
-                      _buildReadOnlyField(s.emirate, ad.emirate ?? '', borderColor),
-                      _buildReadOnlyField(s.district, ad.district ?? '', borderColor),
-                    ]),
-                    const SizedBox(height: 7),
+                    // _buildFormRow([
+                    //   _buildReadOnlyField(s.emirate, ad.emirate ?? '', borderColor),
+                    //   _buildReadOnlyField(s.district, ad.district ?? '', borderColor),
+                    // ]),
+                    // const SizedBox(height: 7),
                     
                     _buildReadOnlyField(s.area, ad.area ?? 'N/A', borderColor),
                     const SizedBox(height: 7),
@@ -293,18 +285,18 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     // Original form fields for new ads
                     _buildFormRow([
                       _buildTitledDropdownField(
-                          context, s.emirate, ['Dubai', 'Abu Dhabi'], 'Dubai', borderColor),
+                          context, s.emirate, ['Dubai', 'Abu Dhabi'], ad!.emirate, borderColor),
                       _buildTitledDropdownField(
-                          context, s.make, ['Audi', 'BMW'], 'Audi', borderColor),
+                          context, s.make, ['Audi', 'BMW'], ad.make, borderColor),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
                       _buildTitledDropdownField(
-                          context, s.model, ['S5', 'A8'], 'S5', borderColor),
+                          context, s.model, ['S5', 'A8'], ad.model, borderColor),
                       _buildTitledDropdownField(
-                          context, s.trim, ['Tsfi', 'TDI'], 'Tsfi', borderColor),
-                      _buildTitledTextField(s.price, 'AED 600', borderColor, currentLocale, 
+                          context, s.trim, ['Tsfi', 'TDI'], ad.trim, borderColor),
+                      _buildTitledTextField(s.price, ad.price, borderColor, currentLocale, 
                           controller: _priceController, isNumber: true),
                     ]),
                     const SizedBox(height: 7),
@@ -401,7 +393,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Text(
-                        'Dubai / Deira',
+                        ad.location.toString(),
                         style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -447,17 +439,39 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
         'day_rent': _dayRentController.text,
         'month_rent': _monthRentController.text,
         'description': _descriptionController.text,
-        'phone_number': _phoneController.text,
-        'whatsapp': _whatsappController.text,
-        'advertiser_name': _advertiserNameController.text,
+        // استخدام القيم المختارة من مزوّد معلومات الاتصال إن وُجِدت
+        'phone_number': (selectedPhoneNumber ?? _phoneController.text),
+        'whatsapp': (selectedWhatsAppNumber ?? _whatsappController.text),
+        'advertiser_name': (selectedAdvertiserName ?? _advertiserNameController.text),
       };
       
       // Add image data to the adData map - these will be handled by the repository
       if (_mainImage != null) {
         adData['mainImage'] = _mainImage;
       }
-      if (_thumbnailImages.isNotEmpty) {
-        adData['thumbnailImages'] = _thumbnailImages;
+      // Merge kept existing thumbnails (downloaded) with newly added ones, limit to 9
+      final keptExistingUrls = _existingThumbnailUrls.where((url) => !_removedThumbnailUrls.contains(url)).toList();
+      final List<File> existingFiles = [];
+      for (final url in keptExistingUrls) {
+        try {
+          final fullUrl = ImageUrlHelper.getFullImageUrl(url);
+          final file = await _downloadImageToTempFile(fullUrl);
+          if (file != null) existingFiles.add(file);
+        } catch (_) {
+          // Ignore download failures for individual thumbnails
+        }
+      }
+
+      List<File> mergedThumbnails = []
+        ..addAll(existingFiles)
+        ..addAll(_thumbnailImages);
+
+      if (mergedThumbnails.length > 9) {
+        mergedThumbnails = mergedThumbnails.take(9).toList();
+      }
+
+      if (mergedThumbnails.isNotEmpty) {
+        adData['thumbnailImages'] = mergedThumbnails;
       }
       
       await provider.updateCarRentAd(
@@ -567,7 +581,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   }
   
   Widget _buildTitleBox(BuildContext context, String title, String initialValue,
-      Color borderColor, String currentLocale, {TextEditingController? controller}) {
+      Color borderColor, String currentLocale, {TextEditingController? controller, bool readOnly = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -577,12 +591,15 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
           controller: controller,
           initialValue: controller == null ? initialValue : null,
           maxLines: null,
-          style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 14.sp),
+          readOnly: readOnly,
+          style: TextStyle(fontWeight: FontWeight.w500, color: readOnly ? Colors.grey[600] : KTextColor, fontSize: 14.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: readOnly ? borderColor : KPrimaryColor, width: 2)),
+            fillColor: readOnly ? Colors.grey[100] : null,
+            filled: readOnly,
             contentPadding: EdgeInsets.all(12),
           ),
         ),
@@ -591,62 +608,57 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   }
   
   Widget _buildMainImageSection(S s, Color borderColor) {
+    final provider = context.watch<CarRentAdProvider>();
+    final ad = provider.currentAd;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(s.addMainImage, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
-        const SizedBox(height: 4),
-        if (_mainImage != null) ...[
-          Stack(
-            children: [
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: borderColor),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(_mainImage!, fit: BoxFit.cover),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: GestureDetector(
-                  onTap: () => setState(() => _mainImage = null),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.close, color: Colors.white, size: 16),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ] else ...[
-          GestureDetector(
-            onTap: _pickMainImage,
-            child: Container(
-              height: 100,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(color: borderColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add_a_photo_outlined, color: KTextColor, size: 32),
-                  const SizedBox(height: 8),
-                  Text(s.addMainImage, style: TextStyle(color: KTextColor, fontSize: 14.sp)),
-                ],
-              ),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.add_a_photo_outlined, color: KTextColor),
+            label: Text(s.addMainImage, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)),
+            onPressed: _pickMainImage,
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: borderColor),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
             ),
+          ),
+        ),
+        if (_mainImage != null) ...[
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(_mainImage!, height: 140, width: double.infinity, fit: BoxFit.cover),
+          ),
+        ] else if (ad?.mainImage != null && ad!.mainImage!.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Builder(builder: (context) {
+              final mainUrl = ImageUrlHelper.getMainImageUrl(ad.mainImage!);
+              if (mainUrl.isNotEmpty) {
+                final uri = Uri.tryParse(mainUrl);
+                if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                  return Image.network(
+                    mainUrl,
+                    height: 140,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/careRent.jpg',
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  );
+                }
+              }
+              return Image.asset('assets/images/careRent.jpg', height: 140, width: double.infinity, fit: BoxFit.cover);
+            }),
           ),
         ],
       ],
@@ -657,159 +669,89 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(s.add10Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
-            Text(
-              '${_existingThumbnailUrls.length + _thumbnailImages.length}/10',
-              style: TextStyle(
-                color: (_existingThumbnailUrls.length + _thumbnailImages.length) >= 10 ? Colors.red : KTextColor,
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        if (_existingThumbnailUrls.isNotEmpty || _thumbnailImages.isNotEmpty) ...[
-          SizedBox(
-            height: 100,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _existingThumbnailUrls.length + _thumbnailImages.length + 1,
-              itemBuilder: (context, index) {
-                if (index < _existingThumbnailUrls.length) {
-                  // Existing images from server
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: borderColor),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: CachedNetworkImage(
-                              imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]),
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(Icons.broken_image, color: Colors.grey, size: 30),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: GestureDetector(
-                            onTap: () => _removeExistingThumbnail(index),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close, color: Colors.white, size: 12),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                } else if (index < _existingThumbnailUrls.length + _thumbnailImages.length) {
-                  // New images from device
-                  final imageIndex = index - _existingThumbnailUrls.length;
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: borderColor),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(_thumbnailImages[imageIndex], fit: BoxFit.cover),
-                          ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: GestureDetector(
-                            onTap: () => _removeThumbnailImage(imageIndex),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close, color: Colors.white, size: 12),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  // Add button
-                  return GestureDetector(
-                    onTap: _pickThumbnailImages,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: borderColor),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_photo_alternate_outlined, color: KTextColor, size: 24),
-                          const SizedBox(height: 4),
-                          Text('Add', style: TextStyle(color: KTextColor, fontSize: 12.sp)),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-              },
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.add_photo_alternate_outlined, color: KTextColor),
+            label: Text(s.add9Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)),
+            onPressed: _pickThumbnailImages,
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              side: BorderSide(color: borderColor),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
             ),
           ),
-        ] else ...[
-          GestureDetector(
-            onTap: _pickThumbnailImages,
-            child: Container(
-              height: 100,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                border: Border.all(color: borderColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add_photo_alternate_outlined, color: KTextColor, size: 32),
-                  const SizedBox(height: 8),
-                  Text(s.add10Images, style: TextStyle(color: KTextColor, fontSize: 14.sp)),
-                ],
-              ),
+        ),
+        if (_existingThumbnailUrls.isNotEmpty || _thumbnailImages.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 100,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _existingThumbnailUrls.length + _thumbnailImages.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final bool isExisting = index < _existingThumbnailUrls.length;
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Stack(
+                    children: [
+                      if (isExisting)
+                        Builder(builder: (context) {
+                          final url = ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]);
+                          final uri = Uri.tryParse(url);
+                          if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                            return Image.network(
+                              url,
+                              width: 120,
+                              height: 100,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/careRent.jpg',
+                                  width: 120,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            );
+                          }
+                          return Image.asset(
+                            'assets/images/careRent.jpg',
+                            width: 120,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          );
+                        })
+                      else
+                        Image.file(
+                          _thumbnailImages[index - _existingThumbnailUrls.length],
+                          width: 120,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (isExisting) {
+                              _removeExistingThumbnail(index);
+                            } else {
+                              _removeThumbnailImage(index - _existingThumbnailUrls.length);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                            child: const Icon(Icons.close, color: Colors.white, size: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -831,10 +773,10 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
     final currentTotal = _existingThumbnailUrls.length + _thumbnailImages.length;
     
     // Check if we've reached the maximum limit
-    if (currentTotal >= 10) {
+    if (currentTotal >= 9) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('لا يمكن إضافة المزيد من الصور. الحد الأقصى 10 صور'),
+          content: Text('لا يمكن إضافة المزيد من الصور. الحد الأقصى 9 صور'),
           backgroundColor: Colors.red,
         ),
       );
@@ -842,7 +784,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
     }
     
     // Calculate how many more images can be added
-    final remainingSlots = 10 - currentTotal;
+    final remainingSlots = 9 - currentTotal;
     
     final List<XFile> images = await _picker.pickMultiImage();
     if (images.isNotEmpty) {
@@ -850,7 +792,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       if (images.length > remainingSlots) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('يمكنك إضافة $remainingSlots صور فقط. الحد الأقصى 10 صور'),
+            content: Text('يمكنك إضافة $remainingSlots صور فقط. الحد الأقصى 9 صور'),
             backgroundColor: Colors.orange,
           ),
         );
@@ -878,6 +820,20 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       _removedThumbnailUrls.add(_existingThumbnailUrls[index]);
       _existingThumbnailUrls.removeAt(index);
     });
+  }
+
+  // تحميل صورة موجودة من السيرفر إلى ملف مؤقت لإعادة رفعها ضمن الصور المدمجة
+  Future<File?> _downloadImageToTempFile(String imageUrl) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(imageUrl, options: Options(responseType: ResponseType.bytes));
+      final filename = 'car_rent_thumb_${DateTime.now().millisecondsSinceEpoch}_${imageUrl.hashCode}.jpg';
+      final file = File('${Directory.systemTemp.path}/$filename');
+      await file.writeAsBytes(response.data);
+      return file;
+    } catch (_) {
+      return null;
+    }
   }
 
   Widget _buildMapSection(BuildContext context) {

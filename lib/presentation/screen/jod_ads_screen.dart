@@ -330,9 +330,15 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               ]),
               const SizedBox(height: 7),
 
-              // Title field with hint only
-              _buildTitledTextFormField(s.title, 'Enter your title',
-                  _titleController, borderColor, currentLocale),
+              // Title field with multi-line support and car_sales validation
+              _buildTitledTextFormField(
+                  s.title,
+                  'Enter your title',
+                  _titleController,
+                  borderColor,
+                  currentLocale,
+                  minLines: 3,
+                  maxLines: 4),
               const SizedBox(height: 7),
 
               TitledSelectOrAddField(
@@ -458,16 +464,18 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
 
   Widget _buildTitledTextFormField(String title, String hintText,
       TextEditingController controller, Color borderColor, String currentLocale,
-      {bool isNumber = false}) {
+      {bool isNumber = false, int minLines = 1, int maxLines = 1}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title,
           style: TextStyle(
               fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
       const SizedBox(height: 4),
-      SizedBox(
-        height: 48,
-        child: TextFormField(
+      Builder(builder: (context) {
+        final field = TextFormField(
           controller: controller,
+          minLines: minLines,
+          maxLines: maxLines,
+          maxLength: maxLines > 1 ? 100 : null,
           style: TextStyle(
               fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
@@ -475,6 +483,7 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
           decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(color: Colors.grey.shade400),
+              counterText: "",
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: borderColor)),
@@ -488,8 +497,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                   EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               fillColor: Colors.white,
               filled: true),
-        ),
-      )
+        );
+        return maxLines > 1 ? field : SizedBox(height: 48, child: field);
+      })
     ]);
   }
 

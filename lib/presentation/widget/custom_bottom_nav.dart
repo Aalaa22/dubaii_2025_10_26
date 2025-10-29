@@ -153,8 +153,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       });
     }
   }
-
-  void _showNonAdvertiserDialog() {
+ void _showNonAdvertiserDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -293,6 +292,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
     );
   }
 
+ 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
@@ -302,7 +302,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       showUnselectedLabels: true, 
       selectedItemColor: Color(0xFF01547E),
       unselectedItemColor:Color.fromRGBO( 5, 194, 201,1),
-      onTap: (index) {
+      onTap: (index) async {
         switch (index) {
           case 0:
             context.push('/home');
@@ -312,7 +312,16 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
             break;
           case 2: {
             final auth = context.read<AuthProvider>();
-            final userType = auth.userType?.toLowerCase();
+            String? userType = auth.userType?.toLowerCase();
+
+            // Fallback to secure storage in case provider state is stale
+            if (userType != 'advertiser') {
+              final storedUserType = await _storage.read(key: 'user_type');
+              if ((storedUserType ?? '').toLowerCase() == 'advertiser') {
+                await auth.checkStoredSession();
+                userType = 'advertiser';
+              }
+            }
 
             if (userType == 'advertiser') {
               context.push('/postad');
@@ -324,7 +333,16 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
           }
           case 3: {
             final auth = context.read<AuthProvider>();
-            final userType = auth.userType?.toLowerCase();
+            String? userType = auth.userType?.toLowerCase();
+
+            // Fallback to secure storage in case provider state is stale
+            if (userType != 'advertiser') {
+              final storedUserType = await _storage.read(key: 'user_type');
+              if ((storedUserType ?? '').toLowerCase() == 'advertiser') {
+                await auth.checkStoredSession();
+                userType = 'advertiser';
+              }
+            }
 
             if (userType == 'advertiser') {
               context.push('/manage');

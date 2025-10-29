@@ -9,6 +9,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/constant/image_url_helper.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 import '../../generated/l10n.dart';
 import '../providers/google_maps_provider.dart';
@@ -42,6 +47,9 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
   File? _mainImage;
   List<File> _thumbnailImages = [];
   final ImagePicker _picker = ImagePicker();
+  // Existing thumbnails (URLs) and removed ones
+  List<String> _existingThumbnailUrls = [];
+  final List<String> _removedExistingThumbnailUrls = [];
   
   // Loading states
   bool _isLoading = false;
@@ -83,6 +91,12 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
         _descriptionController.text = ad.description ?? '';
         selectedPhoneNumber = ad.phoneNumber;
         selectedWhatsAppNumber = ad.whatsappNumber;
+
+        // Populate existing thumbnails from ad
+        final urls = (ad.thumbnailImagesUrls.isNotEmpty)
+            ? ad.thumbnailImagesUrls
+            : ImageUrlHelper.getThumbnailImageUrls(ad.thumbnailImages);
+        _existingThumbnailUrls = urls.toList();
       }
     } catch (e) {
       debugPrint('Error loading restaurant data: $e');
@@ -125,13 +139,27 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       );
       
       if (images.isNotEmpty) {
-        setState(() {
-          _thumbnailImages.addAll(images.map((image) => File(image.path)));
-          // Limit to 5 thumbnail images
-          if (_thumbnailImages.length > 5) {
-            _thumbnailImages = _thumbnailImages.take(5).toList();
+        final int currentTotal = _existingThumbnailUrls.length + _thumbnailImages.length;
+        final int maxAllowed = 3;
+        int availableSlots = maxAllowed - currentTotal;
+
+        if (availableSlots <= 0) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('لا يمكنك إضافة أكثر من 3 صور فرعية.')),
+            );
           }
-        });
+        } else {
+          final filesToAdd = images.take(availableSlots).map((image) => File(image.path)).toList();
+          setState(() {
+            _thumbnailImages.addAll(filesToAdd);
+          });
+          if (images.length > availableSlots && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تم تجاوز الحد الأقصى، تمت إضافة أول 3 صور فقط.')),
+            );
+          }
+        }
       }
     } catch (e) {
       debugPrint('Error picking thumbnail images: $e');
@@ -142,6 +170,25 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
     setState(() {
       _thumbnailImages.removeAt(index);
     });
+  }
+
+  void _removeExistingThumbnail(int index) {
+    if (index >= 0 && index < _existingThumbnailUrls.length) {
+      setState(() {
+        final url = _existingThumbnailUrls[index];
+        _removedExistingThumbnailUrls.add(url);
+        _existingThumbnailUrls.removeAt(index);
+      });
+    }
+  }
+
+  Future<File> _downloadImageToTempFile(String url) async {
+    final dio = Dio();
+    final dir = await getTemporaryDirectory();
+    final fileName = 'restaurant_thumb_${DateTime.now().millisecondsSinceEpoch}${p.extension(url)}';
+    final filePath = p.join(dir.path, fileName);
+    await dio.download(url, filePath);
+    return File(filePath);
   }
 
   Future<void> _saveChanges() async {
@@ -185,8 +232,24 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       if (_mainImage != null) {
         updateData['main_image'] = _mainImage;
       }
-      if (_thumbnailImages.isNotEmpty) {
-        updateData['thumbnail_images'] = _thumbnailImages;
+      // Merge kept existing thumbnails with new ones by downloading existing URLs to files
+      final keptExistingUrls = _existingThumbnailUrls.where((url) => !_removedExistingThumbnailUrls.contains(url)).toList();
+      final existingFiles = <File>[];
+      for (final url in keptExistingUrls) {
+        final fullUrl = ImageUrlHelper.getFullImageUrl(url);
+        try {
+          final file = await _downloadImageToTempFile(fullUrl);
+          existingFiles.add(file);
+        } catch (e) {
+          debugPrint('Failed to download existing thumbnail: $e');
+        }
+      }
+      final mergedThumbnails = <File>[];
+      mergedThumbnails
+        ..addAll(existingFiles)
+        ..addAll(_thumbnailImages);
+      if (mergedThumbnails.isNotEmpty) {
+        updateData['thumbnail_images'] = mergedThumbnails;
       }
       
       if (updateData.isEmpty) {
@@ -234,12 +297,6 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
     
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(s.edit),
-        backgroundColor: Colors.white,
-        foregroundColor: KTextColor,
-        elevation: 1,
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Consumer2<RestaurantDetailsProvider, RestaurantsInfoProvider>(
@@ -267,6 +324,37 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: 25.h),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Row(children: [
+                          SizedBox(width: 5.w),
+                          Icon(Icons.arrow_back_ios, color: KTextColor, size: 20.sp),
+                          Transform.translate(
+                            offset: Offset(-3.w, 0),
+                            child: Text(
+                              s.back,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color: KTextColor,
+                              ),
+                            ),
+                          ),
+                        ]),
+                      ),
+                      SizedBox(height: 7.h),
+                      Center(
+                        child: Text(
+                          s.restaurantsAds,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 24.sp,
+                            color: KTextColor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
                       // Read-only fields
                       _buildFormRow([
                         _buildDetailBox(s.emirate, ad.emirate ?? ''),
@@ -353,16 +441,51 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                       if (_mainImage != null) ...[
                         const SizedBox(height: 8),
                         _buildSelectedImage(_mainImage!, isMain: true),
+                      ] else if (ad?.mainImage != null && ad!.mainImage!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: Builder(
+                            builder: (context) {
+                              final mainUrl = ImageUrlHelper.getMainImageUrl(ad!.mainImage!);
+                              if (mainUrl.isNotEmpty) {
+                                final uri = Uri.tryParse(mainUrl);
+                                if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                                  return Image.network(
+                                    mainUrl,
+                                    height: 200.h,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/restaurant.jpg',
+                                        height: 200.h,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  );
+                                }
+                              }
+                              return Image.asset(
+                                'assets/images/restaurant.jpg',
+                                height: 200.h,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
+                        ),
                       ],
                       const SizedBox(height: 10),
                       
                       _buildImageButton(
-                        s.add9Images,
+                        s.add3Images,
                         Icons.add_photo_alternate_outlined,
                         borderColor,
                         onPressed: _pickThumbnailImages,
                       ),
-                      if (_thumbnailImages.isNotEmpty) ...[
+                      if (_existingThumbnailUrls.isNotEmpty || _thumbnailImages.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         _buildThumbnailImagesGrid(),
                       ],
@@ -603,6 +726,7 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
   }
 
   Widget _buildThumbnailImagesGrid() {
+    final totalCount = _existingThumbnailUrls.length + _thumbnailImages.length;
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -612,8 +736,11 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
         mainAxisSpacing: 8,
         childAspectRatio: 1,
       ),
-      itemCount: _thumbnailImages.length,
+      itemCount: totalCount,
       itemBuilder: (context, index) {
+        final isExisting = index < _existingThumbnailUrls.length;
+        final existingIndex = index;
+        final newIndex = index - _existingThumbnailUrls.length;
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8.r),
@@ -623,18 +750,33 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.r),
-                child: Image.file(
-                  _thumbnailImages[index],
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: isExisting
+                    ? CachedNetworkImage(
+                        imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[existingIndex]),
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (ctx, _) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        errorWidget: (ctx, _, __) => const Center(child: Icon(Icons.broken_image)),
+                      )
+                    : Image.file(
+                        _thumbnailImages[newIndex],
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
               Positioned(
                 top: 4,
                 right: 4,
                 child: GestureDetector(
-                  onTap: () => _removeThumbnailImage(index),
+                  onTap: () {
+                    if (isExisting) {
+                      _removeExistingThumbnail(existingIndex);
+                    } else {
+                      _removeThumbnailImage(newIndex);
+                    }
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(2),
                     decoration: const BoxDecoration(
@@ -658,108 +800,113 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
 
   Widget _buildMapSection(BuildContext context, dynamic ad) {
     final s = S.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          s.location,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16.sp,
-            color: KTextColor,
-          ),
-        ),
+        Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
         SizedBox(height: 4.h),
-        
-        // Location display
         Directionality(
           textDirection: TextDirection.ltr,
-          child: Row(
-            children: [
-              SvgPicture.asset(
-                'assets/icons/locationicon.svg',
-                width: 20.w,
-                height: 20.h,
-              ),
-              SizedBox(width: 8.w),
-              Expanded(
-                child: Text(
-                  '${ad.address  ?? ''}',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: KTextColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: Row(children: [
+            SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
+            SizedBox(width: 8.w),
+            Expanded(child: Text('${ad.address ?? ''}', style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500))),
+          ]),
         ),
         SizedBox(height: 8.h),
-        
-        // Map container
-        SizedBox(
-          height: 220.h,
-          width: double.infinity,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.r),
-                  child: Image.asset(
-                    'assets/images/map.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 80.h,
-                left: 0,
-                right: 0,
-                child: Icon(
-                  Icons.location_pin,
-                  color: Colors.red,
-                  size: 40.sp,
-                ),
-              ),
-              Positioned(
-                bottom: 10,
-                left: 10,
-                child: ElevatedButton.icon(
-                  icon: Icon(
-                    Icons.location_on_outlined,
-                    color: Colors.white,
-                    size: 24.sp,
-                  ),
-                  label: Text(
-                    s.locateMe,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                  onPressed: () {
-                    // TODO: Implement locate me functionality
+        Consumer<GoogleMapsProvider>(
+          builder: (context, mapsProvider, child) {
+            return Container(
+              height: 320.h,
+              width: double.infinity,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.r), border: Border.all(color: Colors.grey.shade300)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: FutureBuilder<LatLng>(
+                  future: _getAdLocation(ad),
+                  builder: (context, snapshot) {
+                    LatLng adLocation = const LatLng(25.2048, 55.2708);
+                    if (snapshot.hasData) adLocation = snapshot.data!;
+
+                    return GoogleMap(
+                      initialCameraPosition: CameraPosition(target: adLocation, zoom: 14.0),
+                      onMapCreated: (GoogleMapController controller) {
+                        mapsProvider.onMapCreated(controller);
+                        if (snapshot.hasData) {
+                          Future.delayed(const Duration(milliseconds: 500), () {
+                            mapsProvider.moveCameraToLocation(adLocation.latitude, adLocation.longitude, zoom: 14.0);
+                          });
+                        }
+                      },
+                      mapType: MapType.normal,
+                      myLocationEnabled: false,
+                      myLocationButtonEnabled: false,
+                      zoomControlsEnabled: true,
+                      compassEnabled: true,
+                      zoomGesturesEnabled: true,
+                      scrollGesturesEnabled: true,
+                      rotateGesturesEnabled: true,
+                      tiltGesturesEnabled: true,
+                      markers: {
+                        Marker(
+                          markerId: const MarkerId('ad_location'),
+                          position: adLocation,
+                          infoWindow: InfoWindow(
+                            title: (ad.address != null && (ad.address as String).isNotEmpty) ? 'الموقع المحدد' : (ad.emirate ?? 'الموقع'),
+                            snippet: (ad.address != null && (ad.address as String).isNotEmpty) ? (ad.address as String) : (ad.area ?? ''),
+                          ),
+                        ),
+                      },
+                    );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF01547E),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20.w,
-                      vertical: 10.h,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                  ),
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );
+  }
+
+  // Helper: resolve restaurant ad address/emirate into coordinates
+  Future<LatLng> _getAdLocation(dynamic ad) async {
+    try {
+      final String? addr = ad?.address as String?;
+      if (addr != null && addr.trim().isNotEmpty) {
+        final locations = await locationFromAddress(addr);
+        if (locations.isNotEmpty) {
+          final first = locations.first;
+          return LatLng(first.latitude, first.longitude);
+        }
+      }
+    } catch (e) {
+      debugPrint('Geocoding failed for restaurant address: $e');
+    }
+
+    final String? emirate = ad?.emirate as String?;
+    if (emirate != null && emirate.isNotEmpty) {
+      switch (emirate.toLowerCase()) {
+        case 'dubai':
+          return const LatLng(25.2048, 55.2708);
+        case 'abu dhabi':
+          return const LatLng(24.4539, 54.3773);
+        case 'sharjah':
+          return const LatLng(25.3463, 55.4209);
+        case 'ajman':
+          return const LatLng(25.4052, 55.5136);
+        case 'ras al khaimah':
+          return const LatLng(25.7889, 55.9598);
+        case 'fujairah':
+          return const LatLng(25.1288, 56.3264);
+        case 'umm al quwain':
+          return const LatLng(25.5641, 55.6550);
+        default:
+          return const LatLng(25.2048, 55.2708);
+      }
+    }
+
+    return const LatLng(25.2048, 55.2708);
   }
 }
 

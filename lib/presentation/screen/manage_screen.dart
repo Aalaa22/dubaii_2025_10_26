@@ -619,15 +619,15 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
               } else if ((slug.contains('car') && slug.contains('rent')) || category.contains('car rent')) {
                 context.push('/car_rent_save_ads/${ad.id}');
               } else if ((slug.contains('car') && (slug.contains('service') || slug.contains('services'))) || category.contains('car services')) {
-                context.push('/car_services_save_ads');
+                context.push('/car_services_save_ads/${ad.id}');
               } else if (slug.contains('restaurant') || category.contains('restaurant')) {
                 context.push('/resturant_save_ads/${ad.id}');
               } else if (slug.contains('job') || category == 'jobs' || category == 'jop') {
-                context.push('/job_save_ads');
+                context.push('/job_save_ads/${ad.id}');
               } else if (slug.contains('electronic') || category.contains('electronics')) {
                 context.push('/electronics_save_ads/${ad.id}');
               } else if ((slug.contains('other') && slug.contains('service')) || category.contains('other services')) {
-                context.push('/other_service_save_ads');
+                context.push('/other_service_save_ads/${ad.id}');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Unknown category for edit')),

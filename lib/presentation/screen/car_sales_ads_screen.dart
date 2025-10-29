@@ -572,6 +572,10 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     }
   }
 
+  void _removeThumbnailImage(int index) {
+    setState(() => _thumbnailImages.removeAt(index));
+  }
+
   // دالة للتحقق من صحة البيانات وتجميعها
   Future<void> _validateAndProceedToNext() async {
     final s = S.of(context);
@@ -1120,7 +1124,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                                         height: 150, fit: BoxFit.cover)))),
                       const SizedBox(height: 7),
                       _buildImageButton(
-                          '${s.add14Images} (${_thumbnailImages.length}/19)',
+                          '${s.add19Images} (${_thumbnailImages.length}/19)',
                           Icons.add_photo_alternate_outlined,
                           borderColor,
                           onPressed: _pickThumbnailImages),
@@ -1131,13 +1135,34 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                                 spacing: 8,
                                 runSpacing: 8,
                                 children: _thumbnailImages
-                                    .map((img) => ClipRRect(
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
+                                  int idx = entry.key;
+                                  File img = entry.value;
+                                  return Stack(children: [
+                                    ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
                                         child: Image.file(img,
                                             width: 80,
                                             height: 80,
-                                            fit: BoxFit.cover)))
-                                    .toList())),
+                                            fit: BoxFit.cover)),
+                                    Positioned(
+                                        top: 2,
+                                        right: 2,
+                                        child: GestureDetector(
+                                            onTap: () =>
+                                                _removeThumbnailImage(idx),
+                                            child: Container(
+                                                decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withOpacity(0.6),
+                                                    shape: BoxShape.circle),
+                                                child: const Icon(Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16))))
+                                  ]);
+                                }).toList())),
                       const SizedBox(height: 10),
                       Text(s.location,
                           style: TextStyle(

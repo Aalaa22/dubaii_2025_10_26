@@ -551,8 +551,8 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                         s.title, _titleController, borderColor, currentLocale,
                         hintText: 'Enter your title',
                         isRequired: true,
-                        minLines: 2,
-                        maxLines: 2),
+                        minLines: 3,
+                        maxLines: 4),
                     const SizedBox(height: 7),
                     TitledSelectOrAddField(
                       title: s.advertiserName,
@@ -750,7 +750,7 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
           controller: controller,
           minLines: minLines,
           maxLines: maxLines,
-          maxLength: maxLines > 1 ? 85 : null,
+          maxLength: maxLines > 1 ? 100 : null,
           style: TextStyle(
               fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
@@ -763,6 +763,7 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                 }
               : null,
           decoration: InputDecoration(
+              counterText: "",
               hintText: hintText,
               hintStyle:
                   TextStyle(color: Colors.grey.shade400, fontSize: 12.sp),

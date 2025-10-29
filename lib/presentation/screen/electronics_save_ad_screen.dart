@@ -15,6 +15,14 @@ import 'package:advertising_app/data/repository/electronics_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/constant/image_url_helper.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import '../providers/google_maps_provider.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -343,6 +351,8 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
   // Image handling variables
   File? _mainImageFile;
   final List<File> _thumbnailImageFiles = [];
+  final List<String> _existingThumbnailUrls = [];
+  final List<String> _removedExistingThumbnailUrls = [];
   final ImagePicker _picker = ImagePicker();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   
@@ -401,6 +411,12 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
       _whatsappController.text = _adData!.whatsappNumber ?? '';
       selectedPhoneNumber = _adData!.phoneNumber;
       selectedWhatsAppNumber = _adData!.whatsappNumber;
+
+      // Populate existing thumbnails from ad data
+      _existingThumbnailUrls.clear();
+      if (_adData!.thumbnailImages.isNotEmpty) {
+        _existingThumbnailUrls.addAll(_adData!.thumbnailImages);
+      }
     }
   }
 
@@ -415,9 +431,18 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
   Future<void> _pickThumbnailImages() async {
     final List<XFile> images = await _picker.pickMultiImage();
     if (images.isNotEmpty) {
-      // حساب العدد الحالي للصور المختارة
-      int currentCount = _thumbnailImageFiles.length;
-      int availableSlots = 19 - currentCount;
+      // إجمالي الصور المختارة = الموجوده + الجديدة
+      final int currentTotal = _existingThumbnailUrls.length + _thumbnailImageFiles.length;
+      int availableSlots = 4 - currentTotal;
+      if (availableSlots <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('لا يمكن اختيار المزيد من الصور. الحد الأقصى  4'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
       
       List<File> newImages = images.map((xfile) => File(xfile.path)).toList();
       
@@ -438,6 +463,19 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
         _thumbnailImageFiles.addAll(newImages);
       });
     }
+  }
+
+  void _removeExistingThumbnail(int index) {
+    setState(() {
+      final removed = _existingThumbnailUrls.removeAt(index);
+      _removedExistingThumbnailUrls.add(removed);
+    });
+  }
+
+  void _removeNewThumbnail(int index) {
+    setState(() {
+      _thumbnailImageFiles.removeAt(index);
+    });
   }
 
   Future<void> _saveAd() async {
@@ -465,6 +503,22 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
               ? _adData!.whatsappNumber!.trim()
               : null;
 
+      // Merge existing (kept) thumbnails by downloading them into temp files
+      final List<File> combinedThumbnails = [];
+
+      // Keep new thumbnails
+      combinedThumbnails.addAll(_thumbnailImageFiles);
+
+      // Add existing thumbnails that were not removed
+      for (final url in _existingThumbnailUrls) {
+        if (!_removedExistingThumbnailUrls.contains(url)) {
+          final file = await _downloadImageToTempFile(url);
+          if (file != null) {
+            combinedThumbnails.add(file);
+          }
+        }
+      }
+
       await repository.updateElectronicsAd(
         adId: widget.adId,
         token: token,
@@ -473,7 +527,7 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
         phoneNumber: phone,
         whatsappNumber: whatsapp,
         mainImage: _mainImageFile,
-        thumbnailImages: _thumbnailImageFiles.isNotEmpty ? _thumbnailImageFiles : null,
+        thumbnailImages: combinedThumbnails.isNotEmpty ? combinedThumbnails : null,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -489,6 +543,24 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
       setState(() {
         _isUpdating = false;
       });
+    }
+  }
+
+  // Download an image URL/path to a temporary file for multipart upload
+  Future<File?> _downloadImageToTempFile(String url) async {
+    try {
+      final String fullUrl = ImageUrlHelper.getFullImageUrl(url);
+      final dio = Dio();
+      final response = await dio.get(fullUrl, options: Options(responseType: ResponseType.bytes));
+      final List<int> bytes = (response.data as List<int>);
+      final tempDir = await getTemporaryDirectory();
+      final filename = p.basename(Uri.parse(fullUrl).path);
+      final file = File(p.join(tempDir.path, '${DateTime.now().millisecondsSinceEpoch}_$filename'));
+      await file.writeAsBytes(bytes);
+      return file;
+    } catch (e) {
+      debugPrint('Failed to download image "$url" to temp file: $e');
+      return null;
     }
   }
 
@@ -671,19 +743,39 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
                     child: Image.file(_mainImageFile!, fit: BoxFit.cover),
                   ),
                 ),
+              ] else if ((_adData?.mainImage?.isNotEmpty ?? false)) ...[
+                const SizedBox(height: 4),
+                Text('  الصورة الرئيسية الحالية', style: TextStyle(color: KTextColor)),
+                const SizedBox(height: 8),
+                Container(
+                  height: 100,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedNetworkImage(
+                      imageUrl: ImageUrlHelper.getFullImageUrl(_adData!.mainImage!),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               ],
               const SizedBox(height: 7),
               _buildImageButton(s.add4Images, Icons.add_photo_alternate_outlined, borderColor, onPressed: _pickThumbnailImages),
-              if(_thumbnailImageFiles.isNotEmpty) ...[
-                const SizedBox(height: 4), 
-                Text('  تم اختيار ${_thumbnailImageFiles.length} صورة مصغرة جديدة', style: TextStyle(color: Colors.green)),
+              if(_existingThumbnailUrls.isNotEmpty || _thumbnailImageFiles.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text('  إجمالي الصور المختارة: ${_existingThumbnailUrls.length + _thumbnailImageFiles.length} / 4', style: TextStyle(color: Colors.green)),
                 const SizedBox(height: 8),
                 SizedBox(
                   height: 100,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: _thumbnailImageFiles.length,
+                    itemCount: _existingThumbnailUrls.length + _thumbnailImageFiles.length,
                     itemBuilder: (context, index) {
+                      final bool isExisting = index < _existingThumbnailUrls.length;
                       return Container(
                         margin: const EdgeInsets.only(right: 8),
                         width: 100,
@@ -691,9 +783,39 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey.shade300),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(_thumbnailImageFiles[index], fit: BoxFit.cover),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: isExisting
+                                  ? CachedNetworkImage(
+                                      imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.file(_thumbnailImageFiles[index - _existingThumbnailUrls.length], fit: BoxFit.cover),
+                            ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: InkWell(
+                                onTap: () {
+                                  if (isExisting) {
+                                    _removeExistingThumbnail(index);
+                                  } else {
+                                    _removeNewThumbnail(index - _existingThumbnailUrls.length);
+                                  }
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.all(2),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 18),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -931,27 +1053,108 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
   }
 
   Widget _buildMapSection(BuildContext context) {
-    final s = S.of(context);
-    return SizedBox(
-        height: 220.h, width: double.infinity,
-        child: Stack(
-          children: [
-            Positioned.fill(child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.asset('assets/images/map.png', fit: BoxFit.cover))),
-            Positioned(top: 80.h, left: 0, right: 0, child: Icon(Icons.location_pin, color: Colors.red, size: 40.sp)),
-            Positioned(
-              bottom: 10, left: 10,
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.location_on_outlined, color: Colors.white, size: 24.sp),
-                label: Text(s.locateMe, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16.sp)),
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF01547E),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
+    final ad = _adData;
+    return Consumer<GoogleMapsProvider>(
+      builder: (context, mapsProvider, child) {
+        return Container(
+          height: 320.h,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: FutureBuilder<LatLng>(
+              future: _getAdLatLng(ad),
+              builder: (context, snapshot) {
+                LatLng adLocation = const LatLng(25.2048, 55.2708);
+                if (snapshot.hasData) {
+                  adLocation = snapshot.data!;
+                }
+
+                return GoogleMap(
+                  initialCameraPosition: CameraPosition(target: adLocation, zoom: 14.0),
+                  onMapCreated: (GoogleMapController controller) {
+                    mapsProvider.onMapCreated(controller);
+                    if (snapshot.hasData) {
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        mapsProvider.moveCameraToLocation(adLocation.latitude, adLocation.longitude, zoom: 14.0);
+                      });
+                    }
+                  },
+                  mapType: MapType.normal,
+                  myLocationEnabled: false,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: true,
+                  compassEnabled: true,
+                  zoomGesturesEnabled: true,
+                  scrollGesturesEnabled: true,
+                  rotateGesturesEnabled: true,
+                  tiltGesturesEnabled: true,
+                  markers: {
+                    Marker(
+                      markerId: const MarkerId('ad_location'),
+                      position: adLocation,
+                      infoWindow: InfoWindow(
+                        title: (ad?.addres?.isNotEmpty == true || ad?.location.isNotEmpty == true)
+                            ? 'الموقع المحدد'
+                            : (ad?.emirate ?? 'الموقع'),
+                        snippet: ad?.addres?.isNotEmpty == true
+                            ? ad!.addres
+                            : (ad?.area ?? ''),
+                      ),
+                    ),
+                  },
+                );
+              },
             ),
-          ],
-        ));
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper: compute ad LatLng from address or emirate
+  Future<LatLng> _getAdLatLng(ElectronicAdModel? ad) async {
+    try {
+      final String? addr = ad?.addres?.trim();
+      final String? loc = ad?.location?.trim();
+      final String query = (addr != null && addr.isNotEmpty)
+          ? addr
+          : (loc != null && loc.isNotEmpty ? loc : '');
+      if (query.isNotEmpty) {
+        final locations = await locationFromAddress(query);
+        if (locations.isNotEmpty) {
+          final first = locations.first;
+          return LatLng(first.latitude, first.longitude);
+        }
+      }
+    } catch (e) {
+      debugPrint('Geocoding failed for electronics ad: $e');
+    }
+
+    final String? emirate = ad?.emirate;
+    if (emirate != null && emirate.isNotEmpty) {
+      switch (emirate.toLowerCase()) {
+        case 'dubai':
+          return const LatLng(25.2048, 55.2708);
+        case 'abu dhabi':
+          return const LatLng(24.4539, 54.3773);
+        case 'sharjah':
+          return const LatLng(25.3463, 55.4209);
+        case 'ajman':
+          return const LatLng(25.4052, 55.5136);
+        case 'ras al khaimah':
+          return const LatLng(25.7889, 55.9598);
+        case 'fujairah':
+          return const LatLng(25.1288, 56.3264);
+        case 'umm al quwain':
+          return const LatLng(25.5641, 55.6550);
+        default:
+          return const LatLng(25.2048, 55.2708);
+      }
+    }
+    return const LatLng(25.2048, 55.2708);
   }
 }
