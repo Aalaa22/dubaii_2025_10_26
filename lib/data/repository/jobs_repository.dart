@@ -123,6 +123,14 @@ class JobsRepository {
     throw Exception('Failed to parse job category images.');
   }
 
+  /// Helper to resolve image path based on `category_type` value
+  /// Returns the appropriate image from the provided `imagesMap`.
+  String? resolveImageForCategoryType(String? categoryType, Map<String, String> imagesMap) {
+    final isOffer = (categoryType ?? '').toLowerCase().contains('offer');
+    final key = isOffer ? 'job_offer' : 'job_seeker';
+    return imagesMap[key];
+  }
+
 
 Future<JobAdModel> getJobAdDetails({required int adId, String? token}) async {
     final response = await _apiService.get('/api/jobs/$adId', token: token);

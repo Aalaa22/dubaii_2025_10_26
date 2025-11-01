@@ -41,6 +41,7 @@ import 'package:advertising_app/presentation/providers/electronics_info_provider
 import 'package:advertising_app/presentation/providers/other_services_ad_provider.dart';
 import 'package:advertising_app/presentation/providers/other_services_info_provider.dart';
 import 'package:advertising_app/presentation/providers/other_services_ad_post_provider.dart';
+import 'package:advertising_app/presentation/providers/user_packages_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -123,6 +124,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ElectronicDetailsProvider()),
         ChangeNotifierProvider(create: (_) => ElectronicsAdPostProvider()),
         ChangeNotifierProvider(create: (_) => OtherServicesAdPostProvider()),
+        // User packages summary provider
+        ChangeNotifierProvider(create: (_) => UserPackagesProvider()),
       //  ChangeNotifierProvider(create: (_) => JobAdProvider()),
 
     // +++ أضيفي السطر التالي +++
