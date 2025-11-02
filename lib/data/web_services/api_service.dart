@@ -318,7 +318,7 @@ class ApiService {
     }
   }
 
-  Future<dynamic> delete(String endpoint, {Map<String, dynamic>? query, String? token}) async {
+  Future<dynamic> delete(String endpoint, {dynamic data, Map<String, dynamic>? query, String? token}) async {
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
     }
@@ -326,11 +326,12 @@ class ApiService {
     try {
       print('=== API DELETE DEBUG ===');
       print('URL: $baseUrl$endpoint');
+      print('Data: $data');
       print('Query: $query');
       print('Headers: ${_dio.options.headers}');
       print('=======================');
 
-      final response = await _dio.delete(endpoint, queryParameters: query);
+      final response = await _dio.delete(endpoint, data: data, queryParameters: query);
       
       print('=== API RESPONSE ===');
       print('Status Code: ${response.statusCode}');

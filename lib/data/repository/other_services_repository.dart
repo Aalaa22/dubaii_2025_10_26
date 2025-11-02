@@ -172,32 +172,40 @@ class OtherServicesRepository {
   }
   
   // Function to create a new "Other Service" ad
-  Future<void> createOtherServiceAd({
+  Future<dynamic> createOtherServiceAd({
     required String token,
     required Map<String, dynamic> adData
   }) async {
-    await _apiService.postFormData(
+    final Map<String, dynamic> data = {
+      'title': adData['title'],
+      'description': adData['description'],
+      'emirate': adData['emirate'],
+      'district': adData['district'],
+      'area': adData['area'],
+      'price': adData['price'],
+      'service_name': adData['service_name'],
+      'section_type': adData['section_type'],
+      'advertiser_name': adData['advertiser_name'],
+      'phone_number': adData['phone_number'],
+      'whatsapp_number': adData['whatsapp_number'],
+      'address': adData['address'],
+      'plan_type': adData['planType'],
+      'plan_days': adData['planDays'],
+      'plan_expires_at': adData['planExpiresAt'],
+    };
+
+    // Include payment only when explicitly provided by the payment step
+    if (adData['payment'] != null) {
+      data['payment'] = adData['payment'].toString();
+    }
+
+    final response = await _apiService.postFormData(
       '/api/other-services',
-      data: {
-        'title': adData['title'],
-        'description': adData['description'],
-        'emirate': adData['emirate'],
-        'district': adData['district'],
-        'area': adData['area'],
-        'price': adData['price'],
-        'service_name': adData['service_name'],
-        'section_type': adData['section_type'],
-        'advertiser_name': adData['advertiser_name'],
-        'phone_number': adData['phone_number'],
-        'whatsapp_number': adData['whatsapp_number'],
-        'address': adData['address'],
-        'plan_type': adData['planType'],
-        'plan_days': adData['planDays'],
-        'plan_expires_at': adData['planExpiresAt'],
-      },
+      data: data,
       mainImage: adData['mainImage'] as File?, // It has only one image
       token: token,
     );
+    return response;
   }
 
 

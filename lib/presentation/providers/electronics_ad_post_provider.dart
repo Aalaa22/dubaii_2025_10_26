@@ -24,12 +24,26 @@ class ElectronicsAdPostProvider extends ChangeNotifier {
     try {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('Token not found');
-      
-      await _repository.createElectronicsAd(token: token, adData: adData);
-      
+
+      final response = await _repository.createElectronicsAd(token: token, adData: adData);
+
+      bool success = false;
+      String? apiMessage;
+      if (response is Map<String, dynamic>) {
+        success = response['success'] == true || response.containsKey('id');
+        apiMessage = response['message']?.toString();
+      } else {
+        success = true; // assume success if no error thrown and non-Map response
+      }
+
       _isSubmitting = false;
       notifyListeners();
-      return true;
+      if (success) {
+        return true;
+      } else {
+        _error = apiMessage ?? 'فشل إنشاء إعلان الإلكترونيات';
+        return false;
+      }
     } catch(e) {
       _error = e.toString();
       _isSubmitting = false;

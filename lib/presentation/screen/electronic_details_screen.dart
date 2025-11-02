@@ -354,12 +354,12 @@ class _ElectronicDetailsScreenState extends State<ElectronicDetailsScreen> with 
                       trimLines: 5,
                       colorClickableText: KPrimaryColor,
                       trimMode: TrimMode.Line,
-                      trimCollapsedText: 'Read more',
+                      trimCollapsedText: S.of(context).read_more,
                       lessStyle: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: KPrimaryColor),
-                      trimExpandedText: '  Show less',
+                      trimExpandedText: '  ${S.of(context).show_less}',
                       style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,

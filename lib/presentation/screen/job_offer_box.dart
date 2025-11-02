@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/job_offer_ads_provider.dart';
 import 'package:advertising_app/presentation/providers/job_info_provider.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,7 +26,7 @@ class JobOfferBox extends StatefulWidget {
   State<JobOfferBox> createState() => _JobOfferBoxState();
 }
 
-class _JobOfferBoxState extends State<JobOfferBox> {
+class _JobOfferBoxState extends State<JobOfferBox> with FavoritesHelper<JobOfferBox> {
 
   // +++ تم تحديث المتغيرات لتناسب الأنواع الجديدة للحقول +++
   List<String> _selectedCategories = [];
@@ -39,6 +42,7 @@ class _JobOfferBoxState extends State<JobOfferBox> {
       // جلب القيم الحقيقية للاختيارات وصور الفئات من مزود معلومات الوظائف
       context.read<JobInfoProvider>().fetchJobAdValues();
     });
+    loadFavoriteIds();
   }
 
   @override
@@ -329,7 +333,15 @@ class _JobOfferBoxState extends State<JobOfferBox> {
                                           },
                                         ),
                                       ),
-                                      Positioned(top: 8, right: 8, child: Icon(Icons.favorite_border, color: Colors.grey.shade300)),
+                                      Positioned(
+                                        top: 8,
+                                        right: 8,
+                                        child: buildFavoriteIcon(
+                                          ad,
+                                          onAddToFavorite: () {},
+                                          onRemoveFromFavorite: null,
+                                        ),
+                                      ),
                                     ]),
                                     Expanded(
                                       child: Padding(

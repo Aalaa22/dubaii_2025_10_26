@@ -857,6 +857,11 @@ class CarAdProvider with ChangeNotifier {
         'plan_expires_at': adData['plan_expires_at'] ?? adData['planExpiresAt'],
       };
 
+      // Include payment only if explicitly set by payment step
+      if (adData['payment'] != null) {
+        textData['payment'] = adData['payment'].toString();
+      }
+
       final File? mainImage = adData['mainImage'] as File?;
       final List<File>? thumbnailImages = adData['thumbnailImages'] as List<File>?;
 

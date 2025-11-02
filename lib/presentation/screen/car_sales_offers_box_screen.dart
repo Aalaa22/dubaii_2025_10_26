@@ -4,6 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,13 +25,15 @@ class OffersBoxScreen extends StatefulWidget {
   State<OffersBoxScreen> createState() => _OffersBoxScreenState();
 }
 
-class _OffersBoxScreenState extends State<OffersBoxScreen> {
+class _OffersBoxScreenState extends State<OffersBoxScreen> with FavoritesHelper<OffersBoxScreen> {
   bool _isMapSortActive = false;
 
   @override
   void initState() {
     super.initState();
     _refreshData();
+    // تحميل معرفات الإعلانات الموجودة بالمفضلة لتحديث الأيقونة
+    loadFavoriteIds();
   }
 
   Widget _buildSimpleLoadingGrid() {
@@ -321,11 +326,15 @@ class _OffersBoxScreenState extends State<OffersBoxScreen> {
                 ),
 
 
-                 const Positioned(
+                 Positioned(
               top: 8,
-              
               right: 8,
-              child: Icon(Icons.favorite_border, color: Colors.white)),
+              child: buildFavoriteIcon(
+                CarAdOfferItemAdapter(car),
+                onAddToFavorite: () {},
+                onRemoveFromFavorite: null,
+              ),
+            ),
         
              ] ),
               Expanded(
@@ -619,4 +628,61 @@ class __RangeSelectionBottomSheetState
 
 
 
+}
+
+// Adapter class to make CarAdModel compatible with FavoriteItemInterface for Offers Box
+class CarAdOfferItemAdapter implements FavoriteItemInterface {
+  final CarAdModel _ad;
+  CarAdOfferItemAdapter(this._ad);
+
+  @override
+  String get id => _ad.id.toString();
+
+  @override
+  String get contact => _ad.advertiserName;
+
+  @override
+  String get details => _ad.title;
+
+  @override
+  String get category => 'Cars Sales';
+
+  @override
+  String get addCategory => _ad.addCategory ?? 'Cars Sales';
+
+  @override
+  List<String> get images => [
+        ImageUrlHelper.getMainImageUrl(_ad.mainImage),
+        ...ImageUrlHelper.getThumbnailImageUrls(_ad.thumbnailImages)
+      ].where((img) => img.isNotEmpty).toList();
+
+  @override
+  String get line1 =>
+      "Year: ${_ad.year}  Km: ${NumberFormatter.formatNumber(_ad.km)}   Specs: ${_ad.specs ?? ''}";
+
+  @override
+  String get location => "${_ad.emirate}  ${_ad.area ?? ''}".trim();
+
+  @override
+  String get price => _ad.price;
+
+  @override
+  String get title => "${_ad.make} ${_ad.model} ${_ad.trim ?? ''}".trim();
+
+  @override
+  String get date => _ad.createdAt?.split('T').first ?? '';
+
+  @override
+  bool get isPremium {
+    if (_ad.planType == null) return false;
+    return _ad.planType!.toLowerCase() != 'free';
+  }
+
+  @override
+  AdPriority get priority {
+    if (_ad.planType == null || _ad.planType!.toLowerCase() == 'free') {
+      return AdPriority.free;
+    }
+    return AdPriority.premium;
+  }
 }

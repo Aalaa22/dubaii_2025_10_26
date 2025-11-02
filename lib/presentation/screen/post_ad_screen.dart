@@ -17,7 +17,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
   // قائمة العناصر لتسهيل البناء
   final List<Map<String, String>> items = [
     {
-      "title": "Cars Sales",
+      "title": "Car Sales",
       "image": "assets/images/salesCar.jpg",
       "route": "/car_sales_ads"
     },
@@ -27,12 +27,12 @@ class _PostAdScreenState extends State<PostAdScreen> {
       "route": "/real_estate_ads"
     },
     {
-      "title": "Cars Rent",
+      "title": "Car Rent",
       "image": "assets/images/careRent.jpg",
       "route": "/car_rent_ads"
     },
     {
-      "title": "Cars Services",
+      "title": "Car Services",
       "image": "assets/images/car_services.png",
       "route": "/car_services_ads"
     },

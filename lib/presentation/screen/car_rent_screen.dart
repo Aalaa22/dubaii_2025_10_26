@@ -17,11 +17,65 @@ import 'package:advertising_app/data/car_rent_dummy_data.dart'; // For dummy dat
 import 'package:advertising_app/presentation/providers/car_rent_info_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
+import 'package:advertising_app/data/model/best_advertiser_model.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
 const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
 final Color borderColor = Color.fromRGBO(8, 194, 201, 1);
+
+class BestAdvertiserCarRentItemAdapter implements FavoriteItemInterface {
+  final BestAdvertiserAd _ad;
+  BestAdvertiserCarRentItemAdapter(this._ad);
+
+  @override
+  String get contact => _ad.advertiserName;
+
+  @override
+  String get details => _ad.title ?? '';
+
+  @override
+  List<String> get images => [
+        ImageUrlHelper.getMainImageUrl(_ad.mainImage),
+        ..._ad.images
+      ].where((img) => img.isNotEmpty).toList();
+
+  @override
+  String get line1 =>
+      'Day Rent: ${_ad.dayRent ?? ''}  Month Rent: ${_ad.monthRent ?? ''}'.trim();
+
+  @override
+  String get price => _ad.price;
+
+  @override
+  String get location =>
+      '${_ad.emirate ?? ''} ${_ad.district ?? ''} ${_ad.area ?? ''}'.trim();
+
+  @override
+  String get title =>
+      '${_ad.make} ${_ad.model} ${_ad.trim ?? ''} ${_ad.year}'.trim();
+
+  @override
+  String get date => '';
+
+  @override
+  bool get isPremium => false;
+
+  @override
+  AdPriority get priority => AdPriority.free;
+
+  @override
+  int get id => _ad.id;
+
+  @override
+  String get category => 'Car Rent';
+
+  @override
+  String get addCategory => 'Car Rent';
+}
 
 class CarRentScreen extends StatefulWidget {
   const CarRentScreen({super.key});
@@ -30,7 +84,7 @@ class CarRentScreen extends StatefulWidget {
   State<CarRentScreen> createState() => _CarRentScreenState();
 }
 
-class _CarRentScreenState extends State<CarRentScreen> {
+class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
   int _selectedIndex = 4;
 
   String? _selectedMake;
@@ -39,6 +93,8 @@ class _CarRentScreenState extends State<CarRentScreen> {
   @override
   void initState() {
     super.initState();
+    // Ensure favorite IDs are loaded so icons reflect saved favorites
+    loadFavoriteIds();
     // Use addPostFrameCallback to safely call provider after the first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -454,9 +510,10 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                 Positioned(
                                   top: 8,
                                   right: 8,
-                                  child: Icon(
-                                    Icons.favorite_border,
-                                    color: Colors.grey.shade300,
+                                  child: buildFavoriteIcon(
+                                    BestAdvertiserCarRentItemAdapter(ad),
+                                    onAddToFavorite: () {},
+                                    onRemoveFromFavorite: null,
                                   ),
                                 ),
                               ],
@@ -686,11 +743,12 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                   Positioned(
                                     top: 8,
                                     right: 8,
-                                    child: Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.grey.shade300,
-                                    ),
+                                  child: buildFavoriteIcon(
+                                    BestAdvertiserCarRentItemAdapter(ad),
+                                    onAddToFavorite: () {},
+                                    onRemoveFromFavorite: null,
                                   ),
+                                ),
                                 ],
                               ),
                               Expanded(

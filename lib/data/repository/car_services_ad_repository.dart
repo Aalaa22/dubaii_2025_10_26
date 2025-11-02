@@ -35,7 +35,7 @@ class CarServicesAdRepository {
   }
 
   // دالة لإنشاء إعلان خدمات سيارات جديد
-  Future<void> createCarServiceAd({
+  Future<dynamic> createCarServiceAd({
     required String token,
     required String title,
     required String description,
@@ -55,6 +55,7 @@ class CarServicesAdRepository {
     required String planType,
     required int planDays,
     required String planExpiresAt,
+    String? payment,
   }) async {
     final Map<String, dynamic> textData = {
       'title': title,
@@ -74,14 +75,20 @@ class CarServicesAdRepository {
       'plan_expires_at': planExpiresAt,
     };
 
+    // Include payment only when explicitly provided (i.e., user pressed Pay Now)
+    if (payment != null) {
+      textData['payment'] = payment;
+    }
+
     try {
-      await _apiService.postFormData(
+      final response = await _apiService.postFormData(
         '/api/car-services-ads',
         data: textData,
         mainImage: mainImage,
         thumbnailImages: thumbnailImages,
         token: token,
       );
+      return response;
     } catch (e) {
       if (e.toString().contains('500')) {
         throw Exception('حدث خطأ في الخادم، يرجى المحاولة مرة أخرى لاحقاً');

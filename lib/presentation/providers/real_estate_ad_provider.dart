@@ -141,12 +141,27 @@ class RealEstateAdProvider extends ChangeNotifier {
     try {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('Token not found');
-      
-      await _repository.createRealEstateAd(token: token, adData: adData);
-      
+
+      final response = await _repository.createRealEstateAd(token: token, adData: adData);
+
+      bool success = false;
+      String? apiMessage;
+      if (response is Map<String, dynamic>) {
+        success = response['success'] == true || response.containsKey('id');
+        apiMessage = response['message']?.toString();
+      } else {
+        // If backend returns non-Map but did not throw, assume success
+        success = true;
+      }
+
       _isSubmitting = false;
       notifyListeners();
-      return true;
+      if (success) {
+        return true;
+      } else {
+        _error = apiMessage ?? 'فشل إنشاء إعلان العقارات';
+        return false;
+      }
     } catch(e) {
       _error = e.toString();
       _isSubmitting = false;

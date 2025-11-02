@@ -121,7 +121,8 @@ class CarAdRepository {
       required String token,
       required String planType,
       required int planDays,
-      required String planExpiresAt}) async {
+      required String planExpiresAt,
+      String? payment}) async {
     final String warrantyValue = warranty ? '1' : '0';
 
     // تنظيف قيمة engine_capacity لإزالة الحرف "L" إذا كان موجوداً
@@ -210,6 +211,10 @@ class CarAdRepository {
       'plan_days': planDays,
       'plan_expires_at': planExpiresAt,
     };
+
+    if (payment != null) {
+      textData['payment'] = payment;
+    }
 
     try {
       await _apiService.postFormData(

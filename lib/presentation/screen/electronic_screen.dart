@@ -13,6 +13,9 @@ import 'package:advertising_app/presentation/providers/electronics_info_provider
 import 'package:advertising_app/data/model/best_electronics_advertiser_model.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -27,7 +30,8 @@ class ElectronicScreen extends StatefulWidget {
   State<ElectronicScreen> createState() => _ElectronicScreenState();
 }
 
-class _ElectronicScreenState extends State<ElectronicScreen> {
+class _ElectronicScreenState extends State<ElectronicScreen>
+    with FavoritesHelper<ElectronicScreen> {
   int _selectedIndex = 2;
 
   // ++ تحويل المتغيرات لاختيار فردي بدل متعدد ++
@@ -64,6 +68,8 @@ class _ElectronicScreenState extends State<ElectronicScreen> {
       final provider =
           Provider.of<ElectronicsInfoProvider>(context, listen: false);
       provider.fetchAllData();
+      // تحميل معرفات الإعلانات المفضلة لضبط حالة الأيقونة
+      loadFavoriteIds();
     });
   }
 
@@ -480,13 +486,14 @@ class _ElectronicScreenState extends State<ElectronicScreen> {
                                                               ),
                                                       ),
                                                       Positioned(
-                                                          top: 8,
-                                                          right: 8,
-                                                          child: Icon(
-                                                              Icons
-                                                                  .favorite_border,
-                                                              color: Colors.grey
-                                                                  .shade300)),
+                                                        top: 8,
+                                                        right: 8,
+                                                        child: buildFavoriteIcon(
+                                                          BestElectronicsAdItemAdapter(ad),
+                                                          onAddToFavorite: () {},
+                                                          onRemoveFromFavorite: null,
+                                                        ),
+                                                      ),
                                                     ],
                                                   ),
                                                   Expanded(
@@ -574,4 +581,56 @@ class _ElectronicScreenState extends State<ElectronicScreen> {
       ),
     );
   }
+}
+
+// Adapter class to make BestElectronicsAd compatible with FavoriteItemInterface
+class BestElectronicsAdItemAdapter implements FavoriteItemInterface {
+  final BestElectronicsAd ad;
+
+  BestElectronicsAdItemAdapter(this.ad);
+
+  @override
+  String get id => ad.id.toString();
+
+  @override
+  String get title => (ad.productName.isNotEmpty ? ad.productName : ad.title);
+
+  @override
+  String get location => [ad.emirate, ad.district, ad.area]
+      .where((p) => p.isNotEmpty)
+      .join(' ');
+
+  @override
+  String get price => ad.price;
+
+  @override
+  String get line1 => ad.productName.isNotEmpty ? ad.productName : ad.title;
+
+  @override
+  String get details => ad.title;
+
+  @override
+  String get date => '';
+
+  @override
+  String get contact => '';
+
+  @override
+  bool get isPremium {
+    final status = (ad.status).trim().toLowerCase();
+    return status.isNotEmpty && status != 'free';
+  }
+
+  @override
+  List<String> get images =>
+      [ad.mainImageUrl, ...ad.thumbnailImagesUrls].where((e) => e.isNotEmpty).toList();
+
+  @override
+  String get category => 'electronics';
+
+  @override
+  String get addCategory => (ad.category).trim().isNotEmpty ? ad.category : 'electronics';
+
+  @override
+  AdPriority get priority => isPremium ? AdPriority.premium : AdPriority.free;
 }

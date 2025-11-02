@@ -33,6 +33,8 @@ class _EditProfileState extends State<EditProfile> {
   final _emailController = TextEditingController();
   final _advertiserNameController = TextEditingController();
   final _advertiserTypeController = TextEditingController();
+  final _userIdController = TextEditingController();
+  final _referralCodeController = TextEditingController();
 
   // State variables for image handling
   final ImagePicker _picker = ImagePicker();
@@ -160,10 +162,15 @@ class _EditProfileState extends State<EditProfile> {
   // Fills the text fields with data from the user model
   void _updateTextFields(UserModel? user) {
     if (user != null) {
+      final s = S.of(context);
       _userNameController.text = user.username;
       _emailController.text = user.email;
       _phoneController.text = user.phone;
       _whatsAppController.text = user.whatsapp ?? '';
+      _userIdController.text = (user.id != 0) ? user.id.toString() : 'add User Id';
+      _referralCodeController.text = (user.whatsapp != null && user.whatsapp!.isNotEmpty)
+          ? user.whatsapp!
+          : 'add ${s.referralCode}';
       _advertiserNameController.text = user.advertiserName ?? '';
       _advertiserTypeController.text = user.advertiserType ?? '';
       _passwordController.text = "••••••••"; // Placeholder for password
@@ -621,6 +628,8 @@ class _EditProfileState extends State<EditProfile> {
     _emailController.dispose();
     _advertiserNameController.dispose();
     _advertiserTypeController.dispose();
+    _userIdController.dispose();
+    _referralCodeController.dispose();
     super.dispose();
   }
 
@@ -685,7 +694,7 @@ class _EditProfileState extends State<EditProfile> {
                             const SizedBox(height: 10),
                             
                             _buildLabel("User Id"),
-                            _buildEditableField(_userNameController, () => context.push('/profile')),
+                            _buildEditableField(_userIdController, () => context.push('/profile')),
                             
                             // Display-only fields
                             _buildLabel(S.of(context).userName),
@@ -697,39 +706,41 @@ class _EditProfileState extends State<EditProfile> {
                                 Expanded(
                                   child: _buildPhoneField(_phoneController, () => context.push('/profile')),
                                 ),
-                                const SizedBox(width: 8),
-                                Consumer<AuthProvider>(
-                                  builder: (context, authProvider, child) {
-                                    // إظهار زر التحقق فقط إذا كان verify_account = false
-                                    if (authProvider.verifyAccount == false) {
-                                      return ElevatedButton(
-                                        onPressed: () => context.push('/phonecode'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF01547E),
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                    child: const Text(
-                                          'Verify',
-                                          style: TextStyle(color: Colors.white, fontSize: 12),
-                                        ),
-                                      );
-                                    }
-                                    // إظهار أيقونة التحقق إذا كان verify_account = true
-                                    return const Icon(
-                                      Icons.verified,
-                                      color: Colors.green,
-                                      size: 24,
-                                    );
-                                  },
-                                ),
+                                // const SizedBox(width: 8),
+                                // Consumer<AuthProvider>(
+                                //   builder: (context, authProvider, child) {
+                                //     // إظهار زر التحقق فقط إذا كان verify_account = false
+                                //     if (authProvider.verifyAccount == false) {
+                                //       return ElevatedButton(
+                                //         onPressed: () => context.push('/phonecode'),
+                                //         style: ElevatedButton.styleFrom(
+                                //           backgroundColor: const Color(0xFF01547E),
+                                //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                //           shape: RoundedRectangleBorder(
+                                //             borderRadius: BorderRadius.circular(8),
+                                //           ),
+                                //         ),
+                                //     child: const Text(
+                                //           'Verify',
+                                //           style: TextStyle(color: Colors.white, fontSize: 12),
+                                //         ),
+                                //       );
+                                //     }
+                                //     // إظهار أيقونة التحقق إذا كان verify_account = true
+                                //     return const Icon(
+                                //       Icons.verified,
+                                //       color: Colors.green,
+                                //       size: 24,
+                                //     );
+                                //   },
+                                // ),
+                             
+                             
                               ],
                             ),
                             
                             _buildLabel(S.of(context).referralCode),
-                            _buildPhoneField(_whatsAppController, () => context.push('/profile')),
+                            _buildEditableField(_referralCodeController, () => context.push('/profile')),
                             
                             // _buildLabel(S.of(context).password),
                             // _buildEditableField(_passwordController, () => context.push('/profile'), isPassword: true),

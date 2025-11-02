@@ -276,6 +276,11 @@ class JobAdProvider extends ChangeNotifier {
         'plan_expires_at': adData['planExpiresAt']?.toString() ?? '',
       };
 
+      // Include payment only when set during payment step
+      if (adData['payment'] != null) {
+        submissionData['payment'] = adData['payment'].toString();
+      }
+
       print('=== Job Ad Submission Data ===');
       submissionData.forEach((key, value) {
         print('$key: "$value"');

@@ -4,6 +4,9 @@ import 'package:advertising_app/presentation/providers/real_estate_info_provider
 import 'package:advertising_app/data/model/real_estate_ad_model.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,7 +27,7 @@ class RealEstateOfferBOX extends StatefulWidget {
   State<RealEstateOfferBOX> createState() => _RealEstateOfferBOXState();
 }
 
-class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> {
+class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesHelper<RealEstateOfferBOX> {
   bool _sortByPriority = false; // Sort switch state - default off
 
   @override// +++ تم تحديث المتغيرات لتناسب الأنواع الجديدة للحقول +++
@@ -48,6 +51,8 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> {
         context.read<RealEstateAdProvider>().fetchAds();
       }
     });
+    // تحميل معرفات الإعلانات المفضلة لعرض حالة القلب بشكل صحيح
+    loadFavoriteIds();
   }
 
   @override
@@ -410,8 +415,11 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> {
                                       Positioned(
                                         top: 8,
                                         right: 8,
-                                        child: Icon(Icons.favorite_border,
-                                            color: Colors.grey.shade300),
+                                        child: buildFavoriteIcon(
+                                          RealEstateOfferItemAdapter(ad),
+                                          onAddToFavorite: () {},
+                                          onRemoveFromFavorite: null,
+                                        ),
                                       ),
                                     ]),
                                     Expanded(
@@ -536,6 +544,62 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> {
     // Fetch all ads without filters
     context.read<RealEstateAdProvider>().fetchAds();
   }
+}
+
+// Adapter to bridge RealEstateAdModel to FavoriteItemInterface for favorite icon
+class RealEstateOfferItemAdapter implements FavoriteItemInterface {
+  final RealEstateAdModel ad;
+  RealEstateOfferItemAdapter(this.ad);
+
+  @override
+  String get title => ad.title;
+
+  @override
+  String get location => "${ad.emirate ?? ''} ${ad.district ?? ''} ${ad.area ?? ''}".trim();
+
+  @override
+  String get price => ad.price;
+
+  @override
+  String get line1 => ad.propertyType ?? '';
+
+  @override
+  String get details => ad.description ?? ad.propertyType ?? '';
+
+  @override
+  String get date => ad.createdAt?.split('T').first ?? '';
+
+  @override
+  String get contact => ad.advertiserName;
+
+  @override
+  bool get isPremium => priority != AdPriority.free;
+
+  @override
+  List<String> get images {
+    final main = ImageUrlHelper.getMainImageUrl(ad.mainImage ?? '');
+    final thumbs = ImageUrlHelper.getFullImageUrls(ad.thumbnailImages);
+    return [if (main.isNotEmpty) main, ...thumbs];
+  }
+
+  @override
+  String get category => 'Real State';
+
+  @override
+  String get addCategory => ad.addCategory ?? 'real_estate';
+
+  @override
+  AdPriority get priority {
+    final plan = ad.planType?.toLowerCase();
+    if (plan == null || plan == 'free') return AdPriority.free;
+    if (plan.contains('premium_star')) return AdPriority.PremiumStar;
+    if (plan.contains('premium')) return AdPriority.premium;
+    if (plan.contains('featured')) return AdPriority.featured;
+    return AdPriority.free;
+  }
+
+  @override
+  int get id => ad.id;
 }
 
 Size getCardSize(double screenWidth) {

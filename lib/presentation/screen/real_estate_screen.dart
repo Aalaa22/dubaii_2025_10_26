@@ -17,6 +17,8 @@ import 'package:advertising_app/presentation/widget/unified_dropdown.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/presentation/providers/real_estate_info_provider.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -30,7 +32,7 @@ class RealEstateScreen extends StatefulWidget {
   State<RealEstateScreen> createState() => _RealEstateScreenState();
 }
 
-class _RealEstateScreenState extends State<RealEstateScreen> {
+class _RealEstateScreenState extends State<RealEstateScreen> with FavoritesHelper<RealEstateScreen> {
   int _selectedIndex = 1;
 
   String? _selectedEmirate;
@@ -42,6 +44,8 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Load favorites cache
+      await loadFavoriteIds();
       // الاعتماد حصراً على auth_token (قد يكون null لبعض الـ APIs العامة)
       final storage = const FlutterSecureStorage();
       final authToken = await storage.read(key: 'auth_token');
@@ -584,12 +588,13 @@ class _RealEstateScreenState extends State<RealEstateScreen> {
                                             ),
                                           ),
                                   ),
-                                  const Positioned(
+                                  Positioned(
                                     top: 8,
                                     right: 8,
-                                    child: Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.grey,
+                                    child: buildFavoriteIcon(
+                                      BestAdvertiserRealEstateItemAdapter(ad),
+                                      onAddToFavorite: () {},
+                                      onRemoveFromFavorite: null,
                                     ),
                                   ),
                                 ],

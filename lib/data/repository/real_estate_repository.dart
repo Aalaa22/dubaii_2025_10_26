@@ -218,7 +218,7 @@ class RealEstateRepository {
   }
 
   // --- دالة إنشاء إعلان عقار جديد ---
-  Future<void> createRealEstateAd({
+  Future<dynamic> createRealEstateAd({
     required String token,
     required Map<String, dynamic> adData
   }) async {
@@ -241,12 +241,18 @@ class RealEstateRepository {
       'plan_expires_at': adData['planExpiresAt'],
     };
 
-    await _apiService.postFormData(
+    // Only include payment when explicitly set by payment step
+    if (adData['payment'] != null) {
+      textData['payment'] = adData['payment'].toString();
+    }
+
+    final response = await _apiService.postFormData(
       '/api/real-estate',
       data: textData,
       mainImage: adData['mainImage'],
       thumbnailImages: adData['thumbnailImages'],
       token: token,
     );
+    return response;
   }
 }

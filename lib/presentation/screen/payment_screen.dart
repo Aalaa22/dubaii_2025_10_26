@@ -2,16 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 // تأكد من استيراد هذه الملفات من مشروعك
 import 'package:advertising_app/constant/string.dart';
 import 'package:advertising_app/generated/l10n.dart';
+import 'package:advertising_app/presentation/providers/car_sales_ad_provider.dart';
+import 'package:advertising_app/presentation/providers/car_services_ad_provider.dart';
+import 'package:advertising_app/presentation/providers/car_rent_ad_provider.dart';
+import 'package:advertising_app/presentation/providers/restaurants_ad_provider.dart';
+import 'package:advertising_app/presentation/providers/real_estate_ad_provider.dart';
+import 'package:advertising_app/presentation/providers/electronics_ad_post_provider.dart';
+import 'package:advertising_app/presentation/providers/other_services_ad_post_provider.dart';
+import 'package:advertising_app/presentation/providers/job_ad_provider.dart';
 
 class PaymentScreen extends StatelessWidget {
   final Function(Locale) onLanguageChange;
+  final Map<String, dynamic>? adData;
+  final num? amount;
+  final String? apiMessage;
 
-  const PaymentScreen({Key? key, required this.onLanguageChange})
-      : super(key: key);
+  const PaymentScreen({
+    Key? key,
+    required this.onLanguageChange,
+    this.adData,
+    this.amount,
+    this.apiMessage,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +36,9 @@ class PaymentScreen extends StatelessWidget {
     final currentLocale = Localizations.localeOf(context).languageCode;
     final primaryColor = Color.fromRGBO(1, 84, 126, 1);
     final borderColor = Color.fromRGBO(8, 194, 201, 1);
+    final String totalAmountStr = amount == null
+        ? '0'
+        : (amount is double ? (amount as double).toStringAsFixed(0) : amount.toString());
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -64,8 +84,30 @@ class PaymentScreen extends StatelessWidget {
               ),
               SizedBox(height: 25.h),
 
+              // API message from previous step (optional)
+              if (apiMessage != null && apiMessage!.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10.r),
+                    border: Border.all(color: primaryColor.withOpacity(0.15)),
+                  ),
+                  child: Text(
+                    _cleanMessage(apiMessage!),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: primaryColor,
+                    ),
+                  ),
+                ),
+
               // Total Section
-              _buildTotalSection(s),
+              _buildTotalSection(s, totalAmountStr),
               SizedBox(height: 5.h),
 
               // Payment Form Section
@@ -76,9 +118,7 @@ class PaymentScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    context.push('/manage');
-                  },
+                  onPressed: () => _payAndSubmit(context),
                   child: Text(s.payNow,
                       style: TextStyle(
                           fontSize: 16.sp,
@@ -101,7 +141,7 @@ class PaymentScreen extends StatelessWidget {
 
   // --- الدوال المساعدة ---
 
-  Widget _buildTotalSection(S s) {
+  Widget _buildTotalSection(S s, String totalAmountStr) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
       decoration: BoxDecoration(
@@ -129,7 +169,7 @@ class PaymentScreen extends StatelessWidget {
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w500,
                   color: KTextColor)),
-          Text("AED 1000",
+          Text("AED $totalAmountStr",
               style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w700,
@@ -273,5 +313,106 @@ class PaymentScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _payAndSubmit(BuildContext context) async {
+    final s = S.of(context);
+    if (adData == null || adData!['adType'] == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('بيانات الإعلان غير كاملة'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    final String adType = adData!['adType'];
+    bool success = false;
+    String? submissionError;
+
+    // Ensure payment flag is included with the ad body
+    try {
+      adData!['payment'] = 1;
+    } catch (_) {}
+
+    // طباعة منظمة لحظة الدفع فقط (بدلاً من الطباعة أثناء الضغط على Submit)
+    try {
+      final planType = adData?['planType'];
+      final planDays = adData?['planDays'];
+      final planExpiresAt = adData?['planExpiresAt'];
+      print('Terminal#948-948: === بدء عملية الدفع وإرسال الإعلان ===');
+      print('نوع الإعلان: $adType');
+      print('Plan Type: $planType');
+      print('Plan Days: $planDays');
+      print('Plan Expires At: $planExpiresAt');
+      print('المبلغ للدفع: ${amount ?? '0'}');
+      print('payment flag: ${adData?['payment']}');
+      print('بيانات الإعلان قبل الإرسال (الدفع): ${adData}');
+    } catch (_) {}
+
+    try {
+      if (adType == 'car_sale') {
+        final provider = context.read<CarAdProvider>();
+        success = await provider.submitCarAd(adData!);
+        submissionError = provider.submitAdError;
+      } else if (adType == 'car_service') {
+        final provider = context.read<CarServicesAdProvider>();
+        success = await provider.submitCarServiceAd(adData!);
+        submissionError = provider.error;
+      } else if (adType == 'car_rent') {
+        final provider = context.read<CarRentAdProvider>();
+        success = await provider.submitCarRentAd(adData!);
+        submissionError = provider.createAdError;
+      } else if (adType == 'restaurant') {
+        final provider = context.read<RestaurantsAdProvider>();
+        success = await provider.submitRestaurantAd(adData!);
+        submissionError = provider.error;
+      } else if (adType == 'real_estate') {
+        final provider = context.read<RealEstateAdProvider>();
+        success = await provider.submitRealEstateAd(adData!);
+        submissionError = provider.error;
+      } else if (adType == 'electronics') {
+        final provider = context.read<ElectronicsAdPostProvider>();
+        success = await provider.submitElectronicsAd(adData!);
+        submissionError = provider.error;
+      } else if (adType == 'job') {
+        final provider = context.read<JobAdProvider>();
+        success = await provider.submitJobAd(adData!);
+        submissionError = provider.submitAdError;
+      } else if (adType == 'other_service') {
+        final provider = context.read<OtherServicesAdPostProvider>();
+        success = await provider.submitOtherServiceAd(adData!);
+        submissionError = provider.error;
+      }
+
+      // طباعة نتيجة الإرسال بعد الدفع
+      try {
+        print('نتيجة الإرسال بعد الدفع: $success');
+        print('خطأ الإرسال (إن وجد): $submissionError');
+        print('Terminal#948-948: === انتهاء عملية الدفع والإرسال ===');
+      } catch (_) {}
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تم الدفع ونشر الإعلان بنجاح'), backgroundColor: Colors.green),
+        );
+        context.push('/manage');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_cleanMessage(submissionError ?? 'فشل في نشر الإعلان بعد الدفع')), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_cleanMessage('حدث خطأ: $e')), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  String _cleanMessage(String raw) {
+    var s = raw.trim();
+    s = s.replaceAll(RegExp(r'^\s*Exception:\s*', caseSensitive: false), '');
+    s = s.replaceAll(RegExp(r'Exception:\s*', caseSensitive: false), '');
+    s = s.replaceAll(RegExp(r'^\s*exeption:\s*', caseSensitive: false), '');
+    s = s.replaceAll(RegExp(r'exeption:\s*', caseSensitive: false), '');
+    return s.trim();
   }
 }

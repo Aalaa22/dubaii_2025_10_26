@@ -13,6 +13,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:math';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_model.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -26,7 +29,8 @@ class OtherServiceScreen extends StatefulWidget {
   State<OtherServiceScreen> createState() => _OtherServiceScreenState();
 }
 
-class _OtherServiceScreenState extends State<OtherServiceScreen> {
+class _OtherServiceScreenState extends State<OtherServiceScreen>
+    with FavoritesHelper<OtherServiceScreen> {
   int _selectedIndex = 7;
 
   // +++ اختيارات فردية مع خيار All +++
@@ -41,6 +45,7 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
       context.read<OtherServicesAdProvider>().fetchAds();
       // جلب بيانات الفلاتر (الإمارات و الأقسام) من المصدر الحقيقي
       context.read<OtherServicesInfoProvider>().fetchAllData();
+      loadFavoriteIds();
     });
   }
 
@@ -416,7 +421,17 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
                                                     Positioned(
                                                       top: 8,
                                                       right: 8,
-                                                      child: Icon(Icons.favorite_border, color: Colors.grey.shade300),
+                                                      child: buildFavoriteIcon(
+                                                        BestAdvertiserOtherServiceItemAdapter(
+                                                          BestAdvertiserAd.fromJson(
+                                                            ad,
+                                                            advertiserId: advertiserId,
+                                                            advertiserName: advertiserName,
+                                                          ),
+                                                        ),
+                                                        onAddToFavorite: () {},
+                                                        onRemoveFromFavorite: null,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),

@@ -14,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/restaurants_info_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -27,7 +29,7 @@ class RestaurantsScreen extends StatefulWidget {
   State<RestaurantsScreen> createState() => _RestaurantsScreenState();
 }
 
-class _RestaurantsScreenState extends State<RestaurantsScreen> {
+class _RestaurantsScreenState extends State<RestaurantsScreen> with FavoritesHelper<RestaurantsScreen> {
   int _selectedIndex = 6;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   
@@ -40,6 +42,8 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load favorites cache
+      loadFavoriteIds();
       _loadData();
     });
   }
@@ -521,10 +525,11 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                                                             Positioned(
                                                               top: 8,
                                                               right: 8,
-                                                              child: Icon(
-                                                                  Icons.favorite_border,
-                                                                  color:
-                                                                      Colors.grey.shade300),
+                                                              child: buildFavoriteIcon(
+                                                                BestAdvertiserRestaurantItemAdapter(ad),
+                                                                onAddToFavorite: () {},
+                                                                onRemoveFromFavorite: null,
+                                                              ),
                                                             ),
                                                           ],
                                                         ),

@@ -1,6 +1,9 @@
 import 'package:advertising_app/data/car_sevice_dummy_data.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,7 +27,63 @@ class CarServiceOfferBox extends StatefulWidget {
   State<CarServiceOfferBox> createState() => _CarServiceOfferBoxState();
 }
 
-class _CarServiceOfferBoxState extends State<CarServiceOfferBox> {
+// Adapter class to make CarServiceModel compatible with FavoriteItemInterface for Offers Box
+class CarServiceOfferItemAdapter implements FavoriteItemInterface {
+  final CarServiceModel _ad;
+  CarServiceOfferItemAdapter(this._ad);
+
+  @override
+  String get id => _ad.id.toString();
+
+  @override
+  String get contact => _ad.advertiserName;
+
+  @override
+  String get details => _ad.title;
+
+  @override
+  String get category => 'Car Service';
+
+  @override
+  String get addCategory => _ad.addCategory ?? 'Car Service';
+
+  @override
+  List<String> get images => [
+        ImageUrlHelper.getMainImageUrl(_ad.mainImage),
+        ...ImageUrlHelper.getThumbnailImageUrls(_ad.thumbnailImages)
+      ].where((img) => img.isNotEmpty).toList();
+
+  @override
+  String get line1 => "Service: ${_ad.serviceName}  Type: ${_ad.serviceType}";
+
+  @override
+  String get location => "${_ad.emirate}  ${_ad.district}".trim();
+
+  @override
+  String get price => _ad.price;
+
+  @override
+  String get title => _ad.title;
+
+  @override
+  String get date => _ad.createdAt?.split('T').first ?? '';
+
+  @override
+  bool get isPremium {
+    if (_ad.planType == null) return false;
+    return _ad.planType!.toLowerCase() != 'free';
+  }
+
+  @override
+  AdPriority get priority {
+    if (_ad.planType == null || _ad.planType!.toLowerCase() == 'free') {
+      return AdPriority.free;
+    }
+    return AdPriority.premium;
+  }
+}
+
+class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesHelper<CarServiceOfferBox> {
 
   // +++ تم تحديث المتغيرات لتناسب الأنواع الجديدة للحقول +++
   List<String> _selectedServiceTypes = [];
@@ -40,6 +99,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CarServicesOffersProvider>().fetchOfferAds();
     });
+    loadFavoriteIds();
   }
 
   @override
@@ -404,8 +464,11 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> {
                                   Positioned(
                                     top: 8,
                                     right: 8,
-                                    child: Icon(Icons.favorite_border,
-                                        color: Colors.grey.shade300),
+                                    child: buildFavoriteIcon(
+                                      CarServiceOfferItemAdapter(car),
+                                      onAddToFavorite: () {},
+                                      onRemoveFromFavorite: null,
+                                    ),
                                   ),
                                 ]),
                                 Expanded(

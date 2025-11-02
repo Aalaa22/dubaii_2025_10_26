@@ -906,6 +906,11 @@ class CarRentAdProvider extends ChangeNotifier {
         'plan_expires_at': adData['planExpiresAt']?.toString() ?? '',
       };
 
+      // Include payment only when explicitly set by the payment step
+      if (adData['payment'] != null) {
+        submissionData['payment'] = adData['payment'].toString();
+      }
+
      // // print('=== DETAILED SUBMISSION DATA DEBUG ===');
       submissionData.forEach((key, value) {
        // // print('$key: "$value" (${value.runtimeType}) - Length: ${value.toString().length}');

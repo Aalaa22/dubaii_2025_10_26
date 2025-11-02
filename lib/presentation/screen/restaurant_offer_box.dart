@@ -8,6 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -22,7 +25,7 @@ class RestaurantOfferBox extends StatefulWidget {
   State<RestaurantOfferBox> createState() => _RestaurantOfferBoxState();
 }
 
-class _RestaurantOfferBoxState extends State<RestaurantOfferBox> {
+class _RestaurantOfferBoxState extends State<RestaurantOfferBox> with FavoritesHelper<RestaurantOfferBox> {
   
   // +++ تم تحديث المتغيرات لتناسب الأنواع الجديدة للحقول +++
   List<String> _selectedDistricts = [];
@@ -33,6 +36,7 @@ class _RestaurantOfferBoxState extends State<RestaurantOfferBox> {
   @override
   void initState() {
     super.initState();
+    loadFavoriteIds();
     _refreshData();
   }
 
@@ -347,9 +351,10 @@ Widget _buildRestaurantGrid(List<RestaurantAdModel> ads, Size cardSize) {
                           Positioned(
                             top: 8,
                             right: 8,
-                            child: Icon(
-                              Icons.favorite_border,
-                              color: Colors.grey.shade300,
+                            child: buildFavoriteIcon(
+                              RestaurantOfferItemAdapter(ad),
+                              onAddToFavorite: () {},
+                              onRemoveFromFavorite: null,
                             ),
                           ),
                         ],
@@ -699,4 +704,50 @@ class __RangeSelectionBottomSheetState extends State<_RangeSelectionBottomSheet>
       ),
     );
   }
+}
+
+// Adapter to make RestaurantAdModel compatible with FavoriteItemInterface
+class RestaurantOfferItemAdapter implements FavoriteItemInterface {
+  final RestaurantAdModel ad;
+
+  RestaurantOfferItemAdapter(this.ad);
+
+  @override
+  String get id => ad.id.toString();
+
+  @override
+  String get title => ad.title;
+
+  @override
+  String get location => ("${ad.emirate} ${ad.district} ${ad.area ?? ''}").trim();
+
+  @override
+  String get price => ad.priceRange;
+
+  @override
+  String get line1 => ad.title;
+
+  @override
+  String get details => ad.description;
+
+  @override
+  String get date => ad.createdAt ?? '';
+
+  @override
+  String get contact => ad.phoneNumber;
+
+  @override
+  bool get isPremium => ad.planType == 'premium' || ad.activeOffersBoxStatus;
+
+  @override
+  List<String> get images => ad.thumbnailImagesUrls.isNotEmpty ? ad.thumbnailImagesUrls : ad.thumbnailImages;
+
+  @override
+  String get category => 'restaurant';
+
+  @override
+  String get addCategory => ad.addCategory;
+
+  @override
+  AdPriority get priority => isPremium ? AdPriority.premium : AdPriority.free;
 }

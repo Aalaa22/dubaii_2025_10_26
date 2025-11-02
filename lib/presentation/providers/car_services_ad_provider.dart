@@ -30,7 +30,7 @@ Future<bool> submitCarServiceAd(Map<String, dynamic> adData) async {
       }
 
       // ++ الآن نقوم باستخراج كل البيانات من الـ Map وتمريرها ++
-      await _repository.createCarServiceAd(
+      final response = await _repository.createCarServiceAd(
         token: token,
         title: adData['title'],
         description: adData['description'],
@@ -51,11 +51,26 @@ Future<bool> submitCarServiceAd(Map<String, dynamic> adData) async {
         planType: adData['planType'],
         planDays: adData['planDays'],
         planExpiresAt: adData['planExpiresAt'],
+        payment: adData['payment']?.toString(),
       );
+      
+      bool success = false;
+      String? apiMessage;
+      if (response is Map<String, dynamic>) {
+        success = response['success'] == true || response.containsKey('id');
+        apiMessage = response['message']?.toString();
+      } else {
+        success = true;
+      }
 
       _isSubmitting = false;
       notifyListeners();
-      return true;
+      if (success) {
+        return true;
+      } else {
+        _error = apiMessage ?? 'فشل إنشاء إعلان خدمات السيارات';
+        return false;
+      }
 
     } catch (e) {
       // print('CarServicesAdProvider Error: $e');

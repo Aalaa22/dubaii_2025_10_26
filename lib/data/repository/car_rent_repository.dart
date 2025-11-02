@@ -133,34 +133,41 @@ class CarRentRepository {
   // دالة إنشاء إعلان تأجير سيارات جديد
   Future<void> createCarRentAd(
       {required String token, required Map<String, dynamic> adData}) async {
+    final Map<String, dynamic> data = {
+      'emirate': adData['emirate'],
+      'make': adData['make'],
+      'model': adData['model'],
+      'trim': adData['trim'],
+      'price': adData['price'],
+      'year': adData['year'],
+      'day_rent': adData['day_rent'],
+      'month_rent': adData['month_rent'],
+      'title': adData['title'],
+      'car_type': adData['car_type'],
+      'trans_type': adData['trans_type'],
+      'fuel_type': adData['fuel_type'],
+      'color': adData['color'],
+      'interior_color': adData['interior_color'],
+      'seats_no': adData['seats_no'],
+      'area': adData['area'],
+      'phone_number': adData['phone_number'],
+      'whatsapp': adData['whatsapp'],
+      'advertiser_name': adData['advertiser_name'],
+      'description': adData['description'],
+      'location': adData['location'],
+      'plan_type': adData['planType'],
+      'plan_days': adData['planDays'],
+      'plan_expires_at': adData['planExpiresAt'],
+    };
+
+    // Include payment only when explicitly provided
+    if (adData['payment'] != null) {
+      data['payment'] = adData['payment'].toString();
+    }
+
     await _apiService.postFormData(
       '/api/car-rent-ads/', // Updated endpoint as requested
-      data: {
-        'emirate': adData['emirate'],
-        'make': adData['make'],
-        'model': adData['model'],
-        'trim': adData['trim'],
-        'price': adData['price'],
-        'year': adData['year'],
-        'day_rent': adData['day_rent'],
-        'month_rent': adData['month_rent'],
-        'title': adData['title'],
-        'car_type': adData['car_type'],
-        'trans_type': adData['trans_type'],
-        'fuel_type': adData['fuel_type'],
-        'color': adData['color'],
-        'interior_color': adData['interior_color'],
-        'seats_no': adData['seats_no'],
-        'area': adData['area'],
-        'phone_number': adData['phone_number'],
-        'whatsapp': adData['whatsapp'],
-        'advertiser_name': adData['advertiser_name'],
-        'description': adData['description'],
-        'location': adData['location'],
-        'plan_type': adData['planType'],
-        'plan_days': adData['planDays'],
-        'plan_expires_at': adData['planExpiresAt'],
-      },
+      data: data,
       mainImage: adData['mainImage'],
       thumbnailImages: adData['thumbnailImages'],
       token: token,

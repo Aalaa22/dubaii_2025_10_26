@@ -15,6 +15,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -28,7 +30,8 @@ class CarService extends StatefulWidget {
   State<CarService> createState() => _CarServiceState();
 }
 
-class _CarServiceState extends State<CarService> {
+class _CarServiceState extends State<CarService>
+    with FavoritesHelper<CarService> {
   int _selectedIndex = 5;
 
   @override
@@ -40,6 +43,7 @@ class _CarServiceState extends State<CarService> {
       final provider = context.read<CarServicesInfoProvider>();
       provider.clearFilters();
       await provider.fetchLandingPageData();
+      await loadFavoriteIds();
     });
   }
 
@@ -280,7 +284,7 @@ class _CarServiceState extends State<CarService> {
 
   Widget _buildTopDealersSection(CarServicesInfoProvider provider) {
     if (provider.isLoadingTopGarages && provider.topGarages.isEmpty) {
-      return const Center(heightFactor:5, child: CircularProgressIndicator());
+      return const Center(heightFactor: 5, child: CircularProgressIndicator());
     }
     if (provider.topGaragesError != null) {
       return Center(
@@ -309,10 +313,10 @@ class _CarServiceState extends State<CarService> {
                 const Spacer(),
                 InkWell(
                     onTap: () {
-                        final advertiserId = garage.id.toString();
-                        debugPrint('Navigating to all ads with advertiser ID: $advertiserId');
-                        context.push('/all_ad_car_sales/$advertiserId');
-                    
+                      final advertiserId = garage.id.toString();
+                      debugPrint(
+                          'Navigating to all ads with advertiser ID: $advertiserId');
+                      context.push('/all_ad_car_sales/$advertiserId');
                     },
                     child: Text(S.of(context).see_all_ads,
                         style: TextStyle(
@@ -333,7 +337,7 @@ class _CarServiceState extends State<CarService> {
                   final ad = garage.ads[index];
                   return GestureDetector(
                     onTap: () {
-                     // context.push('/car_service_details', extra: ad);
+                      // context.push('/car_service_details', extra: ad);
                     },
                     child: Padding(
                       padding: EdgeInsetsDirectional.only(end: 8.w),
@@ -350,58 +354,74 @@ class _CarServiceState extends State<CarService> {
                                   offset: Offset(0, 2.h))
                             ]),
                         child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start, 
-                          children: [
-                          ClipRRect(
-                              borderRadius: BorderRadius.circular(4.r),
-                              child: CachedNetworkImage(
-                                  imageUrl: ImageUrlHelper.getMainImageUrl(
-                                      ad.mainImage ?? ''),
-                                  height: 94.h,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Container(
-                                      color: Colors.grey[300],
-                                      child: Center(
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2))),
-                                  errorWidget: (context, url, error) =>
-                                      Image.asset('assets/images/car.jpg',
-                                          fit: BoxFit.cover))),
-                          Expanded(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: Column(
-                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                      "${NumberFormatter.formatPrice(ad.price)}",
-                                      style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 11.5.sp)),
-                                  Text(ad.serviceName ?? '',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 11.5.sp,
-                                          color: KTextColor),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis),
-                                  Text(
-                                      "${ad.emirate ?? ''} ${ad.district ?? ''}",
-                                      style: TextStyle(
-                                          fontSize: 11.5.sp,
-                                          color: const Color.fromRGBO(
-                                              165, 164, 162, 1),
-                                          fontWeight: FontWeight.w600)),
-                                ],
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Stack(children: [
+                                ClipRRect(
+                                    borderRadius: BorderRadius.circular(4.r),
+                                    child: CachedNetworkImage(
+                                        imageUrl:
+                                            ImageUrlHelper.getMainImageUrl(
+                                                ad.mainImage ?? ''),
+                                        height: 94.h,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Container(
+                                                color: Colors.grey[300],
+                                                child: Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            strokeWidth: 2))),
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset(
+                                                'assets/images/car.jpg',
+                                                fit: BoxFit.cover))),
+                                  Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: buildFavoriteIcon(
+                                    BestAdvertiserCarServiceItemAdapter(ad),
+                                    onAddToFavorite: () {},
+                                    onRemoveFromFavorite: null,
+                                  ),
+                                ),
+                              ]),
+                              Expanded(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text(
+                                          "${NumberFormatter.formatPrice(ad.price)}",
+                                          style: TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 11.5.sp)),
+                                      Text(ad.serviceName ?? '',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 11.5.sp,
+                                              color: KTextColor),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis),
+                                      Text(
+                                          "${ad.emirate ?? ''} ${ad.district ?? ''}",
+                                          style: TextStyle(
+                                              fontSize: 11.5.sp,
+                                              color: const Color.fromRGBO(
+                                                  165, 164, 162, 1),
+                                              fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ]),
+                            ]),
                       ),
                     ),
                   );

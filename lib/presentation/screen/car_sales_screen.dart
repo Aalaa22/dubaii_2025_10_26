@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -28,7 +30,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen> {
   int _selectedIndex = 0;
   bool _showValidationError = false;
   String _validationMessage = "";
@@ -36,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Load existing favorite ids
+    loadFavoriteIds();
     _refreshData();
   }
 
@@ -352,7 +356,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () {
                         // تمرير معرف المعلن عند النقر على "عرض كل الإعلانات"
                         final advertiserId = dealer.id.toString();
-                        debugPrint('Navigating to all ads with advertiser ID: $advertiserId');
+                        debugPrint(
+                            'Navigating to all ads with advertiser ID: $advertiserId');
                         context.push('/all_ad_car_sales/$advertiserId');
                       },
                       child: Text(s.see_all_ads,
@@ -411,6 +416,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Image.asset('assets/images/car.jpg',
                                             fit: BoxFit.cover),
                                   )),
+
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: buildFavoriteIcon(
+                                      BestAdvertiserCarSalesItemAdapter(car),
+                                      onAddToFavorite: () {},
+                                    ),
+                                  ),
                             ]),
                             Expanded(
                               child: Padding(

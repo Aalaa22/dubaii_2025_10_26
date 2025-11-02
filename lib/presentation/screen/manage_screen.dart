@@ -44,8 +44,8 @@ String _normalizeCategorySlugForOffers(MyAdModel ad) {
   if (slug.contains('electronics') || slug.contains('electronic') || cat.contains('electronics')) {
     return 'electronics';
   }
-  if (slug.contains('other-services') || slug.contains('Other Services') || slug.contains('other_services') || cat.contains('other services')) {
-    return 'other-services';
+  if (slug.contains('other-services') || slug.contains('Other Services') || slug.contains('other_services') || cat.contains('Other Services')) {
+    return 'other_services';
   }
   return slug.isNotEmpty ? slug : cat.replaceAll(' ', '-');
 }

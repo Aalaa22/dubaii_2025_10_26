@@ -30,6 +30,8 @@ class SearchCard extends StatefulWidget {
   
   // اختياري: ويدجت مخصص في أسفل الكارد (مثل معلومات التواصل)
   final Widget? customBottomWidget;
+  // اختياري: ويدجت مخصص بجانب سطر الموقع (مثل أيقونة الحذف)
+  final Widget? customLocationTrailing;
 
   const SearchCard({
     super.key,
@@ -42,6 +44,7 @@ class SearchCard extends StatefulWidget {
     this.customActionButtons,
     this.customImageUrl,
     this.customBottomWidget,
+    this.customLocationTrailing,
     
   });
 
@@ -68,7 +71,18 @@ class _SearchCardState extends State<SearchCard> with FavoritesHelper {
 
   Widget _buildImageWidget(String imagePath) {
     // استخدام ImageUrlHelper لمعالجة مسارات الصور (يشمل تحويل file:// و /storage إلى رابط كامل)
-    final processedUrl = ImageUrlHelper.getFullImageUrl(imagePath);
+    final rawPath = imagePath.trim();
+    if (rawPath.isEmpty || rawPath.toLowerCase() == 'null') {
+      return Container(
+        color: Colors.grey[300],
+        width: double.infinity,
+        child: const Center(
+          child: Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
+        ),
+      );
+    }
+
+    final processedUrl = ImageUrlHelper.getFullImageUrl(rawPath);
 
     // إذا كان الرابط المعالج شبكة (http/https) نستخدم CachedNetworkImage
     if (processedUrl.startsWith('http://') || processedUrl.startsWith('https://')) {
@@ -82,7 +96,7 @@ class _SearchCardState extends State<SearchCard> with FavoritesHelper {
         ),
         errorWidget: (context, url, error) {
           debugPrint('خطأ في تحميل الصورة من الشبكة: $error');
-          debugPrint('الرابط الأصلي: $imagePath');
+          debugPrint('الرابط الأصلي: $rawPath');
           debugPrint('الرابط المعالج: $processedUrl');
           return Container(
             color: Colors.grey[300],
@@ -98,26 +112,36 @@ class _SearchCardState extends State<SearchCard> with FavoritesHelper {
       );
     }
 
-
-    // خلاف ذلك نعاملها كأصل محلي (assets) باستخدام المسار الأصلي
-    return Image.asset(
-      imagePath,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      errorBuilder: (context, error, stackTrace) {
-        debugPrint('خطأ في تحميل الصورة المحلية: $error');
-        debugPrint('مسار الصورة: $imagePath');
-        return Container(
-          color: Colors.grey[300],
-          child: const Center(
-            child: Icon(
-              Icons.broken_image,
-              color: Colors.grey,
-              size: 50,
+    // إذا كان مسار أصل محلي معروف
+    if (rawPath.startsWith('assets/')) {
+      return Image.asset(
+        rawPath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('خطأ في تحميل الصورة المحلية: $error');
+          debugPrint('مسار الصورة: $rawPath');
+          return Container(
+            color: Colors.grey[300],
+            child: const Center(
+              child: Icon(
+                Icons.broken_image,
+                color: Colors.grey,
+                size: 50,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      );
+    }
+
+    // مسار غير صالح
+    return Container(
+      color: Colors.grey[300],
+      width: double.infinity,
+      child: const Center(
+        child: Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
+      ),
     );
   }
 
@@ -247,14 +271,16 @@ class _SearchCardState extends State<SearchCard> with FavoritesHelper {
                         ),
                   ),
                 ],
-                const SizedBox(height: 6),
-                Text(
-                  item.details,
-                  maxLines: 1, // تحديد سطرين
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w600, height: 1.2),
-                ),
-                SizedBox(height: 6),
+                if (item.details.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    item.details,
+                    maxLines: 1, // تحديد سطر واحد
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w600, height: 1.2),
+                  ),
+                  SizedBox(height: 6),
+                ],
                 Transform.translate(
                   offset: Offset(-16.w, 0),
                   child: Row(
@@ -269,6 +295,10 @@ class _SearchCardState extends State<SearchCard> with FavoritesHelper {
                           style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
                         ),
                       ),
+                      if (widget.customLocationTrailing != null) ...[
+                        SizedBox(width: 8.w),
+                        widget.customLocationTrailing!,
+                      ]
                     ],
                   ),
                 ),

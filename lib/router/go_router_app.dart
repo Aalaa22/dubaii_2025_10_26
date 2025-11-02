@@ -481,7 +481,23 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: '/payment',
-        builder: (context, state) => PaymentScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final dynamic amountExtra = extra?['amount'];
+          num? amount;
+          if (amountExtra is String) {
+            amount = num.tryParse(amountExtra);
+          } else if (amountExtra is num) {
+            amount = amountExtra;
+          }
+
+          return PaymentScreen(
+            onLanguageChange: (locale) => changeLocale(context, locale),
+            adData: extra?['adData'] as Map<String, dynamic>?,
+            amount: amount,
+            apiMessage: extra?['apiMessage'] as String?,
+          );
+        },
       ),
     ],
   );

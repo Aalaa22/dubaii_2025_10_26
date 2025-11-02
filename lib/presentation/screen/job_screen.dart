@@ -14,6 +14,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -27,7 +29,7 @@ class JobScreen extends StatefulWidget {
   State<JobScreen> createState() => _JobScreenState();
 }
 
-class _JobScreenState extends State<JobScreen> {
+class _JobScreenState extends State<JobScreen> with FavoritesHelper<JobScreen> {
   int _selectedIndex = 3;
 
   // +++ تحويل المتغيرات لدعم الاختيار الفردي +++
@@ -39,6 +41,8 @@ class _JobScreenState extends State<JobScreen> {
     super.initState();
     // Fetch job ads when the screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load favorites cache
+      loadFavoriteIds();
       final provider = context.read<JobAdProvider>();
       provider.fetchAds();
       provider.fetchBestAdvertisers();
@@ -461,13 +465,14 @@ class _JobScreenState extends State<JobScreen> {
                                                             ),
                                                     ),
                                                     Positioned(
-                                                        top: 8,
-                                                        right: 8,
-                                                        child: Icon(
-                                                            Icons
-                                                                .favorite_border,
-                                                            color: Colors.grey
-                                                                .shade300)),
+                                                      top: 8,
+                                                      right: 8,
+                                                      child: buildFavoriteIcon(
+                                                        BestAdvertiserJobItemAdapter(ad),
+                                                        onAddToFavorite: () {},
+                                                        onRemoveFromFavorite: null,
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                                 Expanded(

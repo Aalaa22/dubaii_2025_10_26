@@ -219,13 +219,13 @@ class MyAdsProvider with ChangeNotifier {
         if (s.contains('car-sales') || s.contains('car_sales')) return 'car_sales';
         if (s.contains('car-rent') || s.contains('car_rent')) return 'car_rent';
         // استخدم الشرطة الوسطى للفئة "خدمات السيارات" وفق ما تستخدمه واجهات العروض
-        if (s.contains('car-services') || s.contains('car_services')) return 'car-services';
+        if (s.contains('car-services') || s.contains('car_services')) return 'car_services';
         if (s.contains('restaurant')) return 'restaurant';
         if (s.contains('real-estate') || s.contains('real_estate')) return 'real-estate';
         if (s.contains('electronics') || s.contains('electronic')) return 'electronics';
         // Jobs category: backend expects singular 'job' for activation
         if (s.contains('jobs') || s.contains('job') || s.contains('jop')) return 'Jobs';
-        if (s.contains('other-services') || s.contains('other_services')) return 'other-services';
+        if (s.contains('other-services') || s.contains('other_services')) return 'other_services';
         return s;
       }
       final normalizedSlug = _normalizeCategorySlug(categorySlug);
@@ -255,17 +255,19 @@ class MyAdsProvider with ChangeNotifier {
     } catch (e) {
       // معالجة أفضل لرسائل الخطأ
       String errorMessage = e.toString();
+      final lower = errorMessage.toLowerCase();
       
       // إذا كان الخطأ يحتوي على معلومات عن category_slug غير صحيح
-      if (errorMessage.contains('category_slug') || errorMessage.contains('invalid')) {
+      if (lower.contains('category_slug') || lower.contains('invalid')) {
         _activationError = 'فئة الإعلان غير صحيحة. يرجى المحاولة مرة أخرى.';
-      } else if (errorMessage.contains('full') || errorMessage.contains('max')) {
+      } else if (lower.contains('full') || lower.contains('max')) {
         _activationError = 'صندوق العروض ممتلئ حالياً. يرجى المحاولة لاحقاً.';
-      } else if (errorMessage.contains('already')) {
-        _activationError = 'هذا الإعلان موجود بالفعل في صندوق العروض.';
-      } else if (errorMessage.contains('Unauthorized') || errorMessage.contains('403')) {
+      } else if (lower.contains('already')) {
+        // رسالة عربية + إنجليزية كما طلب المستخدم
+        _activationError = 'هذا الإعلان موجود بالفعل في صندوق العروض.\nThis ad is already in the Offers Box.';
+      } else if (lower.contains('unauthorized') || lower.contains('403')) {
         _activationError = 'ليس لديك صلاحية لتفعيل هذا الإعلان.';
-      } else if (errorMessage.contains('not found') || errorMessage.contains('404')) {
+      } else if (lower.contains('not found') || lower.contains('404')) {
         _activationError = 'الإعلان غير موجود.';
       } else {
         _activationError = 'حدث خطأ أثناء تفعيل الإعلان. يرجى المحاولة مرة أخرى.';
