@@ -482,8 +482,8 @@ class _SettingScreenState extends State<SettingScreen> {
   Future<void> _setPassword() async {
     if (_passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى ملء جميع الحقول'),
+         SnackBar(
+          content: Text(S.of(context).please_select_all_fields),
           backgroundColor: Colors.red,
         ),
       );
@@ -492,8 +492,8 @@ class _SettingScreenState extends State<SettingScreen> {
 
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('كلمات المرور غير متطابقة'),
+        SnackBar(
+          content: Text(S.of(context).passwordsDoNotMatch),
           backgroundColor: Colors.red,
         ),
       );
@@ -537,8 +537,8 @@ class _SettingScreenState extends State<SettingScreen> {
       
       Navigator.of(context).pop(); // Close dialog
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم تعيين كلمة المرور بنجاح وتم ترقية حسابك إلى معلن'),
+         SnackBar(
+          content: Text(S.of(context).passwordSetSuccessUpgraded),
           backgroundColor: Colors.green,
         ),
       );
@@ -555,7 +555,7 @@ class _SettingScreenState extends State<SettingScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تعيين كلمة المرور: ${e.toString()}'),
+          content: Text(S.of(context).errorSettingPassword +'${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -576,8 +576,8 @@ class _SettingScreenState extends State<SettingScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              title: const Text(
-                'Secure Your Account',
+              title: Text(
+                S.of(context).searchCountry,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -589,9 +589,8 @@ class _SettingScreenState extends State<SettingScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Before accessing your profile, please set a password to upgrade to an Advertiser account.',
-                      style: TextStyle(
+                     Text(
+                      S.of(context).setPasswordToUpgradeDescription, style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF666666),
                         height: 1.4,
@@ -603,7 +602,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     // Password field
                     CustomTextField(
                       controller: _passwordController,
-                      hintText: 'Enter Password',
+                      hintText:  S.of(context).enterpassword,
                       isPassword: true,
                       prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1B365D)),
                     ),
@@ -612,7 +611,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     // Confirm Password field
                     CustomTextField(
                       controller: _confirmPasswordController,
-                      hintText: 'Confirm Password',
+                      hintText:  S.of(context).confirmpass,
                       isPassword: true,
                       prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1B365D)),
                     ),
@@ -638,8 +637,8 @@ class _SettingScreenState extends State<SettingScreen> {
                             //side: const BorderSide(color: Color(0xFF1B365D)),
                           ),
                         ),
-                        child: const Text(
-                          'Cancel',
+                        child:  Text(
+                           S.of(context).cancel,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -668,8 +667,8 @@ class _SettingScreenState extends State<SettingScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text(
-                                'Set Password',
+                            : Text(
+                                 S.of(context).setPassword,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,

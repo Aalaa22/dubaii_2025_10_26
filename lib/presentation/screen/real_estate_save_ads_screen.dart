@@ -616,7 +616,7 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
                       markerId: const MarkerId('ad_location'),
                       position: adLocation,
                       infoWindow: InfoWindow(
-                        title: ad?.location.isNotEmpty == true ? 'الموقع المحدد' : (ad?.emirate ?? 'الموقع'),
+                        title: ad?.location.isNotEmpty == true ? S.of(context).location : (ad?.emirate ?? S.of(context).location),
                         snippet: ad?.location.isNotEmpty == true ? ad!.location : (ad?.area ?? ''),
                       ),
                     ),
@@ -776,7 +776,12 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تم حفظ الإعلان بنجاح')),
+          SnackBar(
+            content: Text(
+              S.of(context).saveSuccess,
+              textDirection: Directionality.of(context),
+            ),
+          ),
         );
         Navigator.pop(context);
       } else {
@@ -784,7 +789,12 @@ class _RealEstateSaveAdScreenState extends State<RealEstateSaveAdScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ أثناء حفظ الإعلان: $e')),
+        SnackBar(
+          content: Text(
+            S.of(context).saveFailed(e.toString()),
+            textDirection: Directionality.of(context),
+          ),
+        ),
       );
     } finally {
       setState(() => _isLoading = false);

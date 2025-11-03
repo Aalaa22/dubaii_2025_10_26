@@ -103,7 +103,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
     if (currentTotal >= maxThumbnails) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('لا يمكن إضافة المزيد من الصور. الحد الأقصى $maxThumbnails صور'),
+          content: Text(S.of(context).cannotAddMoreImages(maxThumbnails)),
           backgroundColor: Colors.red,
         ),
       );
@@ -119,7 +119,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         newImages = newImages.take(remainingSlots).toList();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تم اختيار ${newImages.length} صورة فقط. الحد الأقصى $maxThumbnails صورة إجمالية'),
+            content: Text(S.of(context).limitedImagesSelected(newImages.length, maxThumbnails)),
             backgroundColor:Color.fromRGBO(1, 84, 126, 1),
           ),
         );
@@ -208,10 +208,10 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
 
       if (mounted) {
           if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم الحفظ بنجاح'), backgroundColor: Colors.green));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).saveSuccess), backgroundColor: Colors.green));
               context.pop(); // العودة للشاشة السابقة
           } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل الحفظ: ${provider.updateAdError}'), backgroundColor: Colors.red));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).saveFailed(provider.updateAdError ?? '')), backgroundColor: Colors.red));
           }
       }
   }
@@ -233,10 +233,10 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
       body: provider.isLoadingDetails
           ? const Center(child: CircularProgressIndicator())
           : provider.detailsError != null
-              ? Center(child: Text('حدث خطأ أثناء جلب البيانات: ${provider.detailsError}'))
+              ? Center(child: Text(S.of(context).errorFetchingData(provider.detailsError ?? '')))
               : provider.adDetails == null
-                  ? const Center(child: Text('لم يتم العثور على الإعلان.'))
-          : _buildFormUI(provider.adDetails!), // بناء الواجهة بعد جلب البيانات
+                  ? Center(child: Text(S.of(context).adNotFound))
+                  : _buildFormUI(provider.adDetails!), // بناء الواجهة بعد جلب البيانات
     );
   }
   
@@ -338,7 +338,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               _buildImageButton(s.addMainImage, Icons.add_a_photo_outlined, borderColor, onPressed: _pickMainImage),
               const SizedBox(height: 6),
               if (_mainImageFile != null) ...[
-                Text('تم اختيار صورة رئيسية جديدة', style: const TextStyle(color: Colors.green)),
+                Text(S.of(context).newMainImageSelected, style: const TextStyle(color: Colors.green)),
                 const SizedBox(height: 8),
                 Container(
                   height: 100,
@@ -353,8 +353,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
                   ),
                 ),
               ] else if (ad.mainImage.isNotEmpty) ...[
-                Text('الصورة الرئيسية الحالية', style: TextStyle(color: KTextColor, fontSize: 12.sp, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 8),
+                // Text(S.of(context).currentMainImage, style: TextStyle(color: KTextColor, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+                // const SizedBox(height: 8),
                 Container(
                   height: 100,
                   width: 100,
@@ -469,7 +469,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
               SizedBox(height: 4.h),
               Directionality(
-                textDirection: TextDirection.ltr,
+                textDirection: Directionality.of(context),
                 child: Row(
                   children: [
                     SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
@@ -522,7 +522,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         child: SingleChildScrollView(
           child: Text('UI Render Error:\n\n$e\n\n$stackTrace',
             style: const TextStyle(color: Colors.red, fontSize: 16),
-            textDirection: TextDirection.ltr,
+            textDirection: Directionality.of(context),
           ),
         ),
       );
@@ -595,8 +595,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
                       position: adLocation,
                       infoWindow: InfoWindow(
                         title: ad?.location?.isNotEmpty == true 
-                            ? 'الموقع المحدد' 
-                            : ad?.emirate ?? 'الموقع',
+                            ? S.of(context).location 
+                            : ad?.emirate ?? S.of(context).location,
                         snippet: ad?.location?.isNotEmpty == true 
                             ? ad!.location 
                             : ad?.area ?? '',
@@ -697,7 +697,7 @@ class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
                 padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
                 child: Align(
                     alignment: Alignment.bottomRight,
-                    child: Text('${widget.controller.text.length}/${widget.maxLength}', style: const TextStyle(color: Colors.grey, fontSize: 12), textDirection: TextDirection.ltr)),
+                    child: Text('${widget.controller.text.length}/${widget.maxLength}', style: const TextStyle(color: Colors.grey, fontSize: 12), textDirection: Directionality.of(context))),
               )
             ],
           ),

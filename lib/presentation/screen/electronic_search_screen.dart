@@ -54,6 +54,12 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
         final initial = widget.initialFilters;
         if (initial != null && initial.isNotEmpty) {
           final Map<String, String> filterParams = {};
+          // Apply keyword locally if provided
+          if (initial['keyword'] != null && initial['keyword']!.trim().isNotEmpty) {
+            context
+                .read<ElectronicsAdProvider>()
+                .updateKeyword(initial['keyword']!.trim());
+          }
           if (initial['emirate'] != null && initial['emirate'] != 'All') {
             // تأكيد اسم الإمارة الحقيقي بدل اسم العرض
             final normalized = context

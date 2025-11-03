@@ -57,6 +57,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
       // Handle single values from restaurants_screen
       final district = widget.filters!['district'] as String?;
       final category = widget.filters!['category'] as String?;
+      final keyword = widget.filters!['keyword'] as String?;
       
       if (district != null && district != 'All') {
         _selectedDistricts = [district];
@@ -68,6 +69,14 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
       // Also handle arrays if they exist
       _selectedDistricts.addAll(List<String>.from(widget.filters!['districts'] ?? []));
       _selectedCategories.addAll(List<String>.from(widget.filters!['categories'] ?? []));
+
+      // Apply keyword locally via provider
+      if (keyword != null && keyword.trim().isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final provider = Provider.of<RestaurantAdProvider>(context, listen: false);
+          provider.updateKeyword(keyword);
+        });
+      }
     }
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -78,11 +87,13 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
         final emirate = widget.filters!['emirate'] as String?;
         final district = widget.filters!['district'] as String?;
         final category = widget.filters!['category'] as String?;
-        
+        final keyword = widget.filters!['keyword'] as String?;
+
          provider.applyFilters(
           emirate: emirate != 'All' ? emirate : null,
           district: district != 'All' ? district : null,
           category: category != 'All' ? category : null,
+          keyword: keyword,
         );
       } else {
         provider.applyAndFetchAds();

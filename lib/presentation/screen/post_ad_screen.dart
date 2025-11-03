@@ -14,45 +14,7 @@ class PostAdScreen extends StatefulWidget {
 }
 
 class _PostAdScreenState extends State<PostAdScreen> {
-  // قائمة العناصر لتسهيل البناء
-  final List<Map<String, String>> items = [
-    {
-      "title": "Car Sales",
-      "image": "assets/images/salesCar.jpg",
-      "route": "/car_sales_ads"
-    },
-    {
-      "title": "Real Estate",
-      "image": "assets/images/realEstate.jpg",
-      "route": "/real_estate_ads"
-    },
-    {
-      "title": "Car Rent",
-      "image": "assets/images/careRent.jpg",
-      "route": "/car_rent_ads"
-    },
-    {
-      "title": "Car Services",
-      "image": "assets/images/car_services.png",
-      "route": "/car_services_ads"
-    },
-    {
-      "title": "Electronics & home appliances",
-      "image": "assets/images/electronics.jpg",
-      "route": "/electronics_ads"
-    },
-    {
-      "title": "Restaurants",
-      "image": "assets/images/restaurant.jpg",
-      "route": "/resturant_ads"
-    },
-    {"title": "Jobs", "image": "assets/images/jobs.jpg", "route": "/job_ads"},
-    {
-      "title": "Other Services",
-      "image": "assets/images/service.jpg",
-      "route": "/other_servics_ads"
-    },
-  ];
+  // لاحظ: القائمة المترجمة تُبنى داخل build باستخدام S.of(context)
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +23,50 @@ class _PostAdScreenState extends State<PostAdScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
+
+    // عناصر الشبكة مترجمة حسب اللغة الحالية
+    final localizedItems = [
+      {
+        "title": S.of(context).carsales,
+        "image": "assets/images/salesCar.jpg",
+        "route": "/car_sales_ads"
+      },
+      {
+        "title": S.of(context).realestate,
+        "image": "assets/images/realEstate.jpg",
+        "route": "/real_estate_ads"
+      },
+      {
+        "title": S.of(context).carrent,
+        "image": "assets/images/careRent.jpg",
+        "route": "/car_rent_ads"
+      },
+      {
+        "title": S.of(context).carservices,
+        "image": "assets/images/car_services.png",
+        "route": "/car_services_ads"
+      },
+      {
+        "title": S.of(context).electronics,
+        "image": "assets/images/electronics.jpg",
+        "route": "/electronics_ads"
+      },
+      {
+        "title": S.of(context).restaurants,
+        "image": "assets/images/restaurant.jpg",
+        "route": "/resturant_ads"
+      },
+      {
+        "title": S.of(context).jobs,
+        "image": "assets/images/jobs.jpg",
+        "route": "/job_ads"
+      },
+      {
+        "title": S.of(context).otherservices,
+        "image": "assets/images/service.jpg",
+        "route": "/other_servics_ads"
+      },
+    ];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -88,7 +94,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            "Enjoy Free Ads",
+                            S.of(context).enjoyFreeAds,
                             style: TextStyle(
                               fontSize: screenWidth * 0.05,
                               fontWeight: FontWeight.bold,
@@ -142,7 +148,7 @@ SizedBox(width: 5),
                     spacing: screenWidth * 0.02,
                     runSpacing: screenHeight * 0.015,
                     alignment: WrapAlignment.center,
-                    children: items.map((item) {
+                    children: localizedItems.map((item) {
                       return GestureDetector(
                         onTap: () => context.push(item['route']!),
                         child: PostAdItem(
@@ -156,8 +162,8 @@ SizedBox(width: 5),
                   ),
                 ),
               ),
-            ),
-          ],
+          ),]
+          
         ),
       ),
     );
@@ -207,8 +213,13 @@ class PostAdItem extends StatelessWidget {
               // ),
               child: Image.asset(
                 image,
-                fit: BoxFit.cover,
+                // ضبط عرض صورة car_services فقط لتقليل التكبير غير المرغوب
+                fit: image.endsWith('car_services.png')
+                    ? BoxFit.contain
+                    : BoxFit.cover,
                 width: double.infinity,
+                alignment: Alignment.center,
+                filterQuality: FilterQuality.high,
                 errorBuilder: (context, error, stackTrace) =>
                     const Center(child: Icon(Icons.broken_image)),
               ),

@@ -17,6 +17,8 @@ import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/widget/custom_bottom_nav.dart';
 
+const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
+
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
 
@@ -693,7 +695,7 @@ class _EditProfileState extends State<EditProfile> {
                             ),
                             const SizedBox(height: 10),
                             
-                            _buildLabel("User Id"),
+                            _buildLabel(S.of(context).userId),
                             _buildEditableField(_userIdController, () => context.push('/profile')),
                             
                             // Display-only fields
@@ -1202,34 +1204,48 @@ class _EditProfileState extends State<EditProfile> {
                             children: [
                               // Locate Me button
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.my_location, color: Colors.white, size: 20),
-                                  label: Text(
-                                    s.locateMe,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
-                                  ),
-                                  onPressed: _getCurrentLocation,
+                                child: ElevatedButton(
+                                  onPressed: _isLoadingLocation ? null : _getCurrentLocation,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF01547E),
-                                    minimumSize: const Size(0, 40),
+                                    backgroundColor: _isLoadingLocation ? Colors.grey : KPrimaryColor,
+                                    minimumSize: const Size(double.infinity, 43),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   ),
+                                  child: _isLoadingLocation
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        )
+                                      : Text(
+                                          s.locateMe,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14),
+                                        ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 10),
                               // Open Location Picker button
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.map_outlined, color: Colors.white, size: 20),
-                                  label: const Text(
-                                    "open google map",
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
-                                  ),
+                                child: ElevatedButton(
                                   onPressed: _navigateToLocationPicker,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:  const Color(0xFF01547E),
-                                    minimumSize: const Size(0, 40),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    backgroundColor: const Color(0xFF01547E),
+                                    minimumSize: const Size(double.infinity, 43),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    s.pickLocation,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12.5),
                                   ),
                                 ),
                               ),

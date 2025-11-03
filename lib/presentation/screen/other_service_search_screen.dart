@@ -24,7 +24,8 @@ const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
 final Color borderColor = Color.fromRGBO(8, 194, 201, 1);
 
 class OtherServiceSearchScreen extends StatefulWidget {
-  const OtherServiceSearchScreen({super.key});
+  final Map<String, String>? initialFilters;
+  const OtherServiceSearchScreen({super.key, this.initialFilters});
 
   @override
   State<OtherServiceSearchScreen> createState() =>
@@ -49,10 +50,22 @@ class _OtherServiceSearchScreenState extends State<OtherServiceSearchScreen>
     super.initState();
     _scrollController.addListener(_handleScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       final token = await const FlutterSecureStorage().read(key: 'auth_token');
-      if (token != null && mounted) {
-        context.read<OtherServicesInfoProvider>().fetchAllData(token: token);
-        context.read<OtherServicesAdProvider>().fetchAds();
+      // جلب بيانات الفلاتر حتى بدون توكن (التوكن يُستخدم فقط لمعلومات التواصل عند توفره)
+      context.read<OtherServicesInfoProvider>().fetchAllData(token: token);
+
+      final initial = widget.initialFilters;
+      if (initial != null && initial.isNotEmpty) {
+        // حفظ الفلاتر الأولية لدمجها مع أي فلاتر لاحقة يتم تطبيقها محليًا
+        context.read<OtherServicesAdProvider>().setInitialFilters(initial);
+        context.read<OtherServicesAdProvider>().fetchAds(filters: initial);
+      } else {
+        // لا توجد فلاتر مبدئية: تأكد من تنظيف أي فلاتر محفوظة سابقًا ثم اجلب الإعلانات
+        final adProvider = context.read<OtherServicesAdProvider>();
+        adProvider.clearInitialFilters();
+        adProvider.clearPriceFilters();
+        adProvider.fetchAds();
       }
     });
   }

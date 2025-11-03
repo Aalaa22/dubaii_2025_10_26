@@ -339,13 +339,23 @@ class _CarServicesSaveAdScreenState extends State<CarServicesSaveAdScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم تحديث الإعلان بنجاح')),
+        SnackBar(
+          content: Text(
+            S.of(context).saveSuccess,
+            textDirection: Directionality.of(context),
+          ),
+        ),
       );
       context.pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('حدث خطأ أثناء التحديث: $e')),
+        SnackBar(
+          content: Text(
+            S.of(context).saveFailed(e.toString()),
+            textDirection: Directionality.of(context),
+          ),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isUpdating = false);
@@ -630,7 +640,7 @@ class _CarServicesSaveAdScreenState extends State<CarServicesSaveAdScreen> {
               SizedBox(height: 4.h),
               
               Directionality(
-                 textDirection: TextDirection.ltr,
+                 textDirection: Directionality.of(context),
                  child: Row(
                   children: [
                     SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),

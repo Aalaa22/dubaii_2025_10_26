@@ -22,7 +22,8 @@ const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
 final Color borderColor = Color.fromRGBO(8, 194, 201, 1);
 
 class JobSearchScreen extends StatefulWidget {
-  const JobSearchScreen({super.key});
+  final Map<String, String>? filters;
+  const JobSearchScreen({super.key, this.filters});
 
   @override
   State<JobSearchScreen> createState() => _JobSearchScreenState();
@@ -46,7 +47,12 @@ class _JobSearchScreenState extends State<JobSearchScreen>
     super.initState();
     _scrollController.addListener(_handleScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<JobAdProvider>().fetchAds();
+      final initial = widget.filters;
+      if (initial != null && initial.isNotEmpty) {
+        context.read<JobAdProvider>().fetchAds(filters: initial);
+      } else {
+        context.read<JobAdProvider>().fetchAds();
+      }
       context.read<JobInfoProvider>().fetchJobAdValues();
     });
   }

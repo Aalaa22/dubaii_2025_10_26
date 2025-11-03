@@ -259,13 +259,23 @@ class _JobsSaveAdScreenState extends State<JobsSaveAdScreen> {
                                 debugPrint('contact_info: ${_contactInfoController.text}');
                                 // Optionally, show a success message or navigate back
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Ad updated successfully!')),
+                                  SnackBar(
+                                    content: Text(
+                                      S.of(context).saveSuccess,
+                                      textDirection: Directionality.of(context),
+                                    ),
+                                  ),
                                 );
                                 context.pop();
                               }).catchError((error) {
                                 // Handle any errors
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Failed to update ad: $error')),
+                                  SnackBar(
+                                    content: Text(
+                                      S.of(context).saveFailed(error.toString()),
+                                      textDirection: Directionality.of(context),
+                                    ),
+                                  ),
                                 );
                               });
                             }
@@ -460,8 +470,8 @@ class _JobsSaveAdScreenState extends State<JobsSaveAdScreen> {
                             position: adLocation,
                             infoWindow: InfoWindow(
                               title: (ad?.address?.isNotEmpty == true)
-                                  ? 'الموقع المحدد'
-                                  : (ad?.emirate ?? 'الموقع'),
+                                  ? S.of(context).location
+                                  : (ad?.emirate ?? S.of(context).location),
                               snippet: (ad?.address?.isNotEmpty == true)
                                   ? ad!.address
                                   : (ad?.district ?? ''),

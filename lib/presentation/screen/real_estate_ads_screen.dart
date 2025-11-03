@@ -137,6 +137,21 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final s = S.of(context);
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+        // حوّل نصوص الحقول الناقصة إلى ترجمة مناسبة
+        final List<String> localizedMissingFields = missingFields.map((field) {
+          switch (field.trim().toLowerCase()) {
+            case 'phone number':
+              return s.phone;
+            case 'your location':
+              return s.advertiserLocation;
+            default:
+              return field;
+          }
+        }).toList();
+
         return WillPopScope(
           onWillPop: () async {
             // عند الضغط على زر الرجوع، الخروج من الصفحة بالكامل
@@ -144,14 +159,16 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
             Navigator.of(context).pop(); // العودة إلى الشاشة السابقة
             return false;
           },
-          child: AlertDialog(
+          child: Directionality(
+            textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+            child: AlertDialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Text(
-              "Incomplete profile",
-              style: TextStyle(
+            title: Text(
+              s.editprof4,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: KTextColor,
                 fontSize: 18,
@@ -161,15 +178,15 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'You must complete the following fields in your profile before adding the advertisement:',
-                  style: TextStyle(
+                Text(
+                  s.profileWarning,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: KTextColor,
                   ),
                 ),
                 const SizedBox(height: 15),
-                ...missingFields
+                ...localizedMissingFields
                     .map((field) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
@@ -201,8 +218,8 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.push('/editprofile');
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // أغلق الـ dialog أولاً
+                    Future.microtask(() => context.push('/editprofile'));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(1, 84, 126, 1),
@@ -213,9 +230,9 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Go to Profile',
-                    style: TextStyle(
+                  child: Text(
+                    s.myProfile,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -229,6 +246,8 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
+                    // أغلق الـ dialog ثم اخرج من الصفحة
+                    Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -240,9 +259,9 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
+                  child: Text(
+                    s.cancel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -252,6 +271,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
             
             
             ],
+          ),
           ),
         );
       },
@@ -298,11 +318,14 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
       
       // Show message if user selected more images than we could add
       if (pickedImages.length > remainingSlots) {
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-            'You selected ${pickedImages.length} images, but only the first $remainingSlots were added to reach the maximum of $maxTotalImages images.'
+            isArabic
+                ? 'لقد اخترت ${pickedImages.length} صورة، ولكن تمت إضافة أول $remainingSlots فقط للوصول إلى الحد الأقصى وهو $maxTotalImages صورة.'
+                : 'You selected ${pickedImages.length} images, but only the first $remainingSlots were added to reach the maximum of $maxTotalImages images.'
           ),
-          backgroundColor: Colors.orange,
+          backgroundColor: KPrimaryColor,
         ));
       }
     }
@@ -366,27 +389,31 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
 
   Future<void> _validateAndProceedToNext() async {
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please fill all required fields.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'يرجى تعبئة جميع الحقول المطلوبة.' : 'Please fill all required fields.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (_mainImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please add a main image.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء إضافة صورة رئيسية.' : 'Please add a main image.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (selectedLocation.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please select a location on the map.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء تحديد موقع على الخريطة.' : 'Please select a location on the map.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (selectedPhoneNumber == null || selectedPhoneNumber!.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please select a phone number.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء اختيار رقم الهاتف.' : 'Please select a phone number.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
 
@@ -486,7 +513,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                     _buildFormRow([
                       _buildTitledTextFormField(
                           s.area, _areaController, borderColor, currentLocale,
-                          isRequired: true, hintText: 'area'),
+                          isRequired: true, hintText: s.areaName),
                       _buildTitledTextFormField(
                           s.price, _priceController, borderColor, currentLocale,
                           hintText: '120,000',
@@ -515,7 +542,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                     const SizedBox(height: 7),
                     _buildTitledTextFormField(
                         s.title, _titleController, borderColor, currentLocale,
-                          minLines: 3, maxLines: 4, isRequired: true, hintText: 'enter your title'),
+                          minLines: 3, maxLines: 4, isRequired: true, hintText: s.enterTitle),
                     const SizedBox(height: 7),
                     TitledSelectOrAddField(
                         title: s.advertiserName,
@@ -942,7 +969,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
                                                 Colors.white)))
-                                : const Text('Locate Me',
+                                :  Text(S.of(context).locateMe,
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w500,
@@ -956,7 +983,7 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
                                 minimumSize: const Size(double.infinity, 43),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8))),
-                            child: const Text('Pick Location',
+                            child:  Text(S.of(context).pickLocation,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w500,
@@ -978,6 +1005,7 @@ class TitledDescriptionBox extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title,
           style: TextStyle(
@@ -997,11 +1025,11 @@ class TitledDescriptionBox extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     color: KTextColor,
                     fontSize: 14.sp),
-                decoration: const InputDecoration(
-                    hintText: 'enter your description',
-                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                decoration: InputDecoration(
+                    hintText: s.enterDescription,
+                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(12),
+                    contentPadding: const EdgeInsets.all(12),
                     counterText: "")),
             Padding(
                 padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),

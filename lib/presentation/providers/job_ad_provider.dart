@@ -23,6 +23,7 @@ class JobAdProvider extends ChangeNotifier {
   // Local filter state
   List<String> _selectedCategories = [];
   List<String> _selectedSections = [];
+  String? _keyword; // Local keyword filter
 
   // Best advertisers state
   List<BestAdvertiser> _bestAdvertisers = [];
@@ -79,6 +80,21 @@ class JobAdProvider extends ChangeNotifier {
       if (filters != null) {
         finalFilters.addAll(filters);
       }
+
+      // Extract keyword for local filtering only and remove it from API filters
+      final String? incomingKeyword = (finalFilters['keyword']?.toString() ??
+              finalFilters['kw']?.toString() ??
+              finalFilters['search']?.toString())
+          ?.trim();
+      if (incomingKeyword != null && incomingKeyword.isNotEmpty) {
+        _keyword = incomingKeyword;
+      } else {
+        // إذا لم يتم تمرير كلمة، لا نمسّ القيمة الحالية إلا لو كانت null
+        _keyword = _keyword; // keep previous keyword if any
+      }
+      finalFilters.remove('keyword');
+      finalFilters.remove('kw');
+      finalFilters.remove('search');
       
       // إضافة فلاتر الإمارة ونوع الفئة
       // استخدم القيم المختارة مسبقًا إذا لم تُمرر في الاستدعاء
@@ -366,6 +382,20 @@ class JobAdProvider extends ChangeNotifier {
       }).toList();
     }
 
+    // Filter by keyword locally (title, job_name, section, category, description, address)
+    final String keywordLower = (_keyword ?? '').trim().toLowerCase();
+    if (keywordLower.isNotEmpty) {
+      bool containsKeyword(String? v) => (v ?? '').toLowerCase().contains(keywordLower);
+      filteredAds = filteredAds.where((ad) {
+        return containsKeyword(ad.title) ||
+            containsKeyword(ad.job_name) ||
+            containsKeyword(ad.sectionType) ||
+            containsKeyword(ad.categoryType) ||
+            containsKeyword(ad.description) ||
+            containsKeyword(ad.address);
+      }).toList();
+    }
+
     _ads = filteredAds;
     notifyListeners();
   }
@@ -379,6 +409,13 @@ class JobAdProvider extends ChangeNotifier {
   // Update selected sections filter
   void updateSelectedSections(List<String> sections) {
     _selectedSections = sections;
+    _performLocalFilter();
+  }
+
+  // Update keyword and re-apply local filters
+  void updateKeyword(String? value) {
+    final v = (value ?? '').trim();
+    _keyword = v.isEmpty ? null : v;
     _performLocalFilter();
   }
 

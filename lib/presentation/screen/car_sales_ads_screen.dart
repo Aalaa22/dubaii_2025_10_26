@@ -159,6 +159,22 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+        final textDirection = isArabic ? TextDirection.rtl : TextDirection.ltr;
+        final s = S.of(context);
+
+        // ترجم عناصر الحقول الناقصة إلى اللغة المختارة
+        final localizedMissingFields = missingFields.map((field) {
+          switch (field) {
+            case 'phone number':
+              return s.phone; // "Phone"
+            case 'your location':
+              return s.advertiserLocation; // "Advertiser Location"
+            default:
+              return field;
+          }
+        }).toList();
+
         return WillPopScope(
           onWillPop: () async {
             // عند الضغط على زر الرجوع، الخروج من الصفحة بالكامل
@@ -166,113 +182,116 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
             Navigator.of(context).pop(); // العودة إلى الشاشة السابقة
             return false;
           },
-          child: AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: const Text(
-              "Incomplete profile",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: KTextColor,
-                fontSize: 18,
+          child: Directionality(
+            textDirection: textDirection,
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'You must complete the following fields in your profile before adding the advertisement:',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: KTextColor,
-                  ),
+              title: Text(
+                s.warning,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: KTextColor,
+                  fontSize: 18,
                 ),
-                const SizedBox(height: 15),
-                ...missingFields
-                    .map((field) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Color(0xFFE74C3C),
-                                size: 18,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  field,
-                                  style: const TextStyle(
-                                    color: Color(0xFFE74C3C),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s.profileWarning,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: KTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  ...localizedMissingFields
+                      .map((field) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: Color(0xFFE74C3C),
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    field,
+                                    style: const TextStyle(
+                                      color: Color(0xFFE74C3C),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ))
-                    .toList(),
+                              ],
+                            ),
+                          ))
+                      .toList(),
+                ],
+              ),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.push('/editprofile');
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(1, 84, 126, 1),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      s.myProfile,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      // إغلاق الـ dialog ثم الخروج من الصفحة
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(1, 84, 126, 1),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      s.cancel,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-            actions: [
-               SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.push('/editprofile');
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Go to Profile',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-             const SizedBox(height: 8),
-            SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-             
-             
-            ],
           ),
         );
       },
@@ -599,9 +618,10 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
 
     if (validationErrors.isNotEmpty) {
       String errorMessage =
-          "${"please_fill_required_fields"}: ${validationErrors.join(', ')}.";
+          "${s.please_fill_required_fields}: ${validationErrors.join(', ')}.";
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(errorMessage), backgroundColor: Colors.orange));
+          content: Text(errorMessage), backgroundColor: Color.fromRGBO(1, 84, 126, 1)
+));
       return;
     }
 
@@ -1104,7 +1124,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                       const SizedBox(height: 7),
                       _buildTitledTextFormField(
                           s.area, _areaController, borderColor, currentLocale,
-                          hintText: "Deira"),
+                          hintText: s.area),
                       const SizedBox(height: 7),
                       TitledDescriptionBox(
                           title: s.describeYourCar,
@@ -1521,7 +1541,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text('Locate Me',
+                          :Text(s.locateMe,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w500,
@@ -1541,7 +1561,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('Pick Location',
+                      child: Text(s.pickLocation,
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w500,

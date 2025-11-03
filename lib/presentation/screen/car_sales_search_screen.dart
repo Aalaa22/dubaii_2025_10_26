@@ -345,7 +345,7 @@ class _CarSalesScreenState extends State<CarSalesScreen>
     bool isSmallScreen = MediaQuery.of(context).size.width <= 370;
     return Row(
       children: [
-        Text('ADS NO: $totalAds',
+        Text('${S.of(context).ad} $totalAds',
             style: TextStyle(
                 fontSize: 12.sp,
                 color: KTextColor,

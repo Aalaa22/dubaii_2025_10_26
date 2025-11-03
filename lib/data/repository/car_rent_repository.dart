@@ -18,19 +18,63 @@ class CarRentRepository {
     // print('=== CarRentRepository.getCarRentAds ===');
     // print('Query parameters: $query');
     // print('API endpoint: /api/car-rent');
-
     final response = await _apiService.get('/api/car-rent', query: query);
 
-    // print('Raw API response type: ${response.runtimeType}');
-    // print('Raw API response: $response');
-
+    // كن مرنًا مع أشكال الاستجابة المحتملة
     if (response is Map<String, dynamic>) {
-      final carRentResponse = CarRentAdResponse.fromJson(response);
-      // print('Parsed response - Total: ${carRentResponse.total}, Ads count: ${carRentResponse.ads.length}');
-      return carRentResponse;
+      // الشكل المتوقع: { data: [...], total: N }
+      if (response.containsKey('data')) {
+        return CarRentAdResponse.fromJson(response);
+      }
+
+      // بعض الـ APIs تُرجع القائمة تحت المفتاح 'ads' أو مفاتيح أخرى
+      if (response.containsKey('ads')) {
+        final transformed = {
+          'data': response['ads'],
+          'total': response['total'] ?? response['total_ads'] ?? response['count'] ?? (response['ads'] as List?)?.length ?? 0,
+        };
+        return CarRentAdResponse.fromJson(transformed);
+      }
+
+      // في حال كان هناك رسالة خطأ
+      if (response.containsKey('error') || response.containsKey('message')) {
+        final errorMessage = response['error'] ?? response['message'] ?? 'Unknown API error';
+        throw Exception('API Error: $errorMessage');
+      }
+
+      // fallback: إذا وجدنا أي قيمة من نوع List ضمن الماب، اعتبرها البيانات
+      final listValue = response.values.firstWhere((v) => v is List, orElse: () => null);
+      if (listValue is List) {
+        final transformed = {
+          'data': listValue,
+          'total': listValue.length,
+        };
+        return CarRentAdResponse.fromJson(transformed);
+      }
+
+      // إذا وصل شكل غير متوقع، أعد استجابة فارغة بدلًا من رمي استثناء مباشرة
+      return CarRentAdResponse(ads: const [], total: response['total'] ?? 0);
     }
-    throw Exception(
-        'API response format is not as expected for CarRentAdResponse.');
+
+    // أحيانًا تُرجع الـ API قائمة مباشرة
+    if (response is List) {
+      final transformed = {
+        'data': response,
+        'total': response.length,
+      };
+      return CarRentAdResponse.fromJson(transformed);
+    }
+
+    // التعامل مع استجابة فارغة
+    if (response == null) {
+      final empty = {
+        'data': <Map<String, dynamic>>[],
+        'total': 0,
+      };
+      return CarRentAdResponse.fromJson(empty);
+    }
+
+    throw Exception('Unexpected response type: ${response.runtimeType}');
   }
 
   // --- دالة لجلب تفاصيل إعلان إيجار واحد بالـ ID ---

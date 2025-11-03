@@ -280,7 +280,7 @@ class _ElectronicDetailsScreenState extends State<ElectronicDetailsScreen> with 
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Directionality(
-                    textDirection: TextDirection.ltr,
+                    textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

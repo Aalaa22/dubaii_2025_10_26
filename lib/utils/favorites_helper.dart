@@ -168,10 +168,10 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     } catch (e) {
       Navigator.pop(context); // Close dialog
       
-      // Show error message
+      // Show error message (localized)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to add to favorites: ${e.toString()}'),
+          content: Text(S.of(context).errorOccurredWithMessage(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -238,8 +238,8 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     if (!ok) {
       if (showFeedback) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('فشل حذف الإعلان من المفضلة'),
+          SnackBar(
+            content: Text(S.of(context).favoriteRemoveFailed(S.of(context).unknownError)),
             backgroundColor: Colors.red,
           ),
         );
@@ -255,8 +255,8 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
 
     if (showFeedback) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم حذف الإعلان من المفضلة'),
+        SnackBar(
+          content: Text(S.of(context).favoriteRemovedSuccess),
           backgroundColor: Colors.green,
         ),
       );
@@ -370,6 +370,16 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
         }
       }
 
+      // إذا فشل الحذف مع كل الـ slugs، لكن الخطأ يفيد بعدم وجود المفضلة (404)، اعتبره نجاحًا محليًا
+      final errStr = (lastError?.toString() ?? '').toLowerCase();
+      final isNotFoundLike = errStr.contains('favorite not found') ||
+          (errStr.contains('api endpoint not found') && errStr.contains('/api/favorites/')) ||
+          errStr.contains('404');
+      if (isNotFoundLike) {
+        debugPrint('Server reported favorite not found (404); proceeding with local removal.');
+        return true;
+      }
+
       debugPrint('Failed to remove from server with all candidates. Last error: $lastError');
       return false;
     } catch (e) {
@@ -395,25 +405,28 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
               builder: (ctx) {
                 return AlertDialog(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  title: const Text(
-                    'Remove from Favorites',
-                    style: TextStyle(color: KTextColor, fontSize: 18, fontWeight: FontWeight.w600),
+                  title: Text(
+                    S.of(context).removeFromFavoritesTitle,
+                    style: const TextStyle(color: KTextColor, fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                  content: const Text(
-                    'Are you sure you want to remove this ad from favorites?',
-                    style: TextStyle(color: KTextColor, fontSize: 15),
+                  content: Text(
+                    S.of(context).removeFromFavoritesMessage,
+                    style: const TextStyle(color: KTextColor, fontSize: 15),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(S.of(context).cancel),
                       style: TextButton.styleFrom(foregroundColor: KTextColor),
                     ),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: KTextColor),
+                      style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(1, 84, 126, 1)),
                       onPressed: () => Navigator.of(ctx).pop(true),
-                      child: const Text('Remove'),
-                    ),
+                      child: Text(
+                        S.of(context).remove,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      ),
                   ],
                 );
               },
@@ -424,8 +437,10 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
               final ok = await _removeFavoriteOnServer(item);
               if (!ok) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('فشل حذف الإعلان من المفضلة'),
+                  SnackBar(
+                    content: Text(
+                      S.of(context).favoriteRemoveFailed(S.of(context).unknownError),
+                    ),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -440,8 +455,8 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
 
               // إشعار نجاح بسيط
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('تم حذف الإعلان من المفضلة'),
+                SnackBar(
+                  content: Text(S.of(context).favoriteRemovedSuccess),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -491,15 +506,15 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تسجيل الدخول مطلوب', style: TextStyle(color: KTextColor, fontSize: 18)),
-        content: const Text('يجب تسجيل الدخول أولاً لإضافة الإعلانات إلى المفضلة', style: TextStyle(color: KTextColor, fontSize: 16)),
+        title: Text(S.of(context).loginRequiredTitle, style: const TextStyle(color: KTextColor, fontSize: 18)),
+        content: Text(S.of(context).loginRequiredDescription, style: const TextStyle(color: KTextColor, fontSize: 16)),
         actions: [
           TextButton(
-            child: const Text('إلغاء', style: TextStyle(color: KTextColor, fontSize: 16)),
+            child: Text(S.of(context).cancel, style: const TextStyle(color: KTextColor, fontSize: 16)),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text('تسجيل الدخول', style: TextStyle(color: Colors.blue, fontSize: 16)),
+            child: Text(S.of(context).loginAction, style: const TextStyle(color: Colors.blue, fontSize: 16)),
             onPressed: () {
               Navigator.pop(context);
               // Navigate to login screen

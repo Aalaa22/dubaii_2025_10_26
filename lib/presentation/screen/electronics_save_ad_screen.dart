@@ -531,13 +531,23 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ad updated successfully')),
+        SnackBar(
+          content: Text(
+            S.of(context).saveSuccess,
+            textDirection: Directionality.of(context),
+          ),
+        ),
       );
       
       context.pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating ad: $e')),
+        SnackBar(
+          content: Text(
+            S.of(context).saveFailed(e.toString()),
+            textDirection: Directionality.of(context),
+          ),
+        ),
       );
     } finally {
       setState(() {
@@ -729,8 +739,8 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
               _buildImageButton(s.addMainImage, Icons.add_a_photo_outlined, borderColor, onPressed: _pickMainImage),
               if(_mainImageFile != null) ...[
                 const SizedBox(height: 4), 
-                Text('  تم اختيار صورة رئيسية جديدة', style: TextStyle(color: Colors.green)),
-                const SizedBox(height: 8),
+              //  Text('  تم اختيار صورة رئيسية جديدة', style: TextStyle(color: Colors.green)),
+               // const SizedBox(height: 8),
                 Container(
                   height: 100,
                   width: 100,
@@ -745,8 +755,8 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
                 ),
               ] else if ((_adData?.mainImage?.isNotEmpty ?? false)) ...[
                 const SizedBox(height: 4),
-                Text('  الصورة الرئيسية الحالية', style: TextStyle(color: KTextColor)),
-                const SizedBox(height: 8),
+                //Text('  الصورة الرئيسية الحالية', style: TextStyle(color: KTextColor)),
+               // const SizedBox(height: 8),
                 Container(
                   height: 100,
                   width: 100,
@@ -1098,8 +1108,8 @@ class _ElectronicsSaveAdScreenState extends State<ElectronicsSaveAdScreen> {
                       position: adLocation,
                       infoWindow: InfoWindow(
                         title: (ad?.addres?.isNotEmpty == true || ad?.location.isNotEmpty == true)
-                            ? 'الموقع المحدد'
-                            : (ad?.emirate ?? 'الموقع'),
+                            ? S.of(context).location
+                            : (ad?.emirate ?? S.of(context).location),
                         snippet: ad?.addres?.isNotEmpty == true
                             ? ad!.addres
                             : (ad?.area ?? ''),

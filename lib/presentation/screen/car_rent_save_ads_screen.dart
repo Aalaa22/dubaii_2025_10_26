@@ -26,14 +26,13 @@ const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
 
 final Color borderColor = const Color.fromRGBO(8, 194, 201, 1);
 
-
 class CarsRentSaveAdScreen extends StatefulWidget {
   // استقبال دالة تغيير اللغة و adId
   final Function(Locale) onLanguageChange;
   final String? adId;
 
   const CarsRentSaveAdScreen({
-    Key? key, 
+    Key? key,
     required this.onLanguageChange,
     this.adId,
   }) : super(key: key);
@@ -48,32 +47,34 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   final TextEditingController _dayRentController = TextEditingController();
   final TextEditingController _monthRentController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  
+
   // Contact info controllers
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _whatsappController = TextEditingController();
-  final TextEditingController _advertiserNameController = TextEditingController();
-  
+  final TextEditingController _advertiserNameController =
+      TextEditingController();
+
   // State variables for TitledSelectOrAddField
   String? selectedAdvertiserName;
   String? selectedPhoneNumber;
   String? selectedWhatsAppNumber;
-  
+
   // Image variables
   File? _mainImage;
   List<File> _thumbnailImages = [];
   List<String> _existingThumbnailUrls = [];
   List<String> _removedThumbnailUrls = [];
-  
+
   final ImagePicker _picker = ImagePicker();
-  
+
   @override
   void initState() {
     super.initState();
     // بعد الإطار الأول: جلب معلومات الاتصال ثم تفاصيل الإعلان إن وُجدت
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      final infoProvider = Provider.of<CarRentInfoProvider>(context, listen: false);
+      final infoProvider =
+          Provider.of<CarRentInfoProvider>(context, listen: false);
       final token = await const FlutterSecureStorage().read(key: 'auth_token');
       await infoProvider.fetchContactInfo(token: token);
 
@@ -82,7 +83,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       }
     });
   }
-  
+
   @override
   void dispose() {
     _priceController.dispose();
@@ -94,7 +95,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
     _advertiserNameController.dispose();
     super.dispose();
   }
-  
+
   void _fetchAdDetails() {
     final provider = Provider.of<CarRentAdProvider>(context, listen: false);
     provider.fetchAdDetails(widget.adId!).then((_) {
@@ -103,7 +104,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       }
     });
   }
-  
+
   void _populateFields(CarRentAdModel ad) {
     _priceController.text = ad.price ?? '';
     _dayRentController.text = ad.dayRent ?? '';
@@ -112,7 +113,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
     _phoneController.text = ad.phoneNumber ?? '';
     _whatsappController.text = ad.whatsapp ?? '';
     _advertiserNameController.text = ad.advertiserName ?? '';
-    
+
     // Set existing thumbnail URLs
     _existingThumbnailUrls = List<String>.from(ad.thumbnailImages ?? []);
 
@@ -138,9 +139,9 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
           if (widget.adId != null && provider.isLoadingAdDetails) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           final ad = provider.currentAd;
-          
+
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -155,7 +156,8 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     child: Row(
                       children: [
                         SizedBox(width: 5.w),
-                        Icon(Icons.arrow_back_ios, color: KTextColor, size: 20.sp),
+                        Icon(Icons.arrow_back_ios,
+                            color: KTextColor, size: 20.sp),
                         Transform.translate(
                           offset: Offset(-3.w, 0),
                           child: Text(
@@ -174,7 +176,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
 
                   Center(
                     child: Text(
-                       s.carsRentAds,
+                      s.carsRentAds,
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 24.sp,
@@ -183,11 +185,12 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     ),
                   ),
                   SizedBox(height: 15.h),
-                  
+
                   // Read-only fields for editing mode
                   if (widget.adId != null && ad != null) ...[
                     _buildFormRow([
-                      _buildReadOnlyField(s.emirate, ad.emirate ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.emirate, ad.emirate ?? '', borderColor),
                       _buildReadOnlyField(s.make, ad.make ?? '', borderColor),
                     ]),
                     const SizedBox(height: 7),
@@ -195,52 +198,67 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     _buildFormRow([
                       _buildReadOnlyField(s.model, ad.model ?? '', borderColor),
                       _buildReadOnlyField(s.trim, ad.trim ?? '', borderColor),
-                      _buildTitledTextField(s.price, '', borderColor, currentLocale, 
+                      _buildTitledTextField(
+                          s.price, '', borderColor, currentLocale,
                           controller: _priceController, isNumber: true),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
                       _buildReadOnlyField(s.year, ad.year ?? '', borderColor),
-                      _buildReadOnlyField(s.dayRent, ad.dayRent ?? '', borderColor),
-                      _buildReadOnlyField(s.monthRent, ad.monthRent ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.dayRent, ad.dayRent ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.monthRent, ad.monthRent ?? '', borderColor),
                     ]),
                     const SizedBox(height: 7),
-                    
-                    _buildTitleBox(context, s.title, ad.title ?? '', borderColor, currentLocale, 
-                         readOnly: true),
+
+                    _buildTitleBox(context, s.title, ad.title ?? '',
+                        borderColor, currentLocale,
+                        readOnly: true),
                     const SizedBox(height: 7),
-                    
+
                     _buildFormRow([
-                      _buildReadOnlyField(s.carType, ad.carType ?? '', borderColor),
-                      _buildReadOnlyField(s.transType, ad.transType ?? '', borderColor),
-                      _buildReadOnlyField(s.fuelType, ad.fuelType ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.carType, ad.carType ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.transType, ad.transType ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.fuelType, ad.fuelType ?? '', borderColor),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
                       _buildReadOnlyField(s.color, ad.color ?? '', borderColor),
-                      _buildReadOnlyField(s.interiorColor, ad.interiorColor ?? '', borderColor),
-                      _buildReadOnlyField(s.seatsNo, ad.seatsNo ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.interiorColor, ad.interiorColor ?? '', borderColor),
+                      _buildReadOnlyField(
+                          s.seatsNo, ad.seatsNo ?? '', borderColor),
                     ]),
                     const SizedBox(height: 7),
-                    
-                    _buildReadOnlyField(s.advertiserName, ad.advertiserName ?? '', borderColor),
+
+                    _buildReadOnlyField(
+                        s.advertiserName, ad.advertiserName ?? '', borderColor),
                     const SizedBox(height: 7),
-                    
+
                     _buildFormRow([
                       Consumer<CarRentInfoProvider>(
                         builder: (context, infoProvider, child) {
                           return TitledSelectOrAddField(
                             title: s.phoneNumber,
                             value: selectedPhoneNumber,
-                            items: infoProvider.phoneNumbers.isNotEmpty 
-                                ? infoProvider.phoneNumbers 
+                            items: infoProvider.phoneNumbers.isNotEmpty
+                                ? infoProvider.phoneNumbers
                                 : [ad.phoneNumber ?? ''],
-                            onChanged: (newValue) => setState(() => selectedPhoneNumber = newValue),
+                            onChanged: (newValue) =>
+                                setState(() => selectedPhoneNumber = newValue),
                             onAddNew: (value) async {
-                              final token = await const FlutterSecureStorage().read(key: 'auth_token') ?? '';
-                              final success = await infoProvider.addContactItem('phone_numbers', value, token: token);
+                              final token = await const FlutterSecureStorage()
+                                      .read(key: 'auth_token') ??
+                                  '';
+                              final success = await infoProvider.addContactItem(
+                                  'phone_numbers', value,
+                                  token: token);
                               if (success) {
                                 setState(() => selectedPhoneNumber = value);
                               }
@@ -254,13 +272,18 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                           return TitledSelectOrAddField(
                             title: s.whatsApp,
                             value: selectedWhatsAppNumber,
-                            items: infoProvider.whatsappNumbers.isNotEmpty 
-                                ? infoProvider.whatsappNumbers 
+                            items: infoProvider.whatsappNumbers.isNotEmpty
+                                ? infoProvider.whatsappNumbers
                                 : [ad.whatsapp ?? ''],
-                            onChanged: (newValue) => setState(() => selectedWhatsAppNumber = newValue),
+                            onChanged: (newValue) => setState(
+                                () => selectedWhatsAppNumber = newValue),
                             onAddNew: (value) async {
-                              final token = await const FlutterSecureStorage().read(key: 'auth_token') ?? '';
-                              final success = await infoProvider.addContactItem('whatsapp_numbers', value, token: token);
+                              final token = await const FlutterSecureStorage()
+                                      .read(key: 'auth_token') ??
+                                  '';
+                              final success = await infoProvider.addContactItem(
+                                  'whatsapp_numbers', value,
+                                  token: token);
                               if (success) {
                                 setState(() => selectedWhatsAppNumber = value);
                               }
@@ -271,63 +294,66 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                       ),
                     ]),
                     const SizedBox(height: 7),
-                    
+
                     // _buildFormRow([
                     //   _buildReadOnlyField(s.emirate, ad.emirate ?? '', borderColor),
                     //   _buildReadOnlyField(s.district, ad.district ?? '', borderColor),
                     // ]),
                     // const SizedBox(height: 7),
-                    
+
                     _buildReadOnlyField(s.area, ad.area ?? 'N/A', borderColor),
                     const SizedBox(height: 7),
-
                   ] else ...[
                     // Original form fields for new ads
                     _buildFormRow([
-                      _buildTitledDropdownField(
-                          context, s.emirate, ['Dubai', 'Abu Dhabi'], ad!.emirate, borderColor),
-                      _buildTitledDropdownField(
-                          context, s.make, ['Audi', 'BMW'], ad.make, borderColor),
+                      _buildTitledDropdownField(context, s.emirate,
+                          ['Dubai', 'Abu Dhabi'], ad!.emirate, borderColor),
+                      _buildTitledDropdownField(context, s.make,
+                          ['Audi', 'BMW'], ad.make, borderColor),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
-                      _buildTitledDropdownField(
-                          context, s.model, ['S5', 'A8'], ad.model, borderColor),
-                      _buildTitledDropdownField(
-                          context, s.trim, ['Tsfi', 'TDI'], ad.trim, borderColor),
-                      _buildTitledTextField(s.price, ad.price, borderColor, currentLocale, 
+                      _buildTitledDropdownField(context, s.model, ['S5', 'A8'],
+                          ad.model, borderColor),
+                      _buildTitledDropdownField(context, s.trim,
+                          ['Tsfi', 'TDI'], ad.trim, borderColor),
+                      _buildTitledTextField(
+                          s.price, ad.price, borderColor, currentLocale,
                           controller: _priceController, isNumber: true),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
-                      _buildTitledDropdownField(
-                          context, s.year, ['2022', '2021'], '2022', borderColor),
-                      _buildTitledTextField(s.dayRent, '600', borderColor, currentLocale, 
+                      _buildTitledDropdownField(context, s.year,
+                          ['2022', '2021'], '2022', borderColor),
+                      _buildTitledTextField(
+                          s.dayRent, '600', borderColor, currentLocale,
                           controller: _dayRentController, isNumber: true),
-                      _buildTitledTextField(s.monthRent, '12000', borderColor, currentLocale, 
+                      _buildTitledTextField(
+                          s.monthRent, '12000', borderColor, currentLocale,
                           controller: _monthRentController, isNumber: true),
                     ]),
                     const SizedBox(height: 7),
-                    
-                    _buildTitleBox(context, s.title, 'Very Comfortable Car', borderColor, currentLocale,
+
+                    _buildTitleBox(context, s.title, 'Very Comfortable Car',
+                        borderColor, currentLocale,
                         controller: _descriptionController),
                     const SizedBox(height: 7),
-                    
+
                     _buildFormRow([
-                      _buildTitledDropdownField(
-                          context, s.carType, ['SUV', 'Sedan'], 'SUV', borderColor),
-                      _buildTitledDropdownField(
-                          context, s.transType, ['Auto', 'Manual'], 'Auto', borderColor),
-                      _buildTitledDropdownField(
-                          context, s.fuelType, ['Petrol', 'Diesel'], 'Petrol', borderColor),
+                      _buildTitledDropdownField(context, s.carType,
+                          ['SUV', 'Sedan'], 'SUV', borderColor),
+                      _buildTitledDropdownField(context, s.transType,
+                          ['Auto', 'Manual'], 'Auto', borderColor),
+                      _buildTitledDropdownField(context, s.fuelType,
+                          ['Petrol', 'Diesel'], 'Petrol', borderColor),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
-                      _buildTitledDropdownField(
-                          context, s.color, ['White', 'Black'], 'White', borderColor),
+                      _buildTitledDropdownField(context, s.color,
+                          ['White', 'Black'], 'White', borderColor),
                       _buildTitledDropdownField(context, s.interiorColor,
                           ['Red', 'Black'], 'Red', borderColor),
                       _buildTitledDropdownField(
@@ -335,88 +361,103 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     ]),
                     const SizedBox(height: 7),
                   ],
-              
+
                   // Contact info section
                   // _buildFormRow([
                   //   TitledTextFieldWithAction(
-                  //     title: s.phoneNumber, 
-                  //     initialValue: widget.adId != null ? '' : '0097708236561', 
-                  //     borderColor: borderColor, 
+                  //     title: s.phoneNumber,
+                  //     initialValue: widget.adId != null ? '' : '0097708236561',
+                  //     borderColor: borderColor,
                   //     controller: _phoneController,
-                  //     onAddPressed: () { print("Add phone clicked"); }, 
+                  //     onAddPressed: () { print("Add phone clicked"); },
                   //     isNumeric: true
                   //   ),
                   //   TitledTextFieldWithAction(
-                  //     title: s.whatsApp, 
-                  //     initialValue: widget.adId != null ? '' : '0097708236561', 
-                  //     borderColor: borderColor, 
+                  //     title: s.whatsApp,
+                  //     initialValue: widget.adId != null ? '' : '0097708236561',
+                  //     borderColor: borderColor,
                   //     controller: _whatsappController,
-                  //     onAddPressed: () { print("Add whatsapp clicked"); }, 
+                  //     onAddPressed: () { print("Add whatsapp clicked"); },
                   //     isNumeric: true
                   //   ),
                   // ]),
-                  
+
                   // const SizedBox(height: 7),
 
                   // TitledTextFieldWithAction(
-                  //   title: s.advertiserName, 
-                  //   initialValue: widget.adId != null ? '' : 'Alwan Rental', 
-                  //   borderColor: borderColor, 
+                  //   title: s.advertiserName,
+                  //   initialValue: widget.adId != null ? '' : 'Alwan Rental',
+                  //   borderColor: borderColor,
                   //   controller: _advertiserNameController,
                   //   onAddPressed: () { print("Add advertiser clicked"); }
                   // ),
                   // const SizedBox(height: 7),
-                  
+
                   TitledDescriptionBox(
-                    title: s.describeYourCar, 
-                    initialValue: widget.adId != null ? '' : '20% Down Payment With Insurance Registration And Delivery To Client Without Fees', 
+                    title: s.describeYourCar,
+                    initialValue: widget.adId != null
+                        ? ''
+                        : '20% Down Payment With Insurance Registration And Delivery To Client Without Fees',
                     borderColor: borderColor,
                     controller: _descriptionController,
                   ),
                   const SizedBox(height: 10),
-                  
+
                   // Image sections
                   _buildMainImageSection(s, borderColor),
                   const SizedBox(height: 7),
                   _buildThumbnailImagesSection(s, borderColor),
                   const SizedBox(height: 7),
-              
-              // قسم الموقع
-              Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
-              SizedBox(height: 4.h),
-              
-              Directionality(
-                 textDirection: TextDirection.ltr,
-                 child: Row(
-                  children: [
-                    SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: Text(
-                        ad.location.toString(),
-                        style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-               SizedBox(height: 8.h),
 
-              _buildMapSection(context),
-              const SizedBox(height: 12),
+                  // قسم الموقع
+                  Text(s.location,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16.sp,
+                          color: KTextColor)),
+                  SizedBox(height: 4.h),
+
+                  Directionality(
+                    textDirection: Directionality.of(context),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset('assets/icons/locationicon.svg',
+                            width: 20.w, height: 20.h),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            ad.location.toString(),
+                            style: TextStyle(
+                                fontSize: 14.sp,
+                                color: KTextColor,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+
+                  _buildMapSection(context),
+                  const SizedBox(height: 12),
 
                   // زر الحفظ
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: provider.isSubmitting ? null : _saveAd,
-                      child: provider.isSubmitting 
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(s.save, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.white)),
+                      child: provider.isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(s.save,
+                              style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: KPrimaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ),
@@ -428,10 +469,10 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       ),
     );
   }
-  
+
   void _saveAd() async {
     final provider = Provider.of<CarRentAdProvider>(context, listen: false);
-    
+
     if (widget.adId != null) {
       // Update existing ad
       final adData = <String, dynamic>{
@@ -442,15 +483,18 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
         // استخدام القيم المختارة من مزوّد معلومات الاتصال إن وُجِدت
         'phone_number': (selectedPhoneNumber ?? _phoneController.text),
         'whatsapp': (selectedWhatsAppNumber ?? _whatsappController.text),
-        'advertiser_name': (selectedAdvertiserName ?? _advertiserNameController.text),
+        'advertiser_name':
+            (selectedAdvertiserName ?? _advertiserNameController.text),
       };
-      
+
       // Add image data to the adData map - these will be handled by the repository
       if (_mainImage != null) {
         adData['mainImage'] = _mainImage;
       }
       // Merge kept existing thumbnails (downloaded) with newly added ones, limit to 9
-      final keptExistingUrls = _existingThumbnailUrls.where((url) => !_removedThumbnailUrls.contains(url)).toList();
+      final keptExistingUrls = _existingThumbnailUrls
+          .where((url) => !_removedThumbnailUrls.contains(url))
+          .toList();
       final List<File> existingFiles = [];
       for (final url in keptExistingUrls) {
         try {
@@ -473,26 +517,37 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       if (mergedThumbnails.isNotEmpty) {
         adData['thumbnailImages'] = mergedThumbnails;
       }
-      
+
       await provider.updateCarRentAd(
         widget.adId!,
         adData,
       );
-      
+
       if (provider.submissionError == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ad updated successfully!')),
+          SnackBar(
+            content: Text(
+              S.of(context).saveSuccess,
+              textDirection: Directionality.of(context),
+            ),
+          ),
         );
         context.pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${provider.submissionError}')),
+          SnackBar(
+            content: Text(
+              S.of(context).saveFailed(provider.submissionError ?? ''),
+              textDirection: Directionality.of(context),
+            ),
+          ),
         );
       }
     } else {
       // Create new ad - existing logic would go here
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Create new ad functionality not implemented yet')),
+        const SnackBar(
+            content: Text('Create new ad functionality not implemented yet')),
       );
     }
   }
@@ -500,32 +555,53 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   // --- دوال المساعدة المحدثة ---
 
   Widget _buildFormRow(List<Widget> children) {
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: children.map((child) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: child))).toList());
+    return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children
+            .map((child) => Expanded(
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: child)))
+            .toList());
   }
 
-  Widget _buildTitledTextField(String title, String initialValue, Color borderColor, String currentLocale, {bool isNumber = false, TextEditingController? controller}) {
+  Widget _buildTitledTextField(String title, String initialValue,
+      Color borderColor, String currentLocale,
+      {bool isNumber = false, TextEditingController? controller}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+      Text(title,
+          style: TextStyle(
+              fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
       const SizedBox(height: 4),
       TextFormField(
           controller: controller,
           initialValue: controller == null ? initialValue : null,
-          style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
+          style: TextStyle(
+              fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
           keyboardType: isNumber ? TextInputType.number : TextInputType.text,
           decoration: InputDecoration(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: borderColor)),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: borderColor)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: KPrimaryColor, width: 2)),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               fillColor: Colors.white,
               filled: true))
     ]);
   }
-  
+
   Widget _buildReadOnlyField(String title, String value, Color borderColor) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+      Text(title,
+          style: TextStyle(
+              fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
       const SizedBox(height: 4),
       Container(
         width: double.infinity,
@@ -537,67 +613,101 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
         ),
         child: Text(
           value,
-          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey[600], fontSize: 12.sp),
+          style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+              fontSize: 12.sp),
         ),
       )
     ]);
   }
 
-  Widget _buildTitledDropdownField(
-      BuildContext context, String title, List<String> items, String? value, Color borderColor,
+  Widget _buildTitledDropdownField(BuildContext context, String title,
+      List<String> items, String? value, Color borderColor,
       {double? titleFontSize}) {
     final s = S.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: titleFontSize ?? 14.sp)),
+      Text(title,
+          style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: KTextColor,
+              fontSize: titleFontSize ?? 14.sp)),
       const SizedBox(height: 4),
       DropdownSearch<String>(
-          filterFn: (item, filter) => item.toLowerCase().startsWith(filter.toLowerCase()),
+          filterFn: (item, filter) =>
+              item.toLowerCase().startsWith(filter.toLowerCase()),
           popupProps: PopupProps.menu(
-              menuProps: MenuProps(backgroundColor: Colors.white, borderRadius: BorderRadius.circular(8)),
-              itemBuilder: (context, item, isSelected) => Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), child: Text(item, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: KTextColor))),
+              menuProps: MenuProps(
+                  backgroundColor: Colors.white,
+                  borderRadius: BorderRadius.circular(8)),
+              itemBuilder: (context, item, isSelected) => Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Text(item,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: KTextColor))),
               showSearchBox: true,
               searchFieldProps: TextFieldProps(
                   cursorColor: KPrimaryColor,
                   style: TextStyle(color: KTextColor, fontSize: 14),
                   decoration: InputDecoration(
                       hintText: s.search,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)))),
-              emptyBuilder: (context, searchEntry) => Center(child: Text(s.noResultsFound, style: TextStyle(fontSize: 14, color: KTextColor)))),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: borderColor)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide:
+                              BorderSide(color: KPrimaryColor, width: 2)))),
+              emptyBuilder: (context, searchEntry) => Center(
+                  child: Text(s.noResultsFound,
+                      style: TextStyle(fontSize: 14, color: KTextColor)))),
           items: items,
           selectedItem: value,
           dropdownDecoratorProps: DropDownDecoratorProps(
               baseStyle: TextStyle(fontWeight: FontWeight.w400, color: KTextColor, fontSize: 12.sp),
-              dropdownSearchDecoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  fillColor: Colors.white,
-                  filled: true)),
+              dropdownSearchDecoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)), contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), fillColor: Colors.white, filled: true)),
           onChanged: (val) {})
     ]);
   }
-  
+
   Widget _buildTitleBox(BuildContext context, String title, String initialValue,
-      Color borderColor, String currentLocale, {TextEditingController? controller, bool readOnly = false}) {
+      Color borderColor, String currentLocale,
+      {TextEditingController? controller, bool readOnly = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+        Text(title,
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: KTextColor,
+                fontSize: 14.sp)),
         const SizedBox(height: 4),
         TextFormField(
           controller: controller,
           initialValue: controller == null ? initialValue : null,
           maxLines: null,
           readOnly: readOnly,
-          style: TextStyle(fontWeight: FontWeight.w500, color: readOnly ? Colors.grey[600] : KTextColor, fontSize: 14.sp),
+          style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: readOnly ? Colors.grey[600] : KTextColor,
+              fontSize: 14.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: readOnly ? borderColor : KPrimaryColor, width: 2)),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: borderColor)),
+            enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: borderColor)),
+            focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                    color: readOnly ? borderColor : KPrimaryColor, width: 2)),
             fillColor: readOnly ? Colors.grey[100] : null,
             filled: readOnly,
             contentPadding: EdgeInsets.all(12),
@@ -606,7 +716,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       ],
     );
   }
-  
+
   Widget _buildMainImageSection(S s, Color borderColor) {
     final provider = context.watch<CarRentAdProvider>();
     final ad = provider.currentAd;
@@ -617,12 +727,17 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
           width: double.infinity,
           child: OutlinedButton.icon(
             icon: const Icon(Icons.add_a_photo_outlined, color: KTextColor),
-            label: Text(s.addMainImage, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)),
+            label: Text(s.addMainImage,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: KTextColor,
+                    fontSize: 16.sp)),
             onPressed: _pickMainImage,
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               side: BorderSide(color: borderColor),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0)),
             ),
           ),
         ),
@@ -630,7 +745,8 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.file(_mainImage!, height: 140, width: double.infinity, fit: BoxFit.cover),
+            child: Image.file(_mainImage!,
+                height: 140, width: double.infinity, fit: BoxFit.cover),
           ),
         ] else if (ad?.mainImage != null && ad!.mainImage!.isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -657,14 +773,15 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                   );
                 }
               }
-              return Image.asset('assets/images/careRent.jpg', height: 140, width: double.infinity, fit: BoxFit.cover);
+              return Image.asset('assets/images/careRent.jpg',
+                  height: 140, width: double.infinity, fit: BoxFit.cover);
             }),
           ),
         ],
       ],
     );
   }
-  
+
   Widget _buildThumbnailImagesSection(S s, Color borderColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -672,23 +789,31 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
-            icon: const Icon(Icons.add_photo_alternate_outlined, color: KTextColor),
-            label: Text(s.add9Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)),
+            icon: const Icon(Icons.add_photo_alternate_outlined,
+                color: KTextColor),
+            label: Text(s.add9Images,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: KTextColor,
+                    fontSize: 16.sp)),
             onPressed: _pickThumbnailImages,
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               side: BorderSide(color: borderColor),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0)),
             ),
           ),
         ),
-        if (_existingThumbnailUrls.isNotEmpty || _thumbnailImages.isNotEmpty) ...[
+        if (_existingThumbnailUrls.isNotEmpty ||
+            _thumbnailImages.isNotEmpty) ...[
           const SizedBox(height: 8),
           SizedBox(
             height: 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: _existingThumbnailUrls.length + _thumbnailImages.length,
+              itemCount:
+                  _existingThumbnailUrls.length + _thumbnailImages.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final bool isExisting = index < _existingThumbnailUrls.length;
@@ -698,9 +823,12 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     children: [
                       if (isExisting)
                         Builder(builder: (context) {
-                          final url = ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]);
+                          final url = ImageUrlHelper.getFullImageUrl(
+                              _existingThumbnailUrls[index]);
                           final uri = Uri.tryParse(url);
-                          if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                          if (uri != null &&
+                              uri.hasScheme &&
+                              uri.host.isNotEmpty) {
                             return Image.network(
                               url,
                               width: 120,
@@ -725,7 +853,8 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                         })
                       else
                         Image.file(
-                          _thumbnailImages[index - _existingThumbnailUrls.length],
+                          _thumbnailImages[
+                              index - _existingThumbnailUrls.length],
                           width: 120,
                           height: 100,
                           fit: BoxFit.cover,
@@ -738,13 +867,16 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                             if (isExisting) {
                               _removeExistingThumbnail(index);
                             } else {
-                              _removeThumbnailImage(index - _existingThumbnailUrls.length);
+                              _removeThumbnailImage(
+                                  index - _existingThumbnailUrls.length);
                             }
                           },
                           child: Container(
                             padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            child: const Icon(Icons.close, color: Colors.white, size: 12),
+                            decoration: const BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
+                            child: const Icon(Icons.close,
+                                color: Colors.white, size: 12),
                           ),
                         ),
                       ),
@@ -758,7 +890,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       ],
     );
   }
-  
+
   Future<void> _pickMainImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -767,11 +899,12 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       });
     }
   }
-  
+
   Future<void> _pickThumbnailImages() async {
     // Calculate current total images
-    final currentTotal = _existingThumbnailUrls.length + _thumbnailImages.length;
-    
+    final currentTotal =
+        _existingThumbnailUrls.length + _thumbnailImages.length;
+
     // Check if we've reached the maximum limit
     if (currentTotal >= 9) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -782,24 +915,26 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       );
       return;
     }
-    
+
     // Calculate how many more images can be added
     final remainingSlots = 9 - currentTotal;
-    
+
     final List<XFile> images = await _picker.pickMultiImage();
     if (images.isNotEmpty) {
       // Check if selected images exceed remaining slots
       if (images.length > remainingSlots) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('يمكنك إضافة $remainingSlots صور فقط. الحد الأقصى 9 صور'),
+            content:
+                Text('يمكنك إضافة $remainingSlots صور فقط. الحد الأقصى 9 صور'),
             backgroundColor: Colors.orange,
           ),
         );
         // Take only the allowed number of images
         final allowedImages = images.take(remainingSlots).toList();
         setState(() {
-          _thumbnailImages.addAll(allowedImages.map((image) => File(image.path)));
+          _thumbnailImages
+              .addAll(allowedImages.map((image) => File(image.path)));
         });
       } else {
         setState(() {
@@ -808,13 +943,13 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
       }
     }
   }
-  
+
   void _removeThumbnailImage(int index) {
     setState(() {
       _thumbnailImages.removeAt(index);
     });
   }
-  
+
   void _removeExistingThumbnail(int index) {
     setState(() {
       _removedThumbnailUrls.add(_existingThumbnailUrls[index]);
@@ -826,8 +961,10 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   Future<File?> _downloadImageToTempFile(String imageUrl) async {
     try {
       final dio = Dio();
-      final response = await dio.get(imageUrl, options: Options(responseType: ResponseType.bytes));
-      final filename = 'car_rent_thumb_${DateTime.now().millisecondsSinceEpoch}_${imageUrl.hashCode}.jpg';
+      final response = await dio.get(imageUrl,
+          options: Options(responseType: ResponseType.bytes));
+      final filename =
+          'car_rent_thumb_${DateTime.now().millisecondsSinceEpoch}_${imageUrl.hashCode}.jpg';
       final file = File('${Directory.systemTemp.path}/$filename');
       await file.writeAsBytes(response.data);
       return file;
@@ -839,7 +976,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   Widget _buildMapSection(BuildContext context) {
     final provider = context.watch<CarRentAdProvider>();
     final ad = provider.currentAd;
-    
+
     return Consumer<GoogleMapsProvider>(
       builder: (context, mapsProvider, child) {
         return Container(
@@ -855,14 +992,14 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
               future: _getAdLocation(ad),
               builder: (context, snapshot) {
                 LatLng adLocation;
-                
+
                 if (snapshot.hasData) {
                   adLocation = snapshot.data!;
                 } else {
                   // Default location while loading
                   adLocation = const LatLng(25.2048, 55.2708); // Dubai default
                 }
-                
+
                 return GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: adLocation,
@@ -874,10 +1011,8 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     if (snapshot.hasData) {
                       Future.delayed(const Duration(milliseconds: 500), () {
                         mapsProvider.moveCameraToLocation(
-                          adLocation.latitude, 
-                          adLocation.longitude, 
-                          zoom: 14.0
-                        );
+                            adLocation.latitude, adLocation.longitude,
+                            zoom: 14.0);
                       });
                     }
                   },
@@ -895,12 +1030,12 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                       markerId: const MarkerId('ad_location'),
                       position: adLocation,
                       infoWindow: InfoWindow(
-                        title: ad?.location?.isNotEmpty == true 
-                            ? 'الموقع المحدد' 
-                            : ad?.emirate ?? 'الموقع',
-                        snippet: ad?.location?.isNotEmpty == true 
-                            ? ad!.location 
-                            :  '',
+                        title: ad?.location?.isNotEmpty == true
+                            ? S.of(context).location
+                            : ad?.emirate ?? S.of(context).location,
+                        snippet: ad?.location?.isNotEmpty == true
+                            ? ad!.location
+                            : '',
                       ),
                     ),
                   },
@@ -926,7 +1061,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
         debugPrint('Geocoding failed for location "${ad.location}": $e');
       }
     }
-    
+
     // Fallback to emirate-based coordinates if location geocoding fails
     if (ad?.emirate != null && ad!.emirate!.isNotEmpty) {
       switch (ad.emirate!.toLowerCase()) {
@@ -948,7 +1083,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
           return const LatLng(25.2048, 55.2708); // Dubai default
       }
     }
-    
+
     // Final fallback to Dubai coordinates
     return const LatLng(25.2048, 55.2708);
   }
@@ -1221,28 +1356,41 @@ class TitledTextFieldWithAction extends StatefulWidget {
   final bool isNumeric;
   final VoidCallback onAddPressed;
   final TextEditingController? controller;
-  const TitledTextFieldWithAction({Key? key, required this.title, required this.initialValue, required this.borderColor, required this.onAddPressed, this.isNumeric = false, this.controller}) : super(key: key);
+  const TitledTextFieldWithAction(
+      {Key? key,
+      required this.title,
+      required this.initialValue,
+      required this.borderColor,
+      required this.onAddPressed,
+      this.isNumeric = false,
+      this.controller})
+      : super(key: key);
   @override
-  _TitledTextFieldWithActionState createState() => _TitledTextFieldWithActionState();
+  _TitledTextFieldWithActionState createState() =>
+      _TitledTextFieldWithActionState();
 }
+
 class _TitledTextFieldWithActionState extends State<TitledTextFieldWithAction> {
   late FocusNode _focusNode;
   late TextEditingController _controller;
-  
+
   @override
-  void initState() { 
-    super.initState(); 
-    _focusNode = FocusNode(); 
-    _controller = widget.controller ?? TextEditingController(text: widget.initialValue);
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _controller =
+        widget.controller ?? TextEditingController(text: widget.initialValue);
   }
+
   @override
-  void dispose() { 
-    _focusNode.dispose(); 
+  void dispose() {
+    _focusNode.dispose();
     if (widget.controller == null) {
       _controller.dispose();
     }
-    super.dispose(); 
+    super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -1250,7 +1398,11 @@ class _TitledTextFieldWithActionState extends State<TitledTextFieldWithAction> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+        Text(widget.title,
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: KTextColor,
+                fontSize: 14.sp)),
         const SizedBox(height: 4),
         Stack(
           alignment: Alignment.centerRight,
@@ -1258,25 +1410,50 @@ class _TitledTextFieldWithActionState extends State<TitledTextFieldWithAction> {
             TextFormField(
               focusNode: _focusNode,
               initialValue: widget.initialValue,
-              keyboardType: widget.isNumeric ? TextInputType.number : TextInputType.text,
-              style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
+              keyboardType:
+                  widget.isNumeric ? TextInputType.number : TextInputType.text,
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: KTextColor,
+                  fontSize: 12.sp),
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.only(left: 16, right: addButtonWidth, top: 12, bottom: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: widget.borderColor)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: widget.borderColor)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)),
-                fillColor: Colors.white, filled: true,
+                contentPadding: EdgeInsets.only(
+                    left: 16, right: addButtonWidth, top: 12, bottom: 12),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: widget.borderColor)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: widget.borderColor)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: KPrimaryColor, width: 2)),
+                fillColor: Colors.white,
+                filled: true,
               ),
             ),
             Positioned(
-              right: 1, top: 1, bottom: 1,
+              right: 1,
+              top: 1,
+              bottom: 1,
               child: GestureDetector(
-                onTap: () { widget.onAddPressed(); _focusNode.requestFocus(); },
+                onTap: () {
+                  widget.onAddPressed();
+                  _focusNode.requestFocus();
+                },
                 child: Container(
                   width: addButtonWidth - 10,
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(color: KPrimaryColor, borderRadius: BorderRadius.only(topRight: Radius.circular(7), bottomRight: Radius.circular(7))),
-                  child: Text(s.add, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                  decoration: BoxDecoration(
+                      color: KPrimaryColor,
+                      borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(7),
+                          bottomRight: Radius.circular(7))),
+                  child: Text(s.add,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12)),
                 ),
               ),
             ),
@@ -1293,50 +1470,76 @@ class TitledDescriptionBox extends StatefulWidget {
   final Color borderColor;
   final int maxLength;
   final TextEditingController? controller;
-  const TitledDescriptionBox({
-    Key? key, required this.title, required this.initialValue, required this.borderColor, this.maxLength = 5000, this.controller
-  }) : super(key: key);
+  const TitledDescriptionBox(
+      {Key? key,
+      required this.title,
+      required this.initialValue,
+      required this.borderColor,
+      this.maxLength = 5000,
+      this.controller})
+      : super(key: key);
   @override
   State<TitledDescriptionBox> createState() => _TitledDescriptionBoxState();
 }
+
 class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
   late TextEditingController _controller;
   @override
   void initState() {
     super.initState();
-    _controller = widget.controller ?? TextEditingController(text: widget.initialValue);
-    _controller.addListener(() { setState(() {}); });
+    _controller =
+        widget.controller ?? TextEditingController(text: widget.initialValue);
+    _controller.addListener(() {
+      setState(() {});
+    });
   }
+
   @override
-  void dispose() { 
+  void dispose() {
     if (widget.controller == null) {
       _controller.dispose();
     }
-    super.dispose(); 
+    super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
+        Text(widget.title,
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: KTextColor,
+                fontSize: 14.sp)),
         const SizedBox(height: 4),
         Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), border: Border.all(color: widget.borderColor)),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: widget.borderColor)),
           child: Column(
             children: [
               TextFormField(
                 controller: _controller,
                 maxLines: null,
                 maxLength: widget.maxLength,
-                style: TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 14.sp),
-                decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.all(12), counterText: ""),
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: KTextColor,
+                    fontSize: 14.sp),
+                decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(12),
+                    counterText: ""),
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
                 child: Align(
                     alignment: Alignment.bottomRight,
-                    child: Text('${_controller.text.length}/${widget.maxLength}', style: TextStyle(color: Colors.grey, fontSize: 12), textDirection: TextDirection.ltr)),
+                    child: Text(
+                        '${_controller.text.length}/${widget.maxLength}',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        textDirection: TextDirection.ltr)),
               )
             ],
           ),

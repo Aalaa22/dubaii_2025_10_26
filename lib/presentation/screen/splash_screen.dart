@@ -1,9 +1,16 @@
 import 'dart:async';
 import 'package:advertising_app/constant/string.dart';
+import 'package:advertising_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/auth_repository.dart';
+
+class _SplashItemData {
+  final String Function(BuildContext) title;
+  final String image;
+  const _SplashItemData({required this.title, required this.image});
+}
 
 class SplashGridScreen extends StatefulWidget {
   @override
@@ -13,19 +20,39 @@ class SplashGridScreen extends StatefulWidget {
 class _SplashGridScreenState extends State<SplashGridScreen> {
   int _visibleCount = 0;
   late Timer _timer;
-
-  final List<Map<String, String>> items = [
-    {"title": "Cars Sales", "image": "assets/images/salesCar.jpg"},
-    {"title": "Real Estate", "image": "assets/images/realEstate.jpg"},
-    {"title": "Cars Rent", "image": "assets/images/careRent.jpg"},
-    {"title": "Cars Services", "image": "assets/images/car_services.png"},
-    {
-      "title": "Electronics & home appliances",
-      "image": "assets/images/electronics.jpg"
-    },
-    {"title": "Restaurants", "image": "assets/images/restaurant.jpg"},
-    {"title": "Jobs", "image": "assets/images/jobs.jpg"},
-    {"title": "Other Services", "image": "assets/images/service.jpg"},
+  final List<_SplashItemData> items = [
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).carsales,
+      image: "assets/images/salesCar.jpg",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).realestate,
+      image: "assets/images/realEstate.jpg",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).carrent,
+      image: "assets/images/careRent.jpg",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).carservices,
+      image: "assets/images/car_services.png",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).electronics,
+      image: "assets/images/electronics.jpg",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).restaurants,
+      image: "assets/images/restaurant.jpg",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).jobs,
+      image: "assets/images/jobs.jpg",
+    ),
+    _SplashItemData(
+      title: (ctx) => S.of(ctx).otherservices,
+      image: "assets/images/service.jpg",
+    ),
   ];
 
   @override
@@ -99,7 +126,7 @@ class _SplashGridScreenState extends State<SplashGridScreen> {
                    // SizedBox(width: screenWidth * 0.02),
                     Flexible(
                       child: Text(
-                        "Enjoy Free Ads",
+                        S.of(context).enjoyFreeAds,
                         style: TextStyle(
                           fontSize: screenWidth * 0.06,
                           fontWeight: FontWeight.bold,
@@ -125,8 +152,8 @@ class _SplashGridScreenState extends State<SplashGridScreen> {
                       children: List.generate(_visibleCount, (index) {
                         final item = items[index];
                         return SplashItem(
-                          title: item['title']!,
-                          image: item['image']!,
+                          title: item.title(context),
+                          image: item.image,
                           screenWidth: screenWidth,
                           isPortrait: isPortrait,
                         );

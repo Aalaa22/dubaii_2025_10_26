@@ -69,6 +69,28 @@
  
 
 "favorites":"المفضلة",
+"favoritesLoadFailed": "فشل تحميل المفضلة: {error}",
+"favoriteRemovedSuccess": "تم إزالة الإعلان من المفضلة",
+"favoriteRemoveFailed": "فشل إزالة الإعلان: {error}",
+"retry": "إعادة المحاولة",
+"loginRequiredTitle": "تسجيل الدخول مطلوب",
+"loginRequiredDescription": "يجب تسجيل الدخول أولاً لعرض المفضلة",
+"loginAction": "تسجيل الدخول",
+"favoritesEmptySection": "لا توجد عناصر مفضلة في هذا القسم",
+"removeFromFavoritesTitle": "إزالة من المفضلة",
+"removeFromFavoritesMessage": "هل أنت متأكد من إزالة هذا الإعلان من المفضلة؟",
+"cancel": "إلغاء",
+"remove": "إزالة",
+"pleaseLoginFirst": "يرجى تسجيل الدخول أولاً",
+"adIdNotAvailable": "معرّف الإعلان غير متوفر",
+"contactLabel": "تواصل: {info}",
+"couldNotLaunch": "تعذر فتح {url}",
+"whatsappInvalid": "صيغة رقم واتساب غير صحيحة",
+"whatsappNotAvailable": "رقم واتساب غير متوفر",
+"phoneInvalid": "صيغة رقم الهاتف غير صحيحة",
+"phoneNotAvailable": "رقم الهاتف غير متوفر",
+"whatsappLabel": "واتساب: {number}",
+"phoneLabel": "هاتف: {number}",
 
 "carsales": "بيع السيارات",
 "realestate": "العقارات",
@@ -78,6 +100,17 @@
   "carservices": "خدمات السيارات",
   "restaurants": "مطاعم",
   "otherservices": "خدمات أخرى",
+  "enjoyFreeAds": "استمتع بالإعلانات المجانية",
+  "enterpassword": "أدخل كلمة المرور",
+  "pleaseEnterPassword": "يرجى إدخال كلمة المرور",
+  "passwordRequiredToCompleteLogin": "يرجى إدخال كلمة المرور لإكمال تسجيل الدخول",
+  "loginError": "حدث خطأ في تسجيل الدخول",
+  "unexpectedError": "حدث خطأ غير متوقع: {error}",
+  "loggingIn": "جاري تسجيل الدخول...",
+  "byContinueIAgreeTo": "بالمتابعة أوافق على",
+  "and": "و",
+  "privacyPolicy": "سياسة الخصوصية",
+  "passwordResetComingSoon": "ميزة استعادة كلمة المرور ستكون متاحة قريباً",
 
   "home":"الرئيسية",
   "srtting":"الإعدادات",
@@ -125,6 +158,20 @@
 "view_all_ads": "عرض جميع الإعلانات",
 "report_this_ad": "الإبلاغ عن هذا الإعلان",
 "use_this_space_for_ads": "تواصل معنا لاستخدام هذه المساحة لإعلاناتك",
+"adNotFound": "لم يتم العثور على الإعلان.",
+
+  "errorFetchingData": "حدث خطأ أثناء جلب البيانات: {error}",
+  "newMainImageSelected": "تم اختيار صورة رئيسية جديدة",
+  "currentMainImage": "الصورة الرئيسية الحالية",
+  "saveSuccess": "تم الحفظ بنجاح",
+  "saveFailed": "فشل الحفظ: {error}",
+  "noAdIdForUpdate": "لا يوجد معرّف للإعلان للتحديث",
+  "noChangesToSave": "لا توجد تغييرات للحفظ",
+  "cannotAddMoreImages": "لا يمكن إضافة المزيد من الصور. الحد الأقصى {max} صور",
+  "limitedImagesSelected": "تم اختيار {count} صورة فقط. الحد الأقصى {max} صورة إجمالية",
+  "rankAdInProgress": "جاري ترقية الإعلان...",
+  "rankAdSuccess": "تم ترقية الإعلان بنجاح",
+  "rankAdFailed": "فشل في ترقية الإعلان",
 
 
 
@@ -167,7 +214,7 @@
 
 "service_type": "اسم الخدمة",
 "click_for_deals_car_service": "اضغط لرؤية أفضل عروض خدمات السيارات",
-"discover_car_service": "اكتشف أفضل عروض خدمات السيارات",
+  "discover_car_service": "اكتشف أفضل عروض خدمات السيارات",
 
 "district_choose": "اختر المنطقة",
 
@@ -289,7 +336,7 @@
     "cvv": "CVV",
     "cardHolderName": "اسم حامل البطاقة",
     "payNow": "ادفع الآن",
-     
+     "userId":"رقم تعريف المستخدم",
 
     "Optional":"اختيارى",
 
@@ -318,16 +365,46 @@
    "loading":"جار التحميل",
    "delete":"حذف",
    "please_select_make":"الرجاء اختيار الماركة",
+   "please_select_model":"الرجاء اختيار الطراز",
    "please_fill_required_fields":"الرجاء ملء الحقول المطلوبة",
    "searchForLocation": "البحث عن موقع",
-   "confirmLocation": "تأكيد الموقع"
+  "confirmLocation": "تأكيد الموقع",
+  "pickLocation": "اختر الموقع",
+  "enterArea": "ادخل المنطقة",
+  "areaName": "اسم المنطقة",
+  "enterName": "ادخل الاسم",
+  "enterServiceName": "ادخل اسم الخدمة",
+  "enterProductName": "ادخل اسم المنتج",
+  "enterTitle": "ادخل العنوان",
+  "enterDescription": "ادخل الوصف",
+  "totalPrice": "السعر الإجمالي",
+  "enterContactInfo": "ادخل رقم الهاتف أو الواتساب أو البريد الإلكتروني",
+   "please_select_all_fields":"يرجى اختيار جميع الحقول",
+   "please_select_emirate_and_section_type_first": "يرجى اختيار الإمارة ونوع القسم أولاً",
+   "please_select_emirate_and_category_type": "يرجى اختيار الإمارة ونوع الفئة",
+   "please_select_service_type": "يرجى اختيار نوع الخدمة",
+   "please_select_section_type": "يرجى اختيار نوع القسم"
+   ,
+   "secureYourAccount": "أمّن حسابك",
+   "setPasswordToUpgradeDescription": "قبل الترقية إلى حساب معلن، يرجى تعيين كلمة مرور لحماية حسابك وتأكيد التحديث.",
+   "setPassword": "تعيين كلمة المرور",
+   "passwordSetSuccessUpgraded": "تم تعيين كلمة المرور بنجاح وتم ترقية حسابك إلى معلن",
+   "errorSettingPassword": "خطأ في تعيين كلمة المرور",
+   "incompleteProfile":"ملفك الشخصي غير مكتمل",
+ "profileWarning":"يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:",
+
+   "warning": "تنبيه",
+   "freeAdNotEligibleMessage": "الإعلان المجاني متاح فقط للسيارات بسعر أقل من {price} درهم. يرجى اختيار خطة أخرى.",
+   "adDataIncomplete": "بيانات الإعلان غير كاملة",
+   "adPublishedSuccessfully": "تم نشر الإعلان بنجاح!",
+   "planExpiredOrInactivePleasePay": "انتهت الباقة أو لا توجد باقة نشطة. يرجى الدفع لإكمال النشر",
+   "errorOccurredWithMessage": "حدث خطأ: {message}"
 
 
 
 
   
 
-  
 
-  
+
 }

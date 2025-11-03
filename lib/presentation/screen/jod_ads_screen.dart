@@ -106,37 +106,69 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final s = S.of(context);
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+        final textDirection = isArabic ? TextDirection.rtl : TextDirection.ltr;
+
+        final List<String> localizedMissingFields = missingFields.map((field) {
+          switch (field.trim().toLowerCase()) {
+            case 'phone number':
+              return s.phone;
+            case 'your location':
+              return s.advertiserLocation;
+            default:
+              return field;
+          }
+        }).toList();
+
+        final String description = isArabic
+            ? 'يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:'
+            : 'You must complete the following fields in your profile before adding the advertisement:';
         return WillPopScope(
           onWillPop: () async {
             Navigator.of(context).pop();
             Navigator.of(context).pop();
             return false;
           },
-          child: AlertDialog(
+          child: Directionality(
+            textDirection: textDirection,
+            child: AlertDialog(
             backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text(
-              "Incomplete profile",
-              style: TextStyle(
+            title: Text(
+              s.warning,
+              style: const TextStyle(
                   fontWeight: FontWeight.bold, color: KTextColor, fontSize: 18),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'You must complete the following fields in your profile before adding the advertisement:',
-                  style: TextStyle(fontSize: 16, color: KTextColor),
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 16, color: KTextColor),
                 ),
                 const SizedBox(height: 8),
-                ...missingFields.map((f) => Row(children: [
-                      const Icon(Icons.warning_amber_rounded,
-                          color: Colors.orange),
-                      const SizedBox(width: 8),
-                      Text(f, style: const TextStyle(color: KTextColor))
-                    ])),
+                ...localizedMissingFields.map((f) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(children: [
+                        const Icon(Icons.error_outline, color: Colors.red,size: 18,),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            f,
+                            style: const TextStyle(
+                                      color: Color(0xFFE74C3C),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                          ),
+                        ),
+                      ]),
+                    )),
               ],
+              
             ),
             actions: [
               SizedBox(
@@ -155,9 +187,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Go to profile',
-                    style: TextStyle(
+                  child: Text(
+                    s.myProfile,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -182,9 +214,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
+                  child: Text(
+                    s.cancel,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -194,7 +226,7 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               ),
             ],
           ),
-        );
+        ));
       },
     );
   }
@@ -364,7 +396,7 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               // Contact Details field replacing phone/whatsapp
               _buildTitledTextFormField(
                   'Contact Details',
-                  'enter phone or whatsapp or email',
+                  s.enterContactInfo,
                   _contactDetailsController,
                   borderColor,
                   currentLocale),
@@ -377,7 +409,7 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                 borderColor: borderColor,
                 maxLength: 15000,
                 controller: _descriptionController,
-                hintText: 'Enter your description',
+                hintText: s.enterDescription,
               ),
               const SizedBox(height: 10),
 
@@ -410,26 +442,7 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    final adData = {
-                      'adType': 'job',
-                      'jobName': _jobNameController.text.trim(),
-                      'title': _titleController.text.trim(),
-                      'description': _descriptionController.text.trim(),
-                      'emirate': selectedEmirate,
-                      'district': selectedDistrict,
-                      'categoryType': selectedCategoryType,
-                      'sectionType': selectedSectionType,
-                      'salary': _salaryController.text.trim(),
-                      'advertiserName': selectedAdvertiserName,
-                      'contactDetails': _contactDetailsController.text.trim(),
-                      'location': selectedLocation,
-                      'address': selectedLocation,
-                      'latitude': selectedLatLng?.latitude,
-                      'longitude': selectedLatLng?.longitude,
-                    };
-                    context.push('/placeAnAd', extra: adData);
-                  },
+                  onPressed: () { _validateAndProceedToNext(); },
                   child: Text(s.next,
                       style: TextStyle(
                           fontSize: 16.sp,
@@ -617,11 +630,12 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
 
   Future<void> _getCurrentLocation() async {
     setState(() => _isLoadingLocation = true);
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('جاري تحديد الموقع...'),
+      SnackBar(
+        content: Text(isArabic ? 'جاري تحديد الموقع...' : 'Locating...'),
         backgroundColor: KPrimaryColor,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
 
@@ -644,16 +658,18 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
           if (address != null) selectedLocation = address;
         });
 
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('تم تحديد الموقع بنجاح'),
+          SnackBar(
+              content: Text(isArabic ? 'تم تحديد الموقع بنجاح' : 'Location found'),
               backgroundColor: Colors.green),
         );
       }
     } catch (e) {
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('فشل في تحديد الموقع: $e'),
+            content: Text(isArabic ? 'فشل في تحديد الموقع: $e' : 'Failed to get location: $e'),
             backgroundColor: Colors.red),
       );
     } finally {
@@ -690,12 +706,99 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
         }
       }
     } catch (e) {
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Error picking location: $e'),
+            content: Text(isArabic ? 'حدث خطأ أثناء اختيار الموقع: $e' : 'Error picking location: $e'),
             backgroundColor: Colors.red),
       );
     }
+  }
+
+  void _validateAndProceedToNext() {
+    final s = S.of(context);
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+    final List<String> missing = [];
+
+    if (_jobNameController.text.trim().isEmpty) missing.add(s.jobName);
+    if (_titleController.text.trim().isEmpty) missing.add(s.title);
+    if (_descriptionController.text.trim().isEmpty) missing.add(s.description);
+
+    if (selectedEmirate == null || (selectedEmirate?.trim().isEmpty ?? true)) {
+      missing.add(s.emirate);
+    }
+    if (selectedDistrict == null || (selectedDistrict?.trim().isEmpty ?? true)) {
+      missing.add(s.district);
+    }
+    if (selectedCategoryType == null || (selectedCategoryType?.trim().isEmpty ?? true)) {
+      missing.add(s.categoryType);
+    }
+    if (selectedSectionType == null || (selectedSectionType?.trim().isEmpty ?? true)) {
+      missing.add(s.sectionType);
+    }
+
+    if (_salaryController.text.trim().isEmpty) {
+      missing.add(s.salary);
+    } else {
+      final salaryText = _salaryController.text.trim();
+      final salaryNum = double.tryParse(salaryText.replaceAll(',', ''));
+      if (salaryNum == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isArabic
+                ? 'الراتب يجب أن يكون رقمًا صالحًا'
+                : 'Salary must be a valid number'),
+            backgroundColor: KPrimaryColor,
+          ),
+        );
+        return;
+      }
+    }
+
+    if (selectedAdvertiserName == null || (selectedAdvertiserName?.trim().isEmpty ?? true)) {
+      missing.add(s.advertiserName);
+    }
+    if (_contactDetailsController.text.trim().isEmpty) {
+      missing.add(s.enterContactInfo);
+    }
+    if (selectedLocation.trim().isEmpty) {
+      missing.add(s.location);
+    }
+
+    if (missing.isNotEmpty) {
+      final joined = missing.join(isArabic ? '، ' : ', ');
+      final message = isArabic
+          ? 'يرجى تعبئة/اختيار: ' + joined
+          : 'Please complete/select: ' + joined;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: KPrimaryColor,
+        ),
+      );
+      return;
+    }
+
+    final adData = {
+      'adType': 'job',
+      'jobName': _jobNameController.text.trim(),
+      'title': _titleController.text.trim(),
+      'description': _descriptionController.text.trim(),
+      'emirate': selectedEmirate,
+      'district': selectedDistrict,
+      'categoryType': selectedCategoryType,
+      'sectionType': selectedSectionType,
+      'salary': _salaryController.text.trim(),
+      'advertiserName': selectedAdvertiserName,
+      'contactDetails': _contactDetailsController.text.trim(),
+      'location': selectedLocation,
+      'address': selectedLocation,
+      'latitude': selectedLatLng?.latitude,
+      'longitude': selectedLatLng?.longitude,
+    };
+
+    context.push('/placeAnAd', extra: adData);
   }
 
   Widget _buildMapSection(BuildContext context) {
@@ -766,8 +869,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text(
-                              'Locate Me',
+                          :  Text(
+                              S.of(context).locateMe,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -787,8 +890,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Pick Location',
+                      child:Text(
+                        S.of(context).pickLocation,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,

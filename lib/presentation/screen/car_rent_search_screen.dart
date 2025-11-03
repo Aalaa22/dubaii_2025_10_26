@@ -95,8 +95,9 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
       if (widget.filters != null && widget.filters!.isNotEmpty) {
         context.read<CarRentAdProvider>().applyFilters(widget.filters!);
       } else {
-        // If filters are null or empty (including when both make and model are "All"), fetch all ads
-        context.read<CarRentAdProvider>().fetchAds();
+        // If filters are null or empty, clear any persisted local filters/keyword and fetch fresh ads
+        final provider = context.read<CarRentAdProvider>();
+        provider.clearFilters();
       }
       
       if (_CarRentState.scrollPosition > 0 && _scrollController.hasClients) {
@@ -264,7 +265,8 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
         });
       },
       child: Directionality(
-        textDirection: TextDirection.ltr,
+        // استخدم اتجاه الواجهة الحالي بدل فرض LTR لضمان دعم العربية
+        textDirection: Directionality.of(context),
         child: SearchCard(
           showLine1: true,
           customLine1Span: TextSpan(
@@ -420,7 +422,7 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
                           padding: EdgeInsets.symmetric(horizontal: 18.w),
                           child: LayoutBuilder(builder: (context, constraints) {
                               bool isSmallScreen = MediaQuery.of(context).size.width <= 370;
-                              return Row(children: [ Text( '${s.ad} ${provider.totalAds}', style: TextStyle(fontSize: 12.sp, color: KTextColor, fontWeight: FontWeight.w400)), SizedBox(width: isSmallScreen ? 35.w : 30.w), Expanded(child: Container(height: 37.h, padding: EdgeInsetsDirectional.symmetric(horizontal: isSmallScreen ? 8.w : 12.w), decoration: BoxDecoration(border: Border.all(color: const Color(0xFF08C2C9)), borderRadius: BorderRadius.circular(8.r)), child: Row(children: [ SvgPicture.asset('assets/icons/locationicon.svg', width: 18.w, height: 18.h), SizedBox(width: isSmallScreen ? 12.w : 15.w), Expanded(child: Text(s.sort, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp))), SizedBox(width: isSmallScreen ? 35.w : 32.w, child: Transform.scale(scale: isSmallScreen ? 0.8 : .9, child: Switch(value: _isSortActive, onChanged: (val) => setState(() => _isSortActive = val), activeColor: Colors.white, activeTrackColor: const Color(0xFF08C2C9), inactiveThumbColor: isSmallScreen ? Colors.white : Colors.grey, inactiveTrackColor: Colors.grey[300])))])))]);
+                              return Row(children: [ Text( '${S.of(context).ad} ${provider.totalAds}', style: TextStyle(fontSize: 12.sp, color: KTextColor, fontWeight: FontWeight.w400)), SizedBox(width: isSmallScreen ? 35.w : 30.w), Expanded(child: Container(height: 37.h, padding: EdgeInsetsDirectional.symmetric(horizontal: isSmallScreen ? 8.w : 12.w), decoration: BoxDecoration(border: Border.all(color: const Color(0xFF08C2C9)), borderRadius: BorderRadius.circular(8.r)), child: Row(children: [ SvgPicture.asset('assets/icons/locationicon.svg', width: 18.w, height: 18.h), SizedBox(width: isSmallScreen ? 12.w : 15.w), Expanded(child: Text(s.sort, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp))), SizedBox(width: isSmallScreen ? 35.w : 32.w, child: Transform.scale(scale: isSmallScreen ? 0.8 : .9, child: Switch(value: _isSortActive, onChanged: (val) => setState(() => _isSortActive = val), activeColor: Colors.white, activeTrackColor: const Color(0xFF08C2C9), inactiveThumbColor: isSmallScreen ? Colors.white : Colors.grey, inactiveTrackColor: Colors.grey[300])))])))]);
                             },
                           ),
                         ),
@@ -432,10 +434,25 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
                         else if(allAds.isEmpty && !provider.isLoading)
                            Center(child: Padding(padding: const EdgeInsets.all(32.0), child: Text("No ads found")))
                         else ... [
-                          if (premiumStarCars.isNotEmpty) ...[ _buildSectionTitle(s.priority_first_premium), ...premiumStarCars.map((ad) => _buildCard(ad)).toList()],
-                          if (premiumCars.isNotEmpty) ...[ _buildSectionTitle(s.priority_premium), ...premiumCars.map((ad) => _buildCard(ad)).toList()],
-                          if (featuredCars.isNotEmpty) ...[ _buildSectionTitle(s.priority_featured), ...featuredCars.map((ad) => _buildCard(ad)).toList()],
-                          if (freeCars.isNotEmpty) ...[ _buildSectionTitle(s.priority_free), ...freeCars.map((ad) => _buildCard(ad)).toList()],
+                          // اعرض الأقسام بحسب الأولوية إن وُجدت، وإلا اعرض جميع الإعلانات كحل احتياطي
+                          if (premiumStarCars.isNotEmpty) ...[
+                            _buildSectionTitle(s.priority_first_premium),
+                            ...premiumStarCars.map((ad) => _buildCard(ad)).toList()
+                          ],
+                          if (premiumCars.isNotEmpty) ...[
+                            _buildSectionTitle(s.priority_premium),
+                            ...premiumCars.map((ad) => _buildCard(ad)).toList()
+                          ],
+                          if (featuredCars.isNotEmpty) ...[
+                            _buildSectionTitle(s.priority_featured),
+                            ...featuredCars.map((ad) => _buildCard(ad)).toList()
+                          ],
+                          if (freeCars.isNotEmpty) ...[
+                            _buildSectionTitle(s.priority_free),
+                            ...freeCars.map((ad) => _buildCard(ad)).toList()
+                          ],
+                          if (premiumStarCars.isEmpty && premiumCars.isEmpty && featuredCars.isEmpty && freeCars.isEmpty)
+                            ...allAds.map((ad) => _buildCard(ad)).toList(),
                         ]
                       ],
                     ),

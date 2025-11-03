@@ -270,8 +270,9 @@ class _SearchCardJobState extends State<SearchCardJob> with FavoritesHelper {
                 ),
                 SizedBox(height: 6),
                 Transform.translate(
-                  offset: Offset(-16.w, 0),
+                  offset: Offset(Directionality.of(context) == TextDirection.rtl ? 16.w : -16.w, 0),
                   child: Row(
+                    textDirection: Directionality.of(context),
                     children: [
                       Icon(Icons.location_on_outlined, color: KTextColor, size: 20.sp),
                       const SizedBox(width: 1),

@@ -24,6 +24,7 @@ class RestaurantAdProvider with ChangeNotifier {
   List<String> _selectedDistricts = [];
   List<String> _selectedCategories = [];
   String? _priceFrom, _priceTo;
+  String? _keyword;
   RangeValues? priceRange;
 
   // Price filter properties
@@ -32,6 +33,7 @@ class RestaurantAdProvider with ChangeNotifier {
 
   List<String> get selectedDistricts => _selectedDistricts;
   List<String> get selectedCategories => _selectedCategories;
+  String? get keyword => _keyword;
 
   bool _disposed = false;
 
@@ -259,6 +261,11 @@ class RestaurantAdProvider with ChangeNotifier {
     _performLocalFilter(); // استخدام الفلترة المحلية بدلاً من استدعاء API
   }
 
+  void updateKeyword(String? value) {
+    _keyword = (value ?? '').trim().isEmpty ? null : value!.trim();
+    _performLocalFilter();
+  }
+
   // --- دالة الفلترة المحلية (مثل car_sales_ad_provider) ---
   void _performLocalFilter() {
     if (_rawRestaurantData.isEmpty) {
@@ -305,6 +312,19 @@ class RestaurantAdProvider with ChangeNotifier {
       }).toList();
     }
 
+    // فلتر الكلمة المفتاحية - مطابقة بالاحتواء (غير حساسة لحالة الأحرف)
+    if (_keyword != null && _keyword!.isNotEmpty) {
+      final kw = _keyword!.trim().toLowerCase();
+      filteredItems = filteredItems.where((item) {
+        final title = item.title.trim().toLowerCase();
+        final details = item.details.trim().toLowerCase();
+        final description = (item is RestaurantAdItem)
+            ? item.description.trim().toLowerCase()
+            : '';
+        return title.contains(kw) || details.contains(kw) || description.contains(kw);
+      }).toList();
+    }
+
     // فلتر المناطق - إذا كان هناك مناطق مختارة وليست "All"
     if (_selectedDistricts.isNotEmpty && !_selectedDistricts.contains('All')) {
       filteredItems = filteredItems.where((item) {
@@ -339,12 +359,18 @@ class RestaurantAdProvider with ChangeNotifier {
     String? district,
     String? category,
     String? emirate,
+    String? keyword,
   }) async {
     _isLoadingAds = true;
     _loadAdsError = null;
     safeNotifyListeners();
 
     try {
+      // تحديث الكلمة المفتاحية محلياً
+      if (keyword != null) {
+        _keyword = keyword.trim().isEmpty ? null : keyword.trim();
+      }
+
       // Public data - no token required for browsing restaurant ads
       // جلب جميع البيانات أولاً بدون فلاتر محددة
       final restaurants = await _restaurantsInfoProvider.fetchRestaurants(
@@ -363,6 +389,19 @@ class RestaurantAdProvider with ChangeNotifier {
 
       // تطبيق الفلترة المحلية للفئات والمناطق المتعددة
       List<FavoriteItemInterface> filteredItems = allItems;
+
+      // فلتر الكلمة المفتاحية - مطابقة بالاحتواء (غير حساسة لحالة الأحرف)
+      if (_keyword != null && _keyword!.isNotEmpty) {
+        final kw = _keyword!.trim().toLowerCase();
+        filteredItems = filteredItems.where((item) {
+          final title = item.title.trim().toLowerCase();
+          final details = item.details.trim().toLowerCase();
+          final description = (item is RestaurantAdItem)
+              ? item.description.trim().toLowerCase()
+              : '';
+          return title.contains(kw) || details.contains(kw) || description.contains(kw);
+        }).toList();
+      }
 
       // فلتر المناطق - إذا كان هناك مناطق مختارة وليست "All"
       if (selectedDistricts != null &&
@@ -407,6 +446,7 @@ class RestaurantAdProvider with ChangeNotifier {
     priceRange = null;
     _priceFrom = null;
     _priceTo = null;
+    _keyword = null;
     safeNotifyListeners();
   }
 }

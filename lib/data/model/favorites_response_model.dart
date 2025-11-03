@@ -384,7 +384,8 @@ class AdData {
   final String? engineCapacity;
   final String? cylinders;
   final String? horsepower;
-
+final String? contact_info;
+ 
   AdData({
     required this.id,
     required this.userId,
@@ -395,6 +396,7 @@ class AdData {
     required this.area,
     required this.priceRange,
     this.price,
+    this.contact_info,
     this.category,
     required this.mainImage,
     required this.thumbnailImages,
@@ -465,8 +467,9 @@ class AdData {
       mainImage: json['main_image'] ?? '',
       thumbnailImages: _parseStringList(json['thumbnail_images']),
       advertiserName: json['advertiser_name'] ?? '',
-      whatsappNumber: json['whatsapp_number'] ?? json['whatsapp'] ?? '',
-      phoneNumber: json['phone_number'] ?? '',
+      contact_info:json['contact_info'] ?? '',
+      whatsappNumber: json['whatsapp_number'] ?? json['whatsapp'] ?? json['whatsappNumber'] ?? '',
+      phoneNumber: json['phone_number'] ?? json['phone'] ?? json['phoneNumber'] ?? '',
       address: json['address'] ?? json['location'] ?? '',
       addCategory: json['add_category'] ?? '',
       addStatus: json['add_status'] ?? '',
@@ -480,8 +483,12 @@ class AdData {
       activeOffersBoxDays: json['active_offers_box_days'],
       activeOffersBoxExpiresAt: json['active_offers_box_expires_at'],
       createdAt: json['created_at'] ?? '',
-      latitude: json['latitude']?.toDouble(),
-      longitude: json['longitude']?.toDouble(),
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
       mainImageUrl: json['main_image_url'] ?? '',
       thumbnailImagesUrls: _parseStringList(json['thumbnail_images_urls']),
       status: json['status'] ?? '',

@@ -36,6 +36,11 @@ class OtherServicesAdProvider extends ChangeNotifier {
     _initialFilters = filters;
   }
 
+  // يمسح أي فلاتر أولية تم تمريرها سابقًا لضمان بحث نظيف
+  void clearInitialFilters() {
+    _initialFilters = null;
+  }
+
   Future<void> fetchAds({Map<String, dynamic>? filters}) async {
     _isLoading = true;
     _error = null;

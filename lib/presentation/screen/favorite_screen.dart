@@ -38,7 +38,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   late final FavoritesRepository _favoritesRepository;
   late final JobsRepository _jobsRepository;
   Map<String, String> _jobCategoryImages = {};
-  
+
   // قائمة تحتوي على بيانات كل التصنيفات من API
   List<List<FavoriteItemInterface>> allData = [];
   bool isLoading = true;
@@ -61,52 +61,76 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       final idStr = idDyn != null ? idDyn.toString() : 'null';
       final imgs = item.images;
       debugPrint('----- Ad Debug [$categoryKey] -----');
-      debugPrint('id=$idStr title="${item.title}" price="${item.price}" location="${item.location}"');
-      debugPrint('date="${item.date}" contact="${item.contact}" premium=${item.isPremium}');
-      debugPrint('category="${item.category}" addCategory="${item.addCategory}"');
+      debugPrint(
+          'id=$idStr title="${item.title}" price="${item.price}" location="${item.location}"');
+      debugPrint(
+          'date="${item.date}" contact="${item.contact}" premium=${item.isPremium}');
+      debugPrint(
+          'category="${item.category}" addCategory="${item.addCategory}"');
       debugPrint('line1="${item.line1}" details="${item.details}"');
-      debugPrint('imagesCount=${imgs.length} firstImage="${imgs.isNotEmpty ? imgs.first : 'none'}"');
+      debugPrint(
+          'imagesCount=${imgs.length} firstImage="${imgs.isNotEmpty ? imgs.first : 'none'}"');
 
       // محول أساسي للوصول إلى UserAd الخام إذا كان العنصر ملفوف داخل FavoriteAdapterItem
       final base = (item is FavoriteAdapterItem) ? item.adapted : item;
 
       if (base is CarSalesAdAdapter) {
         final ad = base.userAd;
-        debugPrint('CarSales raw -> make="${ad.make}" model="${ad.model}" trim="${ad.trim}" year="${ad.year}"');
-        debugPrint('CarSales raw -> km="${ad.km}" specs="${ad.specs}" price="${ad.price}"');
-        debugPrint('CarSales raw -> emirate="${ad.emirate}" area="${ad.area}" planType="${ad.planType}"');
+        debugPrint(
+            'CarSales raw -> make="${ad.make}" model="${ad.model}" trim="${ad.trim}" year="${ad.year}"');
+        debugPrint(
+            'CarSales raw -> km="${ad.km}" specs="${ad.specs}" price="${ad.price}"');
+        debugPrint(
+            'CarSales raw -> emirate="${ad.emirate}" area="${ad.area}" planType="${ad.planType}"');
       } else if (base is CarRentAdAdapter) {
         final ad = base.userAd;
-        debugPrint('CarRent raw -> make="${ad.make}" model="${ad.model}" year="${ad.year}"');
-        debugPrint('CarRent raw -> dayRent="${ad.dayRent}" monthRent="${ad.monthRent}" price="${ad.price}"');
-        debugPrint('CarRent raw -> location="${ad.location}" planType="${ad.planType}"');
+        debugPrint(
+            'CarRent raw -> make="${ad.make}" model="${ad.model}" year="${ad.year}"');
+        debugPrint(
+            'CarRent raw -> dayRent="${ad.dayRent}" monthRent="${ad.monthRent}" price="${ad.price}"');
+        debugPrint(
+            'CarRent raw -> location="${ad.location}" planType="${ad.planType}"');
       } else if (base is CarServiceAdAdapter) {
         final ad = base.userAd;
-        debugPrint('CarService raw -> serviceType="${ad.serviceType}" serviceName="${ad.serviceName}"');
-        debugPrint('CarService raw -> title="${ad.title}" price="${ad.price}" location="${ad.location}"');
+        debugPrint(
+            'CarService raw -> serviceType="${ad.serviceType}" serviceName="${ad.serviceName}"');
+        debugPrint(
+            'CarService raw -> title="${ad.title}" price="${ad.price}" location="${ad.location}"');
       } else if (base is RealEstateAdAdapter) {
         final ad = base.userAd;
-        debugPrint('RealEstate raw -> property_type="${ad.property_type}" contract_type="${ad.contract_type}"');
-        debugPrint('RealEstate raw -> emirate="${ad.emirate}" district="${ad.district}" area="${ad.area}"');
+        debugPrint(
+            'RealEstate raw -> property_type="${ad.property_type}" contract_type="${ad.contract_type}"');
+        debugPrint(
+            'RealEstate raw -> emirate="${ad.emirate}" district="${ad.district}" area="${ad.area}"');
         debugPrint('RealEstate raw -> price="${ad.price}" title="${ad.title}"');
       } else if (base is ElectronicsAdAdapter) {
         final ad = base.userAd;
-        debugPrint('Electronics raw -> product_name="${ad.product_name}" section_type="${ad.section_type}"');
-        debugPrint('Electronics raw -> emirate="${ad.emirate}" district="${ad.district}" area="${ad.area}"');
-        debugPrint('Electronics raw -> price="${ad.price}" title="${ad.title}"');
+        debugPrint(
+            'Electronics raw -> product_name="${ad.product_name}" section_type="${ad.section_type}"');
+        debugPrint(
+            'Electronics raw -> emirate="${ad.emirate}" district="${ad.district}" area="${ad.area}"');
+        debugPrint(
+            'Electronics raw -> price="${ad.price}" title="${ad.title}"');
       } else if (base is JobAdAdapter) {
         final ad = base.userAd;
-        debugPrint('Jobs raw -> job_name="${ad.job_name}" salary="${ad.salary}"');
-        debugPrint('Jobs raw -> contract_type="${ad.contract_type}" section_type="${ad.section_type}"');
-        debugPrint('Jobs raw -> location="${ad.emirate} ${ad.district} ${ad.area}"');
+        debugPrint(
+            'Jobs raw -> job_name="${ad.job_name}" salary="${ad.salary}"');
+        debugPrint(
+            'Jobs raw -> contract_type="${ad.contract_type}" section_type="${ad.section_type}"');
+        debugPrint(
+            'Jobs raw -> location="${ad.emirate} ${ad.district} ${ad.area}"');
       } else if (base is RestaurantAdAdapter) {
         final ad = base.userAd;
-        debugPrint('Restaurant raw -> title="${ad.title}" category="${ad.category}"');
-        debugPrint('Restaurant raw -> price="${ad.price}" location="${ad.location}"');
+        debugPrint(
+            'Restaurant raw -> title="${ad.title}" category="${ad.category}"');
+        debugPrint(
+            'Restaurant raw -> price="${ad.price}" location="${ad.location}"');
       } else if (base is OtherServiceAdAdapter) {
         final ad = base.userAd;
-        debugPrint('OtherService raw -> serviceType="${ad.serviceType}" serviceName="${ad.serviceName}"');
-        debugPrint('OtherService raw -> title="${ad.title}" price="${ad.price}" location="${ad.location}"');
+        debugPrint(
+            'OtherService raw -> serviceType="${ad.serviceType}" serviceName="${ad.serviceName}"');
+        debugPrint(
+            'OtherService raw -> title="${ad.title}" price="${ad.price}" location="${ad.location}"');
       }
     } catch (e) {
       debugPrint('Debug print failed: $e');
@@ -129,7 +153,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     final items = (allData.isNotEmpty && index < allData.length)
         ? allData[index]
         : const <FavoriteItemInterface>[];
-    debugPrint('=== Printing ${items.length} items for section "$key" (index=$index) ===');
+    debugPrint(
+        '=== Printing ${items.length} items for section "$key" (index=$index) ===');
     for (final item in items) {
       _debugPrintAdapter(key, item);
     }
@@ -160,7 +185,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       // الحصول على user ID من AuthProvider
       final authProvider = context.read<AuthProvider>();
       final userId = authProvider.user?.id;
-      
+
       // التحقق من وجود user ID
       if (userId == null) {
         setState(() {
@@ -169,21 +194,29 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         });
         return;
       }
-      
+
       // استدعاء API للحصول على المفضلة باستخدام user ID للمستخدمين المسجلين فقط
-      final favoritesResponse = await _favoritesRepository.getFavorites(userId: userId);
-      
+      final favoritesResponse =
+          await _favoritesRepository.getFavorites(userId: userId);
+
       // طباعة تشخيصية لفهم البيانات المرجعة
       debugPrint('🔍 Favorites Response Status: ${favoritesResponse.status}');
-      debugPrint('🔍 Car Rent items count: ${favoritesResponse.data.carRent.length}');
-      debugPrint('🔍 Car Sales items count: ${favoritesResponse.data.carSales.length}');
-      debugPrint('🔍 Restaurant items count: ${favoritesResponse.data.restaurant.length}');
-      debugPrint('🔍 Electronics items count: ${favoritesResponse.data.electronics.length}');
+      debugPrint(
+          '🔍 Car Rent items count: ${favoritesResponse.data.carRent.length}');
+      debugPrint(
+          '🔍 Car Sales items count: ${favoritesResponse.data.carSales.length}');
+      debugPrint(
+          '🔍 Restaurant items count: ${favoritesResponse.data.restaurant.length}');
+      debugPrint(
+          '🔍 Electronics items count: ${favoritesResponse.data.electronics.length}');
       debugPrint('🔍 Jobs items count: ${favoritesResponse.data.jobs.length}');
-      debugPrint('🔍 Real Estate items count: ${favoritesResponse.data.realEstate.length}');
-      debugPrint('🔍 Car Services items count: ${favoritesResponse.data.carServices.length}');
-      debugPrint('🔍 Other Services items count: ${favoritesResponse.data.otherServices.length}');
-      
+      debugPrint(
+          '🔍 Real Estate items count: ${favoritesResponse.data.realEstate.length}');
+      debugPrint(
+          '🔍 Car Services items count: ${favoritesResponse.data.carServices.length}');
+      debugPrint(
+          '🔍 Other Services items count: ${favoritesResponse.data.otherServices.length}');
+
       // استخدام الطريقة المساعدة من FavoritesData للحصول على البيانات مرتبة حسب التصنيفات
       // ثم تحويل كل عنصر FavoriteItem إلى Adapter عبر UserAdAdapterFactory
       final organizedData = favoritesResponse.data.getAllItemsByCategory();
@@ -199,7 +232,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             );
           } catch (e) {
             // في حال فشل التحويل لأي سبب، نُعيد العنصر الأصلي لضمان عدم كسر الشاشة
-            debugPrint('Adapter conversion failed for favorite ${favItem.favoriteId}: $e');
+            debugPrint(
+                'Adapter conversion failed for favorite ${favItem.favoriteId}: $e');
             return favItem;
           }
         }).toList();
@@ -211,16 +245,16 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       setState(() {
         isLoading = false;
       });
-      
     } catch (e) {
       setState(() {
         isLoading = false;
         // تحسين رسالة الخطأ بناءً على نوع الخطأ
-        if (e.toString().contains('Unauthenticated') || e.toString().contains('401')) {
+        if (e.toString().contains('Unauthenticated') ||
+            e.toString().contains('401')) {
           errorMessage = null; // لا نعرض رسالة خطأ، بل رسالة ودية
           isUnauthenticated = true;
         } else {
-          errorMessage = 'فشل في تحميل المفضلة: ${e.toString()}';
+          errorMessage = S.of(context).favoritesLoadFailed(e.toString());
           isUnauthenticated = false;
         }
       });
@@ -257,24 +291,25 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   }
 
   /// حذف عنصر من المفضلة
-  Future<void> _removeFromFavorites(int favoriteId, int categoryIndex, int itemIndex) async {
+  Future<void> _removeFromFavorites(
+      int favoriteId, int categoryIndex, int itemIndex) async {
     try {
       final token = await _storage.read(key: 'auth_token');
       await _favoritesRepository.removeFromFavorites(
         favoriteId: favoriteId,
         token: token,
       );
-      
+
       // إزالة العنصر من القائمة المحلية
       setState(() {
         allData[categoryIndex].removeAt(itemIndex);
       });
-      
+
       // إظهار رسالة نجاح
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم حذف العنصر من المفضلة'),
+          SnackBar(
+            content: Text(S.of(context).favoriteRemovedSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -284,7 +319,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('فشل في حذف العنصر: ${e.toString()}'),
+            content: Text(S.of(context).favoriteRemoveFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -299,13 +334,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     // قائمة التصنيفات النصية
     final List<String> categories = [
-      S.of(context).carsales,      // index 0
-      S.of(context).realestate,   // index 1
-      S.of(context).electronics,  // index 2
-      S.of(context).jobs,         // index 3
-      S.of(context).carrent,      // index 4
-      S.of(context).carservices,  // index 5
-      S.of(context).restaurants,  // index 6
+      S.of(context).carsales, // index 0
+      S.of(context).realestate, // index 1
+      S.of(context).electronics, // index 2
+      S.of(context).jobs, // index 3
+      S.of(context).carrent, // index 4
+      S.of(context).carservices, // index 5
+      S.of(context).restaurants, // index 6
       S.of(context).otherservices // index 7
     ];
 
@@ -319,13 +354,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             Text(
               S.of(context).favorites,
               style: TextStyle(
-                color:Color(0xFF001E5B),
+                color: Color(0xFF001E5B),
                 fontWeight: FontWeight.w500,
                 fontSize: 24,
               ),
             ),
             SizedBox(height: 10),
-            
+
             // شريط التصنيفات
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -341,7 +376,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 },
               ),
             ),
-            
+
             // محتوى الشاشة الرئيسي
             Expanded(
               child: _buildContent(),
@@ -381,7 +416,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadFavoritesData,
-              child: Text('إعادة المحاولة'),
+              child: Text(S.of(context).retry),
             ),
           ],
         ),
@@ -389,9 +424,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     }
 
     // اختيار قائمة البيانات الصحيحة بناءً على التصنيف المحدد
-    final selectedItems = allData.isNotEmpty && selectedCategory < allData.length 
-        ? allData[selectedCategory] 
-        : <FavoriteItemInterface>[];
+    final selectedItems =
+        allData.isNotEmpty && selectedCategory < allData.length
+            ? allData[selectedCategory]
+            : <FavoriteItemInterface>[];
 
     // إذا كان المستخدم غير مصادق عليه أو ضيف، عرض رسالة تسجيل الدخول
     if (isUnauthenticated) {
@@ -406,7 +442,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             SizedBox(height: 24),
             Text(
-              'تسجيل الدخول مطلوب',
+              S.of(context).loginRequiredTitle,
               style: TextStyle(
                 color: Colors.grey[700],
                 fontSize: 20.sp,
@@ -415,7 +451,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             SizedBox(height: 12),
             Text(
-              'يجب تسجيل الدخول أولاً لعرض المفضلة الخاصة بك',
+              S.of(context).loginRequiredDescription,
               style: TextStyle(
                 color: Colors.grey[500],
                 fontSize: 16.sp,
@@ -443,7 +479,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   GestureDetector(
                     onTap: () => context.push("/login"),
                     child: Text(
-                      'تسجيل الدخول',
+                      S.of(context).loginAction,
                       style: TextStyle(
                         color: Colors.blue[600],
                         fontSize: 16.sp,
@@ -472,7 +508,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'لا توجد عناصر مفضلة في هذا القسم',
+              S.of(context).favoritesEmptySection,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 18.sp,
@@ -489,7 +525,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       cacheExtent: 500.0,
       itemBuilder: (context, index) {
         final item = selectedItems[index];
-        
+
         return _buildCategorySpecificCard(item, index);
       },
     );
@@ -503,26 +539,35 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           context: context,
           builder: (ctx) {
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              title: const Text(
-                'Remove from Favorites',
-                style: TextStyle(color: Color(0xFF001E5B), fontSize: 18, fontWeight: FontWeight.w600),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              title: Text(
+                S.of(context).removeFromFavoritesTitle,
+                style: TextStyle(
+                    color: Color(0xFF001E5B),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600),
               ),
-              content: const Text(
-                'Are you sure you want to remove this ad from favorites?',
+              content: Text(
+                S.of(context).removeFromFavoritesMessage,
                 style: TextStyle(color: Color(0xFF001E5B), fontSize: 15),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: const Text('Cancel'),
-                  style: TextButton.styleFrom(foregroundColor: Color(0xFF001E5B)),
+                  child: Text(S.of(context).cancel),
+                  style:
+                      TextButton.styleFrom(foregroundColor: Color(0xFF001E5B)),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
+                  ),
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: const Text('Remove',style: TextStyle(color: Colors.white,)),
+                  child: Text(S.of(context).remove,
+                      style: TextStyle(
+                        color: Colors.white,
+                      )),
                 ),
               ],
             );
@@ -537,7 +582,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (userId == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please log in first')),
+            SnackBar(content: Text(S.of(context).pleaseLoginFirst)),
           );
         }
         return;
@@ -560,59 +605,81 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (adId == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ad ID not available')),
+            SnackBar(content: Text(S.of(context).adIdNotAvailable)),
           );
         }
         return;
       }
 
-      final categorySlug = _originalFavoriteSlugForDelete(rawCategory, item.category, item.addCategory);
+      final categorySlug = _originalFavoriteSlugForDelete(
+          rawCategory, item.category, item.addCategory);
       final token = await _storage.read(key: 'auth_token');
 
-      // تنفيذ الحذف من الخادم فقط عند مسار سلة المهملات (askConfirm = true)
-      if (askConfirm) {
-        try {
-          await _favoritesRepository.removeFromFavoritesByUser(
-            userId: userId,
-            adId: adId,
-            categorySlug: categorySlug,
-            token: token,
-          );
+      // تنفيذ الحذف من الخادم لكلا المسارين: سلة المهملات (مع تأكيد) والقلب (بدون تأكيد داخلي)
+      try {
+        await _favoritesRepository.removeFromFavoritesByUser(
+          userId: userId,
+          adId: adId,
+          categorySlug: categorySlug,
+          token: token,
+        );
 
+        setState(() {
+          allData[selectedCategory].removeAt(index);
+        });
+
+        await _cacheFavoriteIdsForHearts();
+        await _loadFavoritesData(); // تحديث الصفحة بالكامل بعد الحذف
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(S.of(context).favoriteRemovedSuccess),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        // في حال رجع الخادم 404 أو "Favorite not found"، نعتبره نجاحًا محليًا ونزيل العنصر
+        final msg = e.toString().toLowerCase();
+        final isNotFoundLike = msg.contains('favorite not found') ||
+            (msg.contains('api endpoint not found') && msg.contains('/api/favorites/')) ||
+            msg.contains('404');
+        if (isNotFoundLike) {
           setState(() {
             allData[selectedCategory].removeAt(index);
           });
-
           await _cacheFavoriteIdsForHearts();
-          await _loadFavoritesData(); // تحديث الصفحة بالكامل بعد الحذف
-
+          // يمكن تخطي إعادة التحميل الكامل لتسريع التجربة، لكن نُبقيها لضمان التزامن
+          await _loadFavoritesData();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Ad removed from favorites'),
+              SnackBar(
+                content: Text(S.of(context).favoriteRemovedSuccess),
                 backgroundColor: Colors.green,
               ),
             );
           }
-        } catch (e) {
+        } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Failed to remove ad: ${e.toString()}'),
+                content: Text(S.of(context).favoriteRemoveFailed(e.toString())),
                 backgroundColor: Colors.red,
               ),
             );
           }
         }
-      } else {
-        // مسار القلب: الحذف يتم من خلال FavoritesHelper بالفعل، لا نحذف هنا ولا نحدّث القائمة
-        return;
       }
     }
 
     // مساران: قلب المفضلة (بدون تأكيد داخلي لأن القلب نفسه يعرض التأكيد) وأيقونة الحذف (مع تأكيد)
-    VoidCallback onDeleteNoConfirm = () { _doDelete(askConfirm: false); };
-    VoidCallback onDeleteConfirm = () { _doDelete(askConfirm: true); };
+    VoidCallback onDeleteNoConfirm = () {
+      _doDelete(askConfirm: false);
+    };
+    VoidCallback onDeleteConfirm = () {
+      _doDelete(askConfirm: true);
+    };
 
     // ويدجت مخصص لأيقونة الحذف بجانب سطر الموقع
     final Widget deleteTrailing = SizedBox(
@@ -647,7 +714,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           if (item is CarRentAdAdapter) {
             dayRent = item.userAd.dayRent;
             monthRent = item.userAd.monthRent;
-          } else if (item is FavoriteAdapterItem && item.adapted is CarRentAdAdapter) {
+          } else if (item is FavoriteAdapterItem &&
+              item.adapted is CarRentAdAdapter) {
             final adapted = (item.adapted as CarRentAdAdapter);
             dayRent = adapted.userAd.dayRent;
             monthRent = adapted.userAd.monthRent;
@@ -657,9 +725,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildLabelWithValue("Day Rent", dayRent),
+                  _buildLabelWithValue(S.of(context).dayRent, dayRent),
                   const SizedBox(width: 16),
-                  _buildLabelWithValue("Month Rent", monthRent),
+                  _buildLabelWithValue(S.of(context).monthRent, monthRent),
                 ],
               ),
             ),
@@ -709,10 +777,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
         try {
           String? categoryType;
+          String? contactInfo;
           if (item is JobAdAdapter) {
             categoryType = item.userAd.category_type;
-          } else if (item is FavoriteAdapterItem && item.adapted is JobAdAdapter) {
+            contactInfo = item.userAd.contactInfo;
+          } else if (item is FavoriteAdapterItem &&
+              item.adapted is JobAdAdapter) {
             categoryType = (item.adapted as JobAdAdapter).userAd.category_type;
+            contactInfo = (item.adapted as JobAdAdapter).userAd.contactInfo;
           }
 
           final isOffer = (categoryType ?? '').toLowerCase().contains('offer');
@@ -723,12 +795,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             if (url.isNotEmpty) customImageUrl = url;
           }
 
-          final contactInfoStr = _getJobContactInfo(item);
-          if (contactInfoStr.isNotEmpty) {
+          // عرض contact_info كنصّ خام تحت اسم المعلن تمامًا كما في AllAddScreen
+          if (contactInfo != null && contactInfo.trim().isNotEmpty && contactInfo.toLowerCase() != 'null') {
             bottomWidget = Padding(
               padding: const EdgeInsets.only(top: 2.0),
               child: Text(
-                "Contact : ${contactInfoStr}",
+                "Contact : ${contactInfo}",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -785,8 +857,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   // مطابقة لطريقة العرض في AllAddScreen
   Widget _buildLabelWithValue(String label, String? value) {
-    final isNullOrEmpty = value == null || value.isEmpty || value.toLowerCase() == 'null';
-    final displayValue = isNullOrEmpty ? "$label: null" : value.split('.').first;
+    final isNullOrEmpty =
+        value == null || value.isEmpty || value.toLowerCase() == 'null';
+    final displayValue =
+        isNullOrEmpty ? "$label: null" : value.split('.').first;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -809,7 +883,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             displayValue,
             style: TextStyle(
               fontWeight: FontWeight.w500,
-              color: isNullOrEmpty ? Colors.grey : const Color.fromRGBO(0, 30, 90, 1),
+              color: isNullOrEmpty
+                  ? Colors.grey
+                  : const Color.fromRGBO(0, 30, 90, 1),
               fontSize: 14,
             ),
           ),
@@ -853,11 +929,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     final whatsapp = _getWhatsAppNumber(item).trim();
     final phone = _getPhoneNumber(item).trim();
     final parts = <String>[];
-    if (whatsapp.isNotEmpty && whatsapp.toLowerCase() != 'null') {
-      parts.add('WhatsApp: $whatsapp');
+    if (whatsapp.isNotEmpty && whatsapp.toLowerCase() != 'null' && whatsapp.toLowerCase() != 'nullnow') {
+      parts.add(S.of(context).whatsappLabel(whatsapp));
     }
-    if (phone.isNotEmpty && phone.toLowerCase() != 'null') {
-      parts.add('Phone: $phone');
+    if (phone.isNotEmpty && phone.toLowerCase() != 'null' && phone.toLowerCase() != 'nullnow') {
+      parts.add(S.of(context).phoneLabel(phone));
     }
     return parts.join(' | ');
   }
@@ -867,7 +943,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not launch $urlString')),
+          SnackBar(content: Text(S.of(context).couldNotLaunch(urlString))),
         );
       }
     }
@@ -877,22 +953,26 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Container(
       width: 62.w,
       height: 35.h,
-      decoration: BoxDecoration(color: const Color(0xFF01547E), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+          color: const Color(0xFF01547E),
+          borderRadius: BorderRadius.circular(8)),
       child: IconButton(
         onPressed: () {
           final whatsapp = _getWhatsAppNumber(item).trim();
-          if (whatsapp.isNotEmpty && whatsapp != 'null' && whatsapp != 'nullnow') {
+          if (whatsapp.isNotEmpty &&
+              whatsapp != 'null' &&
+              whatsapp != 'nullnow') {
             try {
               final url = PhoneNumberFormatter.getWhatsAppUrl(whatsapp);
               _launchUrl(url);
             } catch (_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('صيغة رقم الواتساب غير صالحة')),
+                SnackBar(content: Text(S.of(context).whatsappInvalid)),
               );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('رقم الواتساب غير متوفر')),
+              SnackBar(content: Text(S.of(context).whatsappNotAvailable)),
             );
           }
         },
@@ -910,7 +990,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Container(
       width: 62.w,
       height: 35.h,
-      decoration: BoxDecoration(color: const Color(0xFF01547E), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+          color: const Color(0xFF01547E),
+          borderRadius: BorderRadius.circular(8)),
       child: IconButton(
         onPressed: () {
           final phone = _getPhoneNumber(item).trim();
@@ -920,12 +1002,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               _launchUrl(url);
             } catch (_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('صيغة رقم الهاتف غير صالحة')),
+                SnackBar(content: Text(S.of(context).phoneInvalid)),
               );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('رقم الهاتف غير متوفر')),
+              SnackBar(content: Text(S.of(context).phoneNotAvailable)),
             );
           }
         },
@@ -981,12 +1063,16 @@ String _normalizeFavoriteApiSlug(String category) {
 
 /// إرجاع الـ slug الأصلي كما يخزنه السيرفر في المفضلة (صيغة العرض)
 /// الهدف: تجنب 404 بسبب اختلاف الصيغة بين "Cars Sales" و "car_sales".
-String _originalFavoriteSlugForDelete(String? rawCategory, String category, String addCategory) {
+String _originalFavoriteSlugForDelete(
+    String? rawCategory, String category, String addCategory) {
   final raw = (rawCategory ?? '').trim();
   if (raw.isNotEmpty) return raw; // استخدم القيمة الأصلية القادمة من API
 
   // إذا لم تكن متوفرة، اعتمد على الفئة الموجودة مع تحويل إلى صيغة العرض المتوقعة من السيرفر
-  final c = (addCategory.isNotEmpty ? addCategory : category).toLowerCase().trim().replaceAll('-', '_');
+  final c = (addCategory.isNotEmpty ? addCategory : category)
+      .toLowerCase()
+      .trim()
+      .replaceAll('-', '_');
   switch (c) {
     case 'car_sales':
     case 'carsales':
@@ -1024,7 +1110,10 @@ String _originalFavoriteSlugForDelete(String? rawCategory, String category, Stri
       // افتراضي: حوّل الشرطات السفلية إلى مسافات وكبّر الحروف الأولى
       final spaced = c.replaceAll('_', ' ').trim();
       if (spaced.isEmpty) return 'Other Services';
-      return spaced.split(' ').map((w) => w.isEmpty ? w : (w[0].toUpperCase() + w.substring(1))).join(' ');
+      return spaced
+          .split(' ')
+          .map((w) => w.isEmpty ? w : (w[0].toUpperCase() + w.substring(1)))
+          .join(' ');
   }
 }
 
@@ -1145,10 +1234,10 @@ String _composeContactInfoFromAd(AdData ad) {
   final whatsapp = (ad.whatsappNumber ?? '').trim();
   final phone = (ad.phoneNumber ?? '').trim();
   final parts = <String>[];
-  if (whatsapp.isNotEmpty && whatsapp.toLowerCase() != 'null') {
+  if (whatsapp.isNotEmpty && whatsapp.toLowerCase() != 'null' && whatsapp.toLowerCase() != 'nullnow') {
     parts.add('WhatsApp: $whatsapp');
   }
-  if (phone.isNotEmpty && phone.toLowerCase() != 'null') {
+  if (phone.isNotEmpty && phone.toLowerCase() != 'null' && phone.toLowerCase() != 'nullnow') {
     parts.add('Phone: $phone');
   }
   return parts.join(' | ');

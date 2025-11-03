@@ -953,9 +953,9 @@ class CarAdProvider with ChangeNotifier {
   }
 
   String getSearchValidationMessage(S s) {
-    if (_selectedMake == null) return "Please select make.";
+    if (_selectedMake == null) return s.please_select_make;
     if (_selectedMake!.id > 0 && _models.isNotEmpty && _selectedModel == null)
-      return "please_select_model";
+      return s.please_select_model;
     return ""; // No error
   }
 

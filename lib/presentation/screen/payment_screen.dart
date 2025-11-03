@@ -317,9 +317,13 @@ class PaymentScreen extends StatelessWidget {
 
   Future<void> _payAndSubmit(BuildContext context) async {
     final s = S.of(context);
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     if (adData == null || adData!['adType'] == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('بيانات الإعلان غير كاملة'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(isArabic ? 'بيانات الإعلان غير كاملة' : 'Ad data is incomplete'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -392,17 +396,36 @@ class PaymentScreen extends StatelessWidget {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تم الدفع ونشر الإعلان بنجاح'), backgroundColor: Colors.green),
+          SnackBar(
+            content: Text(isArabic
+                ? 'تم الدفع ونشر الإعلان بنجاح'
+                : 'Payment completed and ad published successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
         context.push('/manage');
       } else {
+        final err = _cleanMessage(submissionError ?? '');
+        final msg = err.isEmpty
+            ? (isArabic
+                ? 'فشل في نشر الإعلان بعد الدفع'
+                : 'Failed to publish ad after payment')
+            : (isArabic
+                ? 'فشل في نشر الإعلان بعد الدفع: $err'
+                : 'Failed to publish ad after payment: $err');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_cleanMessage(submissionError ?? 'فشل في نشر الإعلان بعد الدفع')), backgroundColor: Colors.red),
+          SnackBar(content: Text(msg), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
+      final eStr = _cleanMessage('$e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_cleanMessage('حدث خطأ: $e')), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(isArabic
+              ? 'حدث خطأ: $eStr'
+              : 'An error occurred: $eStr'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }

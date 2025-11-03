@@ -42,8 +42,12 @@ class UserModel {
       advertiserName: json['advertiser_name'],
       advertiserType: json['advertiser_type'],
       advertiserLogo: json['advertiser_logo'],
-      latitude: json['latitude']?.toDouble(),
-      longitude: json['longitude']?.toDouble(),
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
       address: json['address'],
       advertiserLocation: json['advertiser_location'],
       userType: json['user_type'],

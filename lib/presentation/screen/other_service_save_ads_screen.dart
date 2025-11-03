@@ -65,7 +65,14 @@ class _OtherServicesSaveAdScreenState extends State<OtherServicesSaveAdScreen> {
 
   Future<void> _saveAd() async {
     if (widget.adId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يوجد معرّف للإعلان للتحديث')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context).noAdIdForUpdate,
+            textDirection: Directionality.of(context),
+          ),
+        ),
+      );
       return;
     }
 
@@ -95,15 +102,36 @@ class _OtherServicesSaveAdScreenState extends State<OtherServicesSaveAdScreen> {
 
       if (!mounted) return;
       if (ok) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الإعلان بنجاح')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              S.of(context).saveSuccess,
+              textDirection: Directionality.of(context),
+            ),
+          ),
+        );
         Navigator.of(context).pop();
       } else {
-        final err = provider.error ?? 'حدث خطأ أثناء التحديث';
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        final err = provider.error ?? S.of(context).saveFailed('');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              err,
+              textDirection: Directionality.of(context),
+            ),
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل التحديث: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context).saveFailed(e.toString()),
+            textDirection: Directionality.of(context),
+          ),
+        ),
+      );
     }
   }
 
@@ -325,19 +353,19 @@ class _OtherServicesSaveAdScreenState extends State<OtherServicesSaveAdScreen> {
                     // Location (view-only)
                     Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
                     SizedBox(height: 4.h),
-                    Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: Row(children: [
-                        SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            '${ad.addres ?? ''}',
-                            style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ]),
+                Directionality(
+                  textDirection: Directionality.of(context),
+                  child: Row(children: [
+                    SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        '${ad.addres ?? ''}',
+                        style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
+                      ),
                     ),
+                  ]),
+                ),
                     SizedBox(height: 8.h),
                     _buildMapSection(context),
                     const SizedBox(height: 12),
@@ -543,8 +571,8 @@ class _OtherServicesSaveAdScreenState extends State<OtherServicesSaveAdScreen> {
                       position: adLocation,
                       infoWindow: InfoWindow(
                         title: ad?.addres?.isNotEmpty == true
-                            ? 'الموقع المحدد'
-                            : ad?.emirate ?? 'الموقع',
+                            ? S.of(context).location
+                            : ad?.emirate ?? S.of(context).location,
                         snippet: ad?.addres?.isNotEmpty == true
                             ? ad!.addres
                             : ad?.area ?? '',

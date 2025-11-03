@@ -24,6 +24,11 @@ class CarRentInfoProvider extends ChangeNotifier {
   String? _error;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  // حالات تحميل مخصصة لقوائم الموديلات والتريم
+  bool _isLoadingModels = false;
+  bool _isLoadingTrims = false;
+  bool get isLoadingModels => _isLoadingModels;
+  bool get isLoadingTrims => _isLoadingTrims;
   
   // --- بيانات أفضل المعلنين ---
   List<BestAdvertiser> _topDealerAds = [];
@@ -167,6 +172,7 @@ class CarRentInfoProvider extends ChangeNotifier {
   }
 
   Future<void> fetchModelsForMake(MakeModel make, {String? token}) async {
+    _isLoadingModels = true;
     _models.clear();
     _trims.clear();
     notifyListeners();
@@ -174,12 +180,15 @@ class CarRentInfoProvider extends ChangeNotifier {
       _models = await _repository.getModels(makeId: make.id, );
     } catch(e) {
       // print("Error fetching models for ${make.name}: $e");
+    } finally {
+      _isLoadingModels = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   // دالة جديدة لجلب جميع الموديلات عند اختيار "All" للـ make
   Future<void> fetchAllModels({String? token}) async {
+    _isLoadingModels = true;
     _models.clear();
     _trims.clear();
     notifyListeners();
@@ -187,19 +196,24 @@ class CarRentInfoProvider extends ChangeNotifier {
       _models = await _repository.getAllModels();
     } catch(e) {
       // print("Error fetching all models: $e");
+    } finally {
+      _isLoadingModels = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   Future<void> fetchTrimsForModel(CarModel model, {String? token}) async {
+    _isLoadingTrims = true;
     _trims.clear();
     notifyListeners();
     try {
       _trims = await _repository.getTrims(modelId: model.id, );
     } catch (e) {
       // print("Error fetching trims for ${model.name}: $e");
+    } finally {
+      _isLoadingTrims = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
   
   Future<void> fetchContactInfo({String? token}) async {

@@ -16,6 +16,15 @@ import 'package:advertising_app/presentation/providers/user_packages_provider.da
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/core/scaffold_messenger_key.dart';
 
+// ضبط اتجاه النص داخل SnackBar بحسب اتجاه الواجهة الحالي (دالة عامة)
+Widget _localizedSnackText(BuildContext context, String text) {
+  final isRTL = Directionality.of(context) == TextDirection.rtl;
+  return Directionality(
+    textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+    child: Text(text, textAlign: TextAlign.start),
+  );
+}
+
 // دالة عامة لتطبيع قيمة الـ category_slug لتوافق قيم الـ API لصندوق العروض
 String _normalizeCategorySlugForOffers(MyAdModel ad) {
   final cat = (ad.category).toLowerCase().trim();
@@ -114,6 +123,8 @@ class _ManageScreenState extends State<ManageScreen> {
       ),
     );
   }
+
+  
 
   Widget _buildFilterButtons(S s, Color primaryColor, MyAdsProvider provider) {
     final filters = {
@@ -497,7 +508,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                           ),
                                         )
                                       : SizedBox(height: 20.h)
-                                  : SizedBox(height: 15.h),
+                                  : SizedBox(height: Directionality.of(context) == TextDirection.rtl ? 0 : 15.h),
                              
                              
                               ],
@@ -531,7 +542,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                               borderRadius: BorderRadius.circular(12),
                                             ),
                                             title: Text(
-                                              'Delete Ad',
+                                              S.of(context).deleteAdTitle,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 16.sp,
@@ -539,7 +550,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                               ),
                                             ),
                                             content: Text(
-                                              'Are you sure you want to delete this ad?',
+                                              S.of(context).deleteAdConfirmation,
                                               style: TextStyle(
                                                 fontSize: 14.sp,
                                                 color: KTextColor,
@@ -550,7 +561,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                               TextButton(
                                                 onPressed: () => Navigator.of(ctx).pop(false),
                                                 child: Text(
-                                                  'Cancel',
+                                                  S.of(context).cancel,
                                                   style: TextStyle(fontSize: 12.sp, color: KTextColor),
                                                 ),
                                               ),
@@ -562,7 +573,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                                 ),
                                                 child: Text(
-                                                  'Yes, Delete',
+                                                  S.of(context).yesDelete,
                                                   style: TextStyle(fontSize: 12.sp, color: Colors.white, fontWeight: FontWeight.w600),
                                                 ),
                                               ),
@@ -579,7 +590,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                       messenger?.hideCurrentSnackBar();
                                       messenger?.showSnackBar(
                                         SnackBar(
-                                          content: Text(success ? 'تم حذف الإعلان' : 'فشل حذف الإعلان'),
+                                          content: _localizedSnackText(context, success ? S.of(context).adDeletedSuccess : S.of(context).adDeletedFailed),
                                           backgroundColor: success ? Colors.green : Colors.red,
                                           duration: const Duration(seconds: 2),
                                         ),
@@ -755,31 +766,39 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 2.w),
         child: ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (text == s.edit) {
               final slug = (ad.categorySlug).toLowerCase();
               final category = (ad.category).toLowerCase();
 
+              String? route;
               if ((slug.contains('car') && (slug.contains('sale') || slug.contains('sales'))) || category.contains('cars sales')) {
-                context.push('/car_sales_save_ads/${ad.id}');
+                route = '/car_sales_save_ads/${ad.id}';
               } else if (slug.contains('real') || slug.contains('estate') || category.contains('real estate') || category.contains('real state')) {
-                context.push('/real_estate_save_ads/${ad.id}');
+                route = '/real_estate_save_ads/${ad.id}';
               } else if ((slug.contains('car') && slug.contains('rent')) || category.contains('car rent')) {
-                context.push('/car_rent_save_ads/${ad.id}');
+                route = '/car_rent_save_ads/${ad.id}';
               } else if ((slug.contains('car') && (slug.contains('service') || slug.contains('services'))) || category.contains('car services')) {
-                context.push('/car_services_save_ads/${ad.id}');
+                route = '/car_services_save_ads/${ad.id}';
               } else if (slug.contains('restaurant') || category.contains('restaurant')) {
-                context.push('/resturant_save_ads/${ad.id}');
+                route = '/resturant_save_ads/${ad.id}';
               } else if (slug.contains('job') || category == 'jobs' || category == 'jop') {
-                context.push('/job_save_ads/${ad.id}');
+                route = '/job_save_ads/${ad.id}';
               } else if (slug.contains('electronic') || category.contains('electronics')) {
-                context.push('/electronics_save_ads/${ad.id}');
+                route = '/electronics_save_ads/${ad.id}';
               } else if ((slug.contains('other') && slug.contains('service')) || category.contains('other services')) {
-                context.push('/other_service_save_ads/${ad.id}');
+                route = '/other_service_save_ads/${ad.id}';
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Unknown category for edit')),
                 );
+              }
+
+              if (route != null) {
+                // انتظر الرجوع من صفحة التعديل، ثم أعد جلب الإعلانات لتحديث العرض فورًا
+                await context.push(route);
+                if (!mounted) return;
+                await context.read<MyAdsProvider>().fetchMyAds();
               }
             } else if (text == s.refresh) {
               // تنفيذ طلب Rank One
@@ -787,19 +806,24 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
               final provider = context.read<MyAdsProvider>();
               messenger?.hideCurrentSnackBar();
               messenger?.showSnackBar(
-                const SnackBar(content: Text('جارٍ رفع ترتيب الإعلان...')),
+                SnackBar(
+                  content: _localizedSnackText(context, S.of(context).rankAdInProgress),
+                ),
               );
-              Future.microtask(() async {
-                final success = await provider.makeRankOne(ad: ad);
-                messenger?.hideCurrentSnackBar();
-                messenger?.showSnackBar(
-                  SnackBar(
-                    content: Text(success ? 'تم رفع ترتيب الإعلان بنجاح' : 'فشل رفع ترتيب الإعلان'),
-                    backgroundColor: success ? Colors.green : Colors.red,
-                    duration: const Duration(seconds: 2),
+              final success = await provider.makeRankOne(ad: ad);
+              messenger?.hideCurrentSnackBar();
+              messenger?.showSnackBar(
+                SnackBar(
+                  content: _localizedSnackText(
+                    context,
+                    success ? S.of(context).rankAdSuccess : S.of(context).rankAdFailed,
                   ),
-                );
-              });
+                  backgroundColor: success ? Colors.green : Colors.red,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+              // بعد تنفيذ الترقية، أعِد الجلب لتتحدث حالة الإعلان فورًا
+              await provider.fetchMyAds();
             } else {
               setState(() => _selectedAction = text);
             }
@@ -856,7 +880,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                         messenger.hideCurrentSnackBar();
                         messenger.showSnackBar(
                           SnackBar(
-                            content: Text('جاري تفعيل ${s.activeOffersBox}...'),
+                            content: _localizedSnackText(context, S.of(context).offerBoxActivating(s.activeOffersBox)),
                             backgroundColor: primaryColor,
                             duration: const Duration(seconds: 1),
                           ),
@@ -871,10 +895,11 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                         messenger.hideCurrentSnackBar();
                         messenger.showSnackBar(
                           SnackBar(
-                            content: Text(
+                            content: _localizedSnackText(
+                              context,
                               success
-                                  ? 'تم تفعيل صندوق العروض لهذا الإعلان'
-                                  : (context.read<MyAdsProvider>().activationError ?? 'فشل تفعيل صندوق العروض')
+                                  ? S.of(context).offerBoxActivatedSuccess
+                                  : (context.read<MyAdsProvider>().activationError ?? S.of(context).offerBoxActivationFailed),
                             ),
                             backgroundColor: success ? Colors.green : Colors.red,
                             duration: const Duration(seconds: 3),

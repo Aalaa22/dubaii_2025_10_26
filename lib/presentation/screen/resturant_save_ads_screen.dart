@@ -254,7 +254,12 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       
       if (updateData.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('لا توجد تغييرات للحفظ')),
+          SnackBar(
+            content: Text(
+              S.of(context).noChangesToSave,
+              textDirection: Directionality.of(context),
+            ),
+          ),
         );
         return;
       }
@@ -272,7 +277,12 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم حفظ التغييرات بنجاح')),
+          SnackBar(
+            content: Text(
+              S.of(context).saveSuccess,
+              textDirection: Directionality.of(context),
+            ),
+          ),
         );
         Navigator.of(context).pop();
       }
@@ -280,7 +290,12 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       debugPrint('Error saving changes: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ في حفظ التغييرات: $e')),
+          SnackBar(
+            content: Text(
+              S.of(context).saveFailed(e.toString()),
+              textDirection: Directionality.of(context),
+            ),
+          ),
         );
       }
     } finally {
@@ -1295,7 +1310,7 @@ class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
                   child: Text(
                     '${widget.controller.text.length}/${widget.maxLength}',
                     style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    textDirection: TextDirection.ltr,
+                    textDirection: Directionality.of(context),
                   ),
                 ),
               ),

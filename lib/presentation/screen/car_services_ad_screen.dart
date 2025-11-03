@@ -122,7 +122,13 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
     const int maxImages = 3;
     final int remainingSlots = maxImages - _thumbnailImages.length;
     if (remainingSlots <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('لقد أضفت الحد الأقصى من الصور ($maxImages صور).'), backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isArabic ? 'لقد أضفت الحد الأقصى من الصور ($maxImages صور).' : 'You have added the maximum number of images ($maxImages total).'),
+          backgroundColor: KPrimaryColor,
+        ),
+      );
       return;
     }
     final List<XFile> pickedImages = await _picker.pickMultiImage(imageQuality: 85);
@@ -136,9 +142,15 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
       }
       setState(() {});
       if (addedCount < pickedImages.length) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('تم الوصول للحد الأقصى. تم إضافة $addedCount من ${pickedImages.length} صورة فقط.'),
-            backgroundColor: Colors.orange));
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(isArabic
+                ? 'تم الوصول للحد الأقصى. تم إضافة $addedCount من ${pickedImages.length} صورة فقط.'
+                : 'Reached the maximum limit. Added $addedCount of ${pickedImages.length} images only.'),
+            backgroundColor: KPrimaryColor,
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تم إضافة ${pickedImages.length} صورة بنجاح.'), backgroundColor: Colors.green));
       }
@@ -192,6 +204,20 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final s = S.of(context);
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+        final List<String> localizedMissingFields = missingFields.map((field) {
+          final lower = field.trim().toLowerCase();
+          if (lower == 'phone number' || field == 'رقم الهاتف') {
+            return s.phone;
+          }
+          if (lower == 'your location' || field == 'الموقع') {
+            return s.advertiserLocation;
+          }
+          return field;
+        }).toList();
+
         return WillPopScope(
           onWillPop: () async {
             // عند الضغط على زر الرجوع، الخروج من الصفحة بالكامل
@@ -199,13 +225,15 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
             Navigator.of(context).pop(); // العودة إلى الشاشة السابقة
             return false;
           },
-          child: AlertDialog(
+          child: Directionality(
+            textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+            child: AlertDialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Text("Incomplete profile",
-              style: TextStyle(
+            title: Text(s.editprof4,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: KTextColor,
                 fontSize: 18,
@@ -215,15 +243,15 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'You must complete the following fields in your profile before adding the advertisement:',
-                  style: TextStyle(
+                Text(
+                  s.profileWarning,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: KTextColor,
                   ),
                 ),
                 const SizedBox(height: 15),
-                ...missingFields
+                ...localizedMissingFields
                     .map((field) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
@@ -255,8 +283,8 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.push('/editprofile');
                     Navigator.of(context).pop();
+                    Future.microtask(() => context.push('/editprofile'));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(1, 84, 126, 1),
@@ -267,9 +295,9 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Go to Profile',
-                    style: TextStyle(
+                  child: Text(
+                    s.myProfile,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -284,6 +312,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                 child: OutlinedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(1, 84, 126, 1),
@@ -294,9 +323,9 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
+                  child: Text(
+                    s.cancel,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -305,6 +334,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
               ),
             
             ],
+          ),
           ),
         );
       },
@@ -356,34 +386,65 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
 
   // دالة التحقق والانتقال
   Future<void> _validateAndProceedToNext() async {
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       if (!_formKey.currentState!.validate()) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الرجاء تعبئة جميع الحقول المطلوبة.'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(S.of(context).please_fill_required_fields),
+              backgroundColor: KPrimaryColor,
+            ),
+          );
           return;
       }
       
       // التحقق من الحقول المطلوبة
       if (selectedAdvertiserName == null || selectedAdvertiserName!.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الرجاء اختيار اسم المعلن.'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isArabic ? 'الرجاء اختيار اسم المعلن.' : 'Please select advertiser name.'),
+              backgroundColor: KPrimaryColor,
+            ),
+          );
           return;
       }
       
       if (selectedPhoneNumber == null || selectedPhoneNumber!.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الرجاء إدخال رقم الهاتف.'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isArabic ? 'الرجاء إدخال رقم الهاتف.' : 'Please enter phone number.'),
+              backgroundColor: KPrimaryColor,
+            ),
+          );
           return;
       }
       
       if (_descriptionController.text.trim().isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الرجاء إدخال الوصف.'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isArabic ? 'الرجاء إدخال الوصف.' : 'Please enter description.'),
+              backgroundColor: KPrimaryColor,
+            ),
+          );
           return;
       }
       
       if (_mainImage == null) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الرجاء إضافة صورة رئيسية.'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isArabic ? 'الرجاء إضافة صورة رئيسية.' : 'Please add a main image.'),
+              backgroundColor: KPrimaryColor,
+            ),
+          );
           return;
       }
       
       if (selectedLocation.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('الرجاء تحديد الموقع.'), backgroundColor: Colors.orange));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isArabic ? 'الرجاء تحديد الموقع.' : 'Please select a location.'),
+              backgroundColor: KPrimaryColor,
+            ),
+          );
           return;
       }
       
@@ -495,7 +556,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                              _buildSingleSelectField(context, s.district, selectedDistrict, infoProvider.getDistrictsForEmirate(selectedEmirate), (selection) {
                                setState(() => selectedDistrict = selection);
                              }, isRequired: true),
-                          _buildTitledTextFormField(s.area, _areaController, borderColor, currentLocale, hintText: "Enter Area", isRequired: true),
+                           _buildTitledTextFormField(s.area, _areaController, borderColor, currentLocale, hintText: s.enterArea, isRequired: true),
                
                           
                           ]),
@@ -507,7 +568,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                             _buildSingleSelectField(context, s.serviceType, selectedServiceType, infoProvider.serviceTypeNames, (selection) {
                                 setState(() => selectedServiceType = selection);
                              }, isRequired: true),
-                            _buildTitledTextFormField(s.serviceName, _serviceNameController, borderColor, currentLocale, hintText: "Enter name", isRequired: true),
+                            _buildTitledTextFormField(s.serviceName, _serviceNameController, borderColor, currentLocale, hintText: s.enterName, isRequired: true),
                           _buildTitledTextFormField(s.price, _priceController, borderColor, currentLocale, hintText: '300', isNumber: true, isRequired: true),
                 
                          
@@ -516,7 +577,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                           ]),
                            const SizedBox(height: 7),
                           
-                          _buildTitledTextFormField(s.title, _titleController, borderColor, currentLocale, hintText: "Enter your title", minLines: 3, maxLines: 4, isRequired: true),
+                          _buildTitledTextFormField(s.title, _titleController, borderColor, currentLocale, hintText: s.enterTitle, minLines: 3, maxLines: 4, isRequired: true),
                           const SizedBox(height: 7),
                           
                            Consumer<CarServicesInfoProvider>(
@@ -790,7 +851,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                       ),
                       child: _isLoadingLocation
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                          : const Text('Locate Me', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14)),
+                          :  Text(S.of(context).locateMe, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14)),
                     ),
                   ),
                    SizedBox(width: 10),
@@ -802,7 +863,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
                         minimumSize: const Size(double.infinity, 43),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: const Text('Pick Location', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13.5)),
+                      child:  Text(S.of(context).pickLocation, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 13.5)),
                     ),
                   ),
                 ],
