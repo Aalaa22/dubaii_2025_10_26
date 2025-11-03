@@ -30,14 +30,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _userNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _whatsAppController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _currentPasswordController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _advertiserNameController = TextEditingController();
-  String? _selectedAdvertiserType;
-  final List<String> advertiserTypes = [
-    'Dealer / Showroom', 'Personal Owner', 'Real Estate Agent', 'Recruiter'
-  ];
+  final _referralCodeController = TextEditingController();
+  // final _newPasswordController = TextEditingController();
+  // final _currentPasswordController = TextEditingController();
+  // final _emailController = TextEditingController();
+  // final _advertiserNameController = TextEditingController();
+  // String? _selectedAdvertiserType;
+  // final List<String> advertiserTypes = [
+  //   'Dealer / Showroom', 'Personal Owner', 'Real Estate Agent', 'Recruiter'
+  // ];
   
   File? _logoImageFile;
   final ImagePicker _picker = ImagePicker();
@@ -184,7 +185,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         duration: Duration(seconds: 2),
       ),
     );
-    
+    // ignore: avoid_print
+    print('DEBUG(profile_screen): Sending location lat=${_userLocation!.latitude}, lng=${_userLocation!.longitude}, address=${_userAddress}');
     final success = await authProvider.updateUserProfile(
       username: user.username,
       email: user.email,
@@ -202,6 +204,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     
     if (success) {
+      // ignore: avoid_print
+      print('DEBUG(profile_screen): Server user lat=${authProvider.user?.latitude}, lng=${authProvider.user?.longitude}');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -535,11 +539,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _userNameController.text = user.username ?? '';
     _phoneController.text = user.phone ?? '';
     _whatsAppController.text = user.whatsapp ?? '';
-    _emailController.text = user.email ?? '';
-    _advertiserNameController.text = user.advertiserName ?? '';
-    setState(() {
-      _selectedAdvertiserType = user.advertiserType;
-    });
+    _referralCodeController.text = user.referral_code ?? '';
+    // _emailController.text = user.email ?? '';
+    // _advertiserNameController.text = user.advertiserName ?? '';
+    // setState(() {
+    //   _selectedAdvertiserType = user.advertiserType;
+    // });
   }
 
   // Location-related methods
@@ -794,8 +799,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _userNameController.dispose(); _phoneController.dispose(); _whatsAppController.dispose();
-    _newPasswordController.dispose(); _currentPasswordController.dispose(); _emailController.dispose();
-    _advertiserNameController.dispose();
+    // _newPasswordController.dispose(); _currentPasswordController.dispose(); _emailController.dispose();
+    // _advertiserNameController.dispose();
+    _referralCodeController.dispose();
     super.dispose();
   }
 
@@ -804,26 +810,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final provider = context.read<AuthProvider>();
     
     // Validate required fields
-    if (_userNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username is required'), backgroundColor: Colors.red)
-      );
-      return;
-    }
+    // Username/phone validation will be applied only if values are changed
     
-    if (_phoneController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number is required'), backgroundColor: Colors.red)
-      );
-      return;
-    }
-    
-    if (_emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email is required'), backgroundColor: Colors.red)
-      );
-      return;
-    }
+    // Email field is disabled; skip email validation
     
     // Format phone numbers with country codes before sending
     // Use the country code from existing user data if available
@@ -836,9 +825,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     String formattedPhone = _formatPhoneNumber(_phoneController.text, defaultCountryCode: existingCountryCode);
     String formattedWhatsApp = _formatPhoneNumber(_whatsAppController.text, defaultCountryCode: existingCountryCode);
+    final String referralCode = _referralCodeController.text.trim();
     
     // Ensure phone numbers are properly formatted
-    if (formattedPhone.isEmpty) {
+    // Validate only if phone has actually changed
+    final currentUsername = user?.username ?? '';
+    final currentPhone = user?.phone ?? '';
+    final currentWhatsApp = user?.whatsapp ?? '';
+    final currentReferralCode = user?.referral_code ?? '';
+    final newUsername = _userNameController.text.trim();
+    final changingUsername = newUsername != currentUsername;
+    final changingPhone = formattedPhone.isNotEmpty && formattedPhone != currentPhone;
+    final changingWhatsApp = formattedWhatsApp.isNotEmpty && formattedWhatsApp != currentWhatsApp;
+    final changingReferralCode = referralCode.isNotEmpty && referralCode != currentReferralCode;
+
+    if (changingUsername && newUsername.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Username is required'), backgroundColor: Colors.red)
+      );
+      return;
+    }
+
+    if (changingPhone && formattedPhone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid phone number format'), backgroundColor: Colors.red)
       );
@@ -846,36 +854,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     
     // تحديث البروفايل بالبيانات الحالية في الـ controllers (including location data)
+    // Provider requires username/email/phone; pass empty strings for unchanged ones
+    final String usernameParam = changingUsername ? newUsername : '';
+    final String emailParam = '';
+    final String phoneParam = changingPhone ? formattedPhone : '';
+
     bool profileSuccess = await provider.updateUserProfile(
-      username: _userNameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: formattedPhone,
-      whatsapp: formattedWhatsApp.isNotEmpty ? formattedWhatsApp : null,
-      advertiserName: _advertiserNameController.text.trim().isNotEmpty ? _advertiserNameController.text.trim() : null,
-      advertiserType: _selectedAdvertiserType,
-      latitude: user?.latitude,
-      longitude: user?.longitude,
-      address: user?.address,
+      username: usernameParam,
+      email: emailParam,
+      phone: phoneParam,
+      whatsapp: changingWhatsApp ? formattedWhatsApp : null,
+      referralCode: changingReferralCode ? referralCode : null,
+      advertiserLogoFile: _logoImageFile,
     );
     
     // تحديث كلمة المرور فقط إذا تم كتابة شيء في الحقول
-    bool passwordSuccess = true;
-    if (_newPasswordController.text.isNotEmpty || _currentPasswordController.text.isNotEmpty) {
-      if (_newPasswordController.text.isEmpty || _currentPasswordController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Both current and new passwords are required to change password'), backgroundColor: Colors.red)
-        );
-        return;
-      }
-      
-      passwordSuccess = await provider.updateUserPassword(
-        currentPassword: _currentPasswordController.text,
-        newPassword: _newPasswordController.text,
-      );
-    }
+    // Password change disabled; skip password update
 
     if (!mounted) return;
-    if (profileSuccess && passwordSuccess) {
+    if (profileSuccess) {
        // Refresh user data after successful update
        await provider.fetchUserProfile();
        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile saved successfully!'), backgroundColor: Colors.green));
@@ -945,45 +942,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _userNameController, hintText: "Username")),
 
                   _buildLabel(S.of(context).phone),
-                  _buildEditableField(_phoneController, () => context.push('/profile')),
-                  
-                  _buildLabel(S.of(context).whatsApp),
-                  _buildEditableField(_whatsAppController, () => context.push('/profile')),
-                  
-                  _buildLabel("Current Password (for changing)"),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _currentPasswordController, hintText: 'Current password', isPassword: true)),
-
-                  _buildLabel("New Password (leave empty to not change)"),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _newPasswordController, hintText: 'New password', isPassword: true)),
-                  
-                  _buildLabel(S.of(context).email),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _emailController, hintText: 'Email', keyboardType: TextInputType.emailAddress)),
-                  
-                  _buildLabel(S.of(context).advertiserName),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _advertiserNameController, hintText: S.of(context).optional)),
-                  
-                  _buildLabel(S.of(context).advertiserType),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        hintText: S.of(context).optional,
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KTextColor, width: 1.5)),
-                      ),
-                      value: _selectedAdvertiserType, isExpanded: true, icon: const Icon(Icons.keyboard_arrow_down, color: KTextColor),
-                      items: advertiserTypes.map((v) => DropdownMenuItem<String>(value: v, child: Text(v, style: const TextStyle(color: KTextColor)))).toList(),
-                      onChanged: (v) => setState(() => _selectedAdvertiserType = v),
-                    ),
+                    child: CustomTextField(controller: _phoneController, hintText: S.of(context).phone),
                   ),
+                  
+                  _buildLabel(S.of(context).referralCode),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: CustomTextField(controller: _referralCodeController, hintText: S.of(context).optional),
+                  ),
+                  
+                  // _buildLabel("Current Password (for changing)"),
+                  // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _currentPasswordController, hintText: 'Current password', isPassword: true)),
+
+                  // _buildLabel("New Password (leave empty to not change)"),
+                  // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _newPasswordController, hintText: 'New password', isPassword: true)),
+                  
+                  // _buildLabel(S.of(context).email),
+                  // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _emailController, hintText: 'Email', keyboardType: TextInputType.emailAddress)),
+                  
+                  // _buildLabel(S.of(context).advertiserName),
+                  // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _advertiserNameController, hintText: S.of(context).optional)),
+                  
+                  // _buildLabel(S.of(context).advertiserType),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  //   child: DropdownButtonFormField<String>(
+                  //     decoration: InputDecoration(
+                  //       hintText: S.of(context).optional,
+                  //       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                  //       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KTextColor, width: 1.5)),
+                  //     ),
+                  //     value: _selectedAdvertiserType, isExpanded: true, icon: const Icon(Icons.keyboard_arrow_down, color: KTextColor),
+                  //     items: advertiserTypes.map((v) => DropdownMenuItem<String>(value: v, child: Text(v, style: const TextStyle(color: KTextColor)))).toList(),
+                  //     onChanged: (v) => setState(() => _selectedAdvertiserType = v),
+                  //   ),
+                  // ),
 
                    _buildLabel(S.of(context).advertiserLogo),
-                            if (_logoImageFile == null)
-                              // If no image is selected, show the "Upload" button
-                              _buildUploadButton()
-                            else
-                              // If an image is selected, show it with Edit/Delete buttons
-                              _buildImagePreview(),
+                            // اعرض الصورة أولاً إن كانت موجودة (محليًا أو من الشبكة)
+                            (() {
+                              final user = provider.user;
+                              final hasNetworkLogo = user?.advertiserLogo != null && (user!.advertiserLogo!.isNotEmpty);
+                              if (_logoImageFile != null || hasNetworkLogo) {
+                                return _buildImagePreview();
+                              } else {
+                                // لا توجد صورة، اعرض زر الرفع
+                                return _buildUploadButton();
+                              }
+                            })(),
                             
                             const SizedBox(height: 10),
                             
@@ -1100,53 +1108,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Row(
                                 children: [
-                                  // Locate Me button
+                                  // Locate Me button (match edit_profile)
                                   Expanded(
-                                    child: ElevatedButton.icon(
-                                      icon: _isLoadingLocation 
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                            ),
-                                          )
-                                        : const Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
-                                      label: Text(
-                                        _isLoadingLocation ? 'جاري التحديد...' : s.locateMe,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
-                                      ),
-                                      onPressed: _isLoadingLocation ? null : () async {
-                                        await _getCurrentLocation();
-                                      },
+                                    child: ElevatedButton(
+                                      onPressed: _isLoadingLocation ? null : _getCurrentLocation,
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: _isLoadingLocation ? Colors.grey : const Color(0xFF01547E),
                                         minimumSize: const Size(0, 40),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                       ),
+                                      child: Text(
+                                        _isLoadingLocation ? 'loading..' : s.locateMe,
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  // Open Google Map button
+                                  // Open Google Map button (match edit_profile)
                                   Expanded(
-                                    child: 
-                                    ElevatedButton.icon(
-                                  icon: const Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
-                                  label: const Text(
-                                    "Open Google Map",
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
+                                    child: ElevatedButton(
+                                      onPressed: _navigateToLocationPicker,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF01547E),
+                                        minimumSize: const Size(0, 40),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                      child: Text(
+                                        s.pickLocation,
+                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
+                                      ),
+                                    ),
                                   ),
-                                  onPressed: () async {
-                                    await _navigateToLocationPicker();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF01547E),
-                                    minimumSize: const Size(0, 40),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                ),
-                            ),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -1678,9 +1670,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _pickLogoImage() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
+      // Validate extension locally to avoid 422 from backend
+      final ext = pickedFile.path.split('.').last.toLowerCase();
+      const allowed = ['jpg','jpeg','png','gif'];
+      if (!allowed.contains(ext)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF'), backgroundColor: Colors.red),
+        );
+        return;
+      }
       final authProvider = context.read<AuthProvider>();
       final newLogoFile = File(pickedFile.path);
-      
+      // Upload immediately like edit_profile.dart and show same error style
       final success = await authProvider.uploadLogo(newLogoFile.path);
       if (success) {
         setState(() {

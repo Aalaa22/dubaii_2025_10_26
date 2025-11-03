@@ -45,6 +45,8 @@ class ApiService {
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
     }
+    // Ensure JSON content type for normal POST requests (do not rely on global header)
+    final Options jsonOptions = Options(contentType: Headers.jsonContentType);
     
     try {
       print('=== API SERVICE POST ===');
@@ -54,7 +56,7 @@ class ApiService {
       print('Headers: ${_dio.options.headers}');
       print('=======================');
 
-      final response = await _dio.post(endpoint, data: data, queryParameters: query);
+      final response = await _dio.post(endpoint, data: data, queryParameters: query, options: jsonOptions);
       
       print('=== API RESPONSE ===');
       print('Status Code: ${response.statusCode}');
@@ -88,8 +90,8 @@ class ApiService {
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
     }
-    // Set content type for requests with files
-    _dio.options.headers['Content-Type'] = 'multipart/form-data';
+    // Use per-request content type for multipart/form-data
+    final Options multipartOptions = Options(contentType: Headers.multipartFormDataContentType);
 
     // Create a new copy of the data to avoid modifying the original
     // IMPORTANT: Remove any File objects from the data map to prevent JSON conversion errors
@@ -130,7 +132,7 @@ class ApiService {
       print('Headers: ${_dio.options.headers}');
       print('========================');
       
-      final response = await _dio.post(endpoint, data: formData);
+      final response = await _dio.post(endpoint, data: formData, options: multipartOptions);
       
       print('=== API RESPONSE DEBUG ===');
       print('Status Code: ${response.statusCode}');
@@ -164,7 +166,7 @@ class ApiService {
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
     }
-    _dio.options.headers['Content-Type'] = 'multipart/form-data';
+    final Options multipartOptions = Options(contentType: Headers.multipartFormDataContentType);
 
     final formData = FormData();
     
@@ -189,7 +191,7 @@ class ApiService {
       print('Headers: ${_dio.options.headers}');
       print('============================');
       
-      final response = await _dio.post(endpoint, data: formData);
+      final response = await _dio.post(endpoint, data: formData, options: multipartOptions);
       
       print('=== API RESPONSE DEBUG ===');
       print('Status Code: ${response.statusCode}');
@@ -223,7 +225,7 @@ class ApiService {
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
     }
-    _dio.options.headers['Content-Type'] = 'multipart/form-data';
+    final Options multipartOptions = Options(contentType: Headers.multipartFormDataContentType);
 
     // Create a copy of the data to avoid modifying the original
     final Map<String, dynamic> formDataMap = Map<String, dynamic>.from(data);
@@ -257,7 +259,7 @@ class ApiService {
       print('Headers: ${_dio.options.headers}');
       print('=============================');
       
-      final response = await _dio.put(endpoint, data: formData);
+      final response = await _dio.put(endpoint, data: formData, options: multipartOptions);
       
       print('=== API RESPONSE DEBUG ===');
       print('Status Code: ${response.statusCode}');
@@ -285,6 +287,7 @@ class ApiService {
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
     }
+    final Options jsonOptions = Options(contentType: Headers.jsonContentType);
     
     try {
       print('=== API PUT DEBUG ===');
@@ -294,7 +297,7 @@ class ApiService {
       print('Headers: ${_dio.options.headers}');
       print('====================');
 
-      final response = await _dio.put(endpoint, data: data, queryParameters: query);
+      final response = await _dio.put(endpoint, data: data, queryParameters: query, options: jsonOptions);
       
       print('=== API RESPONSE ===');
       print('Status Code: ${response.statusCode}');
