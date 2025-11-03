@@ -485,6 +485,9 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
         'whatsapp': (selectedWhatsAppNumber ?? _whatsappController.text),
         'advertiser_name':
             (selectedAdvertiserName ?? _advertiserNameController.text),
+        // Include coordinates if available from the existing ad
+        'latitude': provider.currentAd?.latitude,
+        'longitude': provider.currentAd?.longitude,
       };
 
       // Add image data to the adData map - these will be handled by the repository
@@ -1049,6 +1052,19 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
   }
 
   Future<LatLng> _getAdLocation(dynamic ad) async {
+    // Prefer exact coordinates if present on the ad
+    if (ad?.latitude != null && ad?.longitude != null) {
+      final lat = ad.latitude is double
+          ? ad.latitude as double
+          : double.tryParse(ad.latitude.toString());
+      final lng = ad.longitude is double
+          ? ad.longitude as double
+          : double.tryParse(ad.longitude.toString());
+      if (lat != null && lng != null) {
+        return LatLng(lat, lng);
+      }
+    }
+
     // First, try to use the saved location field for geocoding
     if (ad?.location != null && ad!.location!.trim().isNotEmpty) {
       try {

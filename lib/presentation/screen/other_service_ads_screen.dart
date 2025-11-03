@@ -81,6 +81,22 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
       });
     }
 
+    // عيّن الإحداثيات تلقائياً من البروفايل إن وُجدت، وإلا حوّل العنوان إلى إحداثيات
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      } else if (selectedLocation.isNotEmpty) {
+        await _applySelectedLocationAddress();
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
     if (user.phone.trim().isEmpty) {
       missingFields.add('phone number');

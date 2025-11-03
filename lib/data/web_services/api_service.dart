@@ -96,9 +96,9 @@ class ApiService {
     final Map<String, dynamic> formDataMap = {};
     data.forEach((key, value) {
       // Skip File objects in the data map
-      if (value is! File && value is! List<File>) {
-        formDataMap[key] = value;
-      }
+      if (value == null) return; // Ignore null values entirely
+      if (value is File || value is List<File>) return; // Files handled separately
+      formDataMap[key] = value;
     });
     
     // Use FormData to combine text data and files

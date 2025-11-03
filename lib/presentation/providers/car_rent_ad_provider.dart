@@ -951,6 +951,14 @@ class CarRentAdProvider extends ChangeNotifier {
         'plan_expires_at': adData['planExpiresAt']?.toString() ?? '',
       };
 
+      // أضِف الإحداثيات فقط إذا كانت متوفرة، وبصيغة عشرية مضبوطة (7 منازل)
+      final latRaw = adData['latitude'];
+      final lngRaw = adData['longitude'];
+      final latStr = _formatDecimal(latRaw, 7);
+      final lngStr = _formatDecimal(lngRaw, 7);
+      if (latStr != null) submissionData['latitude'] = latStr;
+      if (lngStr != null) submissionData['longitude'] = lngStr;
+
       // Include payment only when explicitly set by the payment step
       if (adData['payment'] != null) {
         submissionData['payment'] = adData['payment'].toString();
@@ -1043,6 +1051,21 @@ class CarRentAdProvider extends ChangeNotifier {
       safeNotifyListeners();
      // // print('=== Car Rent Ad Submission Finished ===');
     }
+  }
+
+  /// تنسيق رقم عشري بعدد محدد من المنازل (يقبل num أو String)
+  String? _formatDecimal(dynamic value, int fractionDigits) {
+    if (value == null) return null;
+    num? n;
+    if (value is num) {
+      n = value;
+    } else if (value is String) {
+      n = double.tryParse(value);
+    } else {
+      return null;
+    }
+    if (n == null) return null;
+    return n.toStringAsFixed(fractionDigits);
   }
 
   /// Helper method to extract numeric value from string (e.g., "5 Seats" -> "5")

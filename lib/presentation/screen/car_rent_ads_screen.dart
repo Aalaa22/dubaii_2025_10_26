@@ -194,6 +194,25 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
       });
     }
 
+    // تعيين الإحداثيات تلقائياً من البروفايل إن كانت متوفّرة
+    // وإذا لم تكن الإحداثيات متاحة لكن العنوان موجود، سنحاول تحويل العنوان إلى إحداثيات
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        // تحريك الكاميرا إلى موقع المستخدم الافتراضي
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      } else if (selectedLocation.isNotEmpty) {
+        // لا توجد إحداثيات ولكن يوجد عنوان — نقوم بمحاولات تحويل العنوان إلى LatLng
+        await _applySelectedLocationAddress();
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
 
     // التحقق من الحقول المطلوبة
@@ -489,6 +508,9 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
       'advertiser_location': selectedAdvertiserLocation,
       'description': _descriptionController.text,
       'location': selectedLocation,
+      // Send coordinates when a location is selected
+      'latitude': selectedLatLng?.latitude,
+      'longitude': selectedLatLng?.longitude,
       'mainImage': _mainImage,
       'thumbnailImages': _thumbnailImages,
     };

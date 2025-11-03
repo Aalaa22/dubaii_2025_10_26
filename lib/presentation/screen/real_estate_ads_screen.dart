@@ -114,6 +114,37 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
       });
     }
 
+    // تعيين الإحداثيات الافتراضية من البروفايل إن كانت موجودة، وإلا محاولة تحويل العنوان إلى إحداثيات
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      } else if (selectedLocation.isNotEmpty) {
+        // سيتم أيضاً تنفيذ التحويل في initState، لكن نضمن المحاولة هنا إن لزم
+        // لتجنّب التكرار، لن نعيد التحويل إذا كانت selectedLatLng قد عُيّنت
+        if (selectedLatLng == null) {
+          try {
+            final results = await locationFromAddress(selectedLocation);
+            if (results.isNotEmpty) {
+              final first = results.first;
+              final mapsProvider = context.read<GoogleMapsProvider>();
+              selectedLatLng = LatLng(first.latitude, first.longitude);
+              await mapsProvider.moveCameraToLocation(first.latitude, first.longitude, zoom: 14.0);
+              mapsProvider.addMarker('selected_location', LatLng(first.latitude, first.longitude), title: 'الموقع المحدد', snippet: selectedLocation);
+            }
+          } catch (e) {
+            debugPrint('Geocoding failed in profile check: $e');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
 
     // التحقق من الحقول المطلوبة

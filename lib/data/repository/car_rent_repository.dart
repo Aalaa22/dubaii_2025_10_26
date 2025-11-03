@@ -199,6 +199,8 @@ class CarRentRepository {
       'advertiser_name': adData['advertiser_name'],
       'description': adData['description'],
       'location': adData['location'],
+      'latitude': adData['latitude'],
+      'longitude': adData['longitude'],
       'plan_type': adData['planType'],
       'plan_days': adData['planDays'],
       'plan_expires_at': adData['planExpiresAt'],
@@ -236,6 +238,23 @@ class CarRentRepository {
       'description': adData['description'],
       'location': adData['location'],
     };
+
+    // Include coordinates when provided
+    final lat = adData['latitude'];
+    final lng = adData['longitude'];
+    String? _fmt(dynamic v) {
+      if (v == null) return null;
+      if (v is num) return v.toStringAsFixed(7);
+      if (v is String) {
+        final d = double.tryParse(v);
+        return d?.toStringAsFixed(7);
+      }
+      return null;
+    }
+    final latStr = _fmt(lat);
+    final lngStr = _fmt(lng);
+    if (latStr != null) requestData['latitude'] = latStr;
+    if (lngStr != null) requestData['longitude'] = lngStr;
 
     await _apiService.postFormData(
       '/api/car-rent-ads/$adId',

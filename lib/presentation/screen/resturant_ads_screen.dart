@@ -97,6 +97,35 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
       });
     }
 
+    // عيّن الإحداثيات الافتراضية من البروفايل إذا كانت متوفرة، وإلا حوّل العنوان إلى إحداثيات عبر الدالة المساعدة
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      } else if (selectedLocation.isNotEmpty) {
+        // قد يتم أيضاً استدعاؤها في initState، لكن الشرط يمنع التكرار غير الضروري
+        if (selectedLatLng == null) {
+          try {
+            final locations = await locationFromAddress(selectedLocation);
+            if (locations.isNotEmpty) {
+              final loc = locations.first;
+              final mapsProvider = context.read<GoogleMapsProvider>();
+              selectedLatLng = LatLng(loc.latitude, loc.longitude);
+              await mapsProvider.moveCameraToLocation(loc.latitude, loc.longitude, zoom: 14.0);
+            }
+          } catch (e) {
+            debugPrint('Geocoding failed in profile check: $e');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
 
     // التحقق من الحقول المطلوبة

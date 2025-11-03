@@ -107,6 +107,20 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
       });
     }
 
+    // تعيين الإحداثيات تلقائياً من البروفايل إن كانت موجودة، وإلا ندع منطق initState يقوم بتحويل العنوان
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
     if (user.phone.trim().isEmpty) {
       missingFields.add('phone number');
