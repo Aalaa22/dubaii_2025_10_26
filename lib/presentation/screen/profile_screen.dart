@@ -518,8 +518,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Refresh data when screen becomes visible again
-    _refreshProfileData();
+    // تجنّب إعادة ملء الحقول تلقائياً أثناء التحرير لمنع مسح النص
   }
 
   void _refreshProfileData() {
@@ -532,11 +531,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _updateTextFields(UserModel user) {
-    _userNameController.text = user.username ?? '';
-    _phoneController.text = user.phone ?? '';
-    _whatsAppController.text = user.whatsapp ?? '';
-    _emailController.text = user.email ?? '';
-    _advertiserNameController.text = user.advertiserName ?? '';
+    if (_userNameController.text.isEmpty) {
+      _userNameController.text = user.username ?? '';
+    }
+    if (_phoneController.text.isEmpty) {
+      _phoneController.text = user.phone ?? '';
+    }
+    if (_whatsAppController.text.isEmpty) {
+      _whatsAppController.text = user.whatsapp ?? '';
+    }
+    if (_emailController.text.isEmpty) {
+      _emailController.text = user.email ?? '';
+    }
+    if (_advertiserNameController.text.isEmpty) {
+      _advertiserNameController.text = user.advertiserName ?? '';
+    }
     setState(() {
       _selectedAdvertiserType = user.advertiserType;
     });
@@ -818,12 +827,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     
-    if (_emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email is required'), backgroundColor: Colors.red)
-      );
-      return;
-    }
+    // لم نعد نطلب البريد الإلكتروني في هذه الصفحة
     
     // Format phone numbers with country codes before sending
     // Use the country code from existing user data if available
@@ -848,7 +852,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // تحديث البروفايل بالبيانات الحالية في الـ controllers (including location data)
     bool profileSuccess = await provider.updateUserProfile(
       username: _userNameController.text.trim(),
-      email: _emailController.text.trim(),
+      email: (user?.email ?? '').trim(),
       phone: formattedPhone,
       whatsapp: formattedWhatsApp.isNotEmpty ? formattedWhatsApp : null,
       advertiserName: _advertiserNameController.text.trim().isNotEmpty ? _advertiserNameController.text.trim() : null,
@@ -955,9 +959,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   _buildLabel("New Password (leave empty to not change)"),
                   Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _newPasswordController, hintText: 'New password', isPassword: true)),
-                  
-                  _buildLabel(S.of(context).email),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _emailController, hintText: 'Email', keyboardType: TextInputType.emailAddress)),
                   
                   _buildLabel(S.of(context).advertiserName),
                   Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _advertiserNameController, hintText: S.of(context).optional)),

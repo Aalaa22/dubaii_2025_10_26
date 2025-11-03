@@ -10,6 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:advertising_app/presentation/widget/custom_text_field.dart';
+import 'package:advertising_app/presentation/widget/legal_text_view.dart';
+import 'package:advertising_app/utils/phone_number_formatter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreen extends StatefulWidget {
   final LocaleChangeNotifier notifier;
@@ -108,6 +111,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: iconSize * 0.6,
                         ),
                         title: S.of(context).createAgentCode,
+                        ontap: _showUserIdDialog,
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       _buildNotificationSwitch(
@@ -172,6 +176,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: iconSize,
                         ),
                         title: S.of(context).termsAndConditions,
+                        ontap: () => LegalTextView.show(context, LegalContentType.terms),
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       _buildTile(
@@ -181,6 +186,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         iconSize: iconSize,
                         icon: Icons.lock_outline,
                         title: S.of(context).privacySecurity,
+                        ontap: () => LegalTextView.show(context, LegalContentType.privacy),
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       _buildTile(
@@ -194,6 +200,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: iconSize,
                         ),
                         title: S.of(context).contactUs,
+                        ontap: _openWhatsAppSupport,
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       Container(
@@ -262,6 +269,99 @@ class _SettingScreenState extends State<SettingScreen> {
         );
       },
     );
+  }
+
+  Future<void> _showUserIdDialog() async {
+    int? userId;
+    try {
+      final authProvider = context.read<AuthProvider>();
+      userId = authProvider.user?.id ?? authProvider.userId;
+      if (userId == null) {
+        final idStr = await _storage.read(key: 'user_id');
+        userId = int.tryParse(idStr ?? '');
+      }
+    } catch (_) {
+      // ignore and show dialog with placeholder
+    }
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 0, maxHeight: 80, maxWidth: 260),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Center(
+                    child: Text(
+                      userId != null ? '$userId' : '—',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF001E5B),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openWhatsAppSupport() async {
+    // 1) جلب رقم الدعم من الـ API
+    String? supportNumber;
+    try {
+      final response = await _apiService.get('/api/support/number');
+      if (response is Map<String, dynamic> && response['success'] == true) {
+        final String? apiNumber = response['support_number'] as String?;
+        if (apiNumber != null && apiNumber.isNotEmpty) {
+          supportNumber = apiNumber;
+        }
+      }
+    } catch (e) {
+      // تجاهل الخطأ وسيتم استخدام رقم افتراضي أدناه
+    }
+
+    // 2) رقم افتراضي في حال فشل الجلب
+    supportNumber ??= '+971508236561';
+
+    // 3) إنشاء رابط واتساب وفتحه
+    try {
+      final url = PhoneNumberFormatter.getWhatsAppUrl(supportNumber);
+      final uri = Uri.parse(url);
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).couldNotLaunch(url))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).couldNotLaunch('WhatsApp'))),
+        );
+      }
+    }
   }
 
   Widget _buildInvisibleSwitch(BuildContext context, double screenWidth,
