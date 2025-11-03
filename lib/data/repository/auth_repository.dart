@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:advertising_app/data/model/user_model.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 
@@ -101,7 +103,8 @@ class AuthRepository {
     String? whatsapp,
     String? advertiserName,
     String? advertiserType,
-    String? advertiserLogo,
+    File? advertiserLogoFile,
+    String? referralCode,
     double? latitude,
     double? longitude,
     String? address,
@@ -123,13 +126,22 @@ class AuthRepository {
     if (advertiserType != null && advertiserType.trim().isNotEmpty) {
       data['advertiser_type'] = advertiserType.trim();
     }
-    if (advertiserLogo != null && advertiserLogo.trim().isNotEmpty) {
-      data['advertiser_logo'] = advertiserLogo.trim();
+    // Referral code field
+    if (referralCode != null && referralCode.trim().isNotEmpty) {
+      data['referral_code'] = referralCode.trim();
     }
 
     // حقول الموقع: تضمين فقط إذا كانت غير null
-    if (latitude != null) data['latitude'] = latitude;
-    if (longitude != null) data['longitude'] = longitude;
+    if (latitude != null) {
+      data['latitude'] = latitude;
+      // إرسال مفاتيح بديلة لضمان التوافق مع الـ Backend
+      data['lat'] = latitude;
+    }
+    if (longitude != null) {
+      data['longitude'] = longitude;
+      // إرسال مفاتيح بديلة لضمان التوافق مع الـ Backend
+      data['lng'] = longitude;
+    }
     if (address != null && address.trim().isNotEmpty) {
       data['address'] = address.trim();
     }
@@ -137,11 +149,28 @@ class AuthRepository {
       data['advertiser_location'] = advertiserLocation.trim();
     }
 
-    final response = await _apiService.post(
-      '/api/profile',
-      data: data,
-      token: token
-    );
+    // تأكيد أن التحديث يُعالج كـ PUT في الـ Backend (Laravel-style)
+    // بعض السيرفرات تحدث الإحداثيات فقط عبر PUT
+    data['_method'] = 'PUT';
+
+    dynamic response;
+    // If a logo file is provided, upload it with additional form fields using the correct field name
+    if (advertiserLogoFile != null) {
+      response = await _apiService.uploadFile(
+        '/api/profile',
+        filePath: advertiserLogoFile.path,
+        fieldName: 'advertiser_logo',
+        token: token,
+        additionalData: data,
+      );
+    } else {
+      // Otherwise send form-data with text fields only
+      response = await _apiService.postFormData(
+        '/api/profile',
+        data: data,
+        token: token,
+      );
+    }
 
     // الـ API يرجع بيانات المستخدم المحدثة
     if (response is Map<String, dynamic>) {
@@ -178,10 +207,21 @@ class AuthRepository {
       'address': address,
     };
     
+    // تأكيد إرسال مفاتيح بديلة للإحداثيات للتوافق مع الـ Backend
+    if (latitude != null) {
+      data['lat'] = latitude;
+    }
+    if (longitude != null) {
+      data['lng'] = longitude;
+    }
+    
     // إضافة advertiser_location إذا كان متوفراً
     if (advertiserLocation != null) {
       data['advertiser_location'] = advertiserLocation;
     }
+
+    // تأكيد استخدام PUT عبر _method عند التحديث باستخدام user_id
+    data['_method'] = 'PUT';
 
     final response = await _apiService.post(
       '/api/profile/update-by-id',

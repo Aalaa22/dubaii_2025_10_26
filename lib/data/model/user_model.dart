@@ -12,7 +12,10 @@ class UserModel {
   final double? longitude;
   final String? address;
   final String? advertiserLocation;
-  final String? userType; // إضافة حقل userType
+  final String? userType;
+  final String? referral_code;
+
+  // إضافة حقل userType
 
   UserModel({
     required this.id,
@@ -29,6 +32,7 @@ class UserModel {
     this.address,
     this.advertiserLocation,
     this.userType,
+    this.referral_code
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +55,7 @@ class UserModel {
       address: json['address'],
       advertiserLocation: json['advertiser_location'],
       userType: json['user_type'],
+      referral_code:json['referral_code']
     );
   }
 
@@ -70,6 +75,7 @@ class UserModel {
       'address': address,
       'advertiser_location': advertiserLocation,
       'user_type': userType,
+      'referral_code': referral_code
     };
   }
 }
