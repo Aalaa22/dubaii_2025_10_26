@@ -9,11 +9,6 @@
 .history
 .svn/
 migrate_working_dir/
-pubspec.lock
-pubspec.yaml
-Smart_Search.md
-android/build.gradle
-android/gradle.properties
 
 # IntelliJ related
 *.iml
