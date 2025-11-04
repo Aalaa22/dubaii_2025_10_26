@@ -443,7 +443,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneverify.
   ///
   /// In en, this message translates to:
-  /// **'We\'ve sent an SMS with an activation code to your phone'**
+  /// **'We\'ve sent an whatsApp with an activation code to your phone'**
   String get phoneverify;
 
   /// No description provided for @emilverify.
@@ -1241,7 +1241,7 @@ abstract class AppLocalizations {
   /// No description provided for @add14Images.
   ///
   /// In en, this message translates to:
-  /// **'Add 14 Images'**
+  /// **'Add 19 Images'**
   String get add14Images;
 
   /// No description provided for @next.
@@ -1441,6 +1441,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get edit;
+
+  /// No description provided for @editAd.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Ad'**
+  String get editAd;
 
   /// No description provided for @renew.
   ///

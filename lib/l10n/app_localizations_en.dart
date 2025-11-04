@@ -185,7 +185,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneverify =>
-      'We\'ve sent an SMS with an activation code to your phone';
+      'We\'ve sent an whatsApp with an activation code to your phone';
 
   @override
   String get emilverify =>
@@ -594,7 +594,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addMainImage => 'Add Main Image';
 
   @override
-  String get add14Images => 'Add 14 Images';
+  String get add14Images => 'Add 19 Images';
 
   @override
   String get next => 'Next';
@@ -695,6 +695,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get edit => 'Edit';
+
+  @override
+  String get editAd => 'Edit Ad';
 
   @override
   String get renew => 'Renew';

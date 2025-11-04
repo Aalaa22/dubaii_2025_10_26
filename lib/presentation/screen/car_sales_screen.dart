@@ -5,6 +5,7 @@ import 'package:advertising_app/presentation/providers/car_sales_ad_provider.dar
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/widget/custom_bottom_nav.dart';
 import 'package:advertising_app/presentation/widget/custom_category.dart';
+import 'package:advertising_app/presentation/widget/test_search_widget.dart';
 import '../widget/unified_dropdown.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
@@ -116,33 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsetsDirectional.symmetric(horizontal: 12.w),
                     child: Row(children: [
                       Expanded(
-                          child: SizedBox(
-                              height: 35.h,
-                              child: TextField(
-                                  decoration: InputDecoration(
-                                      hintText: s.smart_search,
-                                      hintStyle: TextStyle(
-                                          color:
-                                              Color.fromRGBO(129, 126, 126, 1),
-                                          fontSize: 14.sp,
-                                          fontWeight: FontWeight.w500),
-                                      prefixIcon: Icon(Icons.search,
-                                          color: borderColor, size: 25.sp),
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          borderSide:
-                                              BorderSide(color: borderColor)),
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          borderSide: BorderSide(
-                                              color: borderColor, width: 1.5)),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 8.w, vertical: 0.h))))),
+                        child: TestSearchWidget(),
+                      ),
                       IconButton(
                           icon: Icon(Icons.notifications_none,
                               color: borderColor, size: 35.sp),

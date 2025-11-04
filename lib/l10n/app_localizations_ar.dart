@@ -592,7 +592,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addMainImage => 'إضافة الصورة الرئيسية';
 
   @override
-  String get add14Images => 'إضافة 14 صورة';
+  String get add14Images => 'إضافة 19 صورة';
 
   @override
   String get next => 'التالي';
@@ -693,6 +693,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get edit => 'تعديل';
+
+  @override
+  String get editAd => 'تعديل الإعلان';
 
   @override
   String get renew => 'تجديد';
