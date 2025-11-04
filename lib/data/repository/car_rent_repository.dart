@@ -18,19 +18,63 @@ class CarRentRepository {
     // print('=== CarRentRepository.getCarRentAds ===');
     // print('Query parameters: $query');
     // print('API endpoint: /api/car-rent');
-
     final response = await _apiService.get('/api/car-rent', query: query);
 
-    // print('Raw API response type: ${response.runtimeType}');
-    // print('Raw API response: $response');
-
+    // كن مرنًا مع أشكال الاستجابة المحتملة
     if (response is Map<String, dynamic>) {
-      final carRentResponse = CarRentAdResponse.fromJson(response);
-      // print('Parsed response - Total: ${carRentResponse.total}, Ads count: ${carRentResponse.ads.length}');
-      return carRentResponse;
+      // الشكل المتوقع: { data: [...], total: N }
+      if (response.containsKey('data')) {
+        return CarRentAdResponse.fromJson(response);
+      }
+
+      // بعض الـ APIs تُرجع القائمة تحت المفتاح 'ads' أو مفاتيح أخرى
+      if (response.containsKey('ads')) {
+        final transformed = {
+          'data': response['ads'],
+          'total': response['total'] ?? response['total_ads'] ?? response['count'] ?? (response['ads'] as List?)?.length ?? 0,
+        };
+        return CarRentAdResponse.fromJson(transformed);
+      }
+
+      // في حال كان هناك رسالة خطأ
+      if (response.containsKey('error') || response.containsKey('message')) {
+        final errorMessage = response['error'] ?? response['message'] ?? 'Unknown API error';
+        throw Exception('API Error: $errorMessage');
+      }
+
+      // fallback: إذا وجدنا أي قيمة من نوع List ضمن الماب، اعتبرها البيانات
+      final listValue = response.values.firstWhere((v) => v is List, orElse: () => null);
+      if (listValue is List) {
+        final transformed = {
+          'data': listValue,
+          'total': listValue.length,
+        };
+        return CarRentAdResponse.fromJson(transformed);
+      }
+
+      // إذا وصل شكل غير متوقع، أعد استجابة فارغة بدلًا من رمي استثناء مباشرة
+      return CarRentAdResponse(ads: const [], total: response['total'] ?? 0);
     }
-    throw Exception(
-        'API response format is not as expected for CarRentAdResponse.');
+
+    // أحيانًا تُرجع الـ API قائمة مباشرة
+    if (response is List) {
+      final transformed = {
+        'data': response,
+        'total': response.length,
+      };
+      return CarRentAdResponse.fromJson(transformed);
+    }
+
+    // التعامل مع استجابة فارغة
+    if (response == null) {
+      final empty = {
+        'data': <Map<String, dynamic>>[],
+        'total': 0,
+      };
+      return CarRentAdResponse.fromJson(empty);
+    }
+
+    throw Exception('Unexpected response type: ${response.runtimeType}');
   }
 
   // --- دالة لجلب تفاصيل إعلان إيجار واحد بالـ ID ---
@@ -133,34 +177,43 @@ class CarRentRepository {
   // دالة إنشاء إعلان تأجير سيارات جديد
   Future<void> createCarRentAd(
       {required String token, required Map<String, dynamic> adData}) async {
+    final Map<String, dynamic> data = {
+      'emirate': adData['emirate'],
+      'make': adData['make'],
+      'model': adData['model'],
+      'trim': adData['trim'],
+      'price': adData['price'],
+      'year': adData['year'],
+      'day_rent': adData['day_rent'],
+      'month_rent': adData['month_rent'],
+      'title': adData['title'],
+      'car_type': adData['car_type'],
+      'trans_type': adData['trans_type'],
+      'fuel_type': adData['fuel_type'],
+      'color': adData['color'],
+      'interior_color': adData['interior_color'],
+      'seats_no': adData['seats_no'],
+      'area': adData['area'],
+      'phone_number': adData['phone_number'],
+      'whatsapp': adData['whatsapp'],
+      'advertiser_name': adData['advertiser_name'],
+      'description': adData['description'],
+      'location': adData['location'],
+      'latitude': adData['latitude'],
+      'longitude': adData['longitude'],
+      'plan_type': adData['planType'],
+      'plan_days': adData['planDays'],
+      'plan_expires_at': adData['planExpiresAt'],
+    };
+
+    // Include payment only when explicitly provided
+    if (adData['payment'] != null) {
+      data['payment'] = adData['payment'].toString();
+    }
+
     await _apiService.postFormData(
       '/api/car-rent-ads/', // Updated endpoint as requested
-      data: {
-        'emirate': adData['emirate'],
-        'make': adData['make'],
-        'model': adData['model'],
-        'trim': adData['trim'],
-        'price': adData['price'],
-        'year': adData['year'],
-        'day_rent': adData['day_rent'],
-        'month_rent': adData['month_rent'],
-        'title': adData['title'],
-        'car_type': adData['car_type'],
-        'trans_type': adData['trans_type'],
-        'fuel_type': adData['fuel_type'],
-        'color': adData['color'],
-        'interior_color': adData['interior_color'],
-        'seats_no': adData['seats_no'],
-        'area': adData['area'],
-        'phone_number': adData['phone_number'],
-        'whatsapp': adData['whatsapp'],
-        'advertiser_name': adData['advertiser_name'],
-        'description': adData['description'],
-        'location': adData['location'],
-        'plan_type': adData['planType'],
-        'plan_days': adData['planDays'],
-        'plan_expires_at': adData['planExpiresAt'],
-      },
+      data: data,
       mainImage: adData['mainImage'],
       thumbnailImages: adData['thumbnailImages'],
       token: token,
@@ -185,6 +238,23 @@ class CarRentRepository {
       'description': adData['description'],
       'location': adData['location'],
     };
+
+    // Include coordinates when provided
+    final lat = adData['latitude'];
+    final lng = adData['longitude'];
+    String? _fmt(dynamic v) {
+      if (v == null) return null;
+      if (v is num) return v.toStringAsFixed(7);
+      if (v is String) {
+        final d = double.tryParse(v);
+        return d?.toStringAsFixed(7);
+      }
+      return null;
+    }
+    final latStr = _fmt(lat);
+    final lngStr = _fmt(lng);
+    if (latStr != null) requestData['latitude'] = latStr;
+    if (lngStr != null) requestData['longitude'] = lngStr;
 
     await _apiService.postFormData(
       '/api/car-rent-ads/$adId',

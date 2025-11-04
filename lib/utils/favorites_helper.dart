@@ -6,6 +6,7 @@ import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/constant/string.dart';
+import 'package:advertising_app/utils/category_mapper.dart';
 
 mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -167,10 +168,10 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     } catch (e) {
       Navigator.pop(context); // Close dialog
       
-      // Show error message
+      // Show error message (localized)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to add to favorites: ${e.toString()}'),
+          content: Text(S.of(context).errorOccurredWithMessage(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -185,16 +186,205 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
   /// Remove from favorites
   Future<void> removeFromFavorites(int adId) async {
     try {
+      // حاول الحذف من السيرفر أولاً حتى لو لم تتوفر الفئة محليًا
+      final userIdStr = await _storage.read(key: 'user_id');
+      final token = await _storage.read(key: 'auth_token');
+      final userId = int.tryParse(userIdStr ?? '') ?? 0;
+
+      if (userId != 0) {
+        try {
+          // اجلب قائمة المفضلة لاستخراج favoriteId أو الفئة من السيرفر
+          final favorites = await _favoritesRepository.getFavorites(userId: userId);
+          FavoriteItem? matched;
+          for (final categoryList in favorites.data.getAllItemsByCategory()) {
+            for (final fav in categoryList) {
+              if (fav.ad.id == adId) {
+                matched = fav;
+                break;
+              }
+            }
+            if (matched != null) break;
+          }
+
+          if (matched != null) {
+            // إذا توفر favoriteId من السيرفر، استخدم مسار الإزالة المباشر
+            await _favoritesRepository.removeFromFavorites(
+              favoriteId: matched.favoriteId,
+              token: token,
+            );
+          } else {
+            // إذا لم نجد العنصر في السيرفر، اترك الحذف محليًا مع تسجيل
+            debugPrint('Favorite item for adId $adId not found on server list; performing local removal.');
+          }
+        } catch (e) {
+          // في حال فشل الجلب أو الحذف من السيرفر، نكمل بالحذف المحلي
+          debugPrint('Server deletion attempt failed for adId $adId: $e');
+        }
+      }
+
+      // حدّث الحالة محليًا دومًا لضمان تزامن الواجهة
       setState(() {
         _favoriteAdIds.remove(adId);
       });
       await _saveFavoriteIds();
-      
-      // Here you could also call API to remove from server
-      // await _favoritesRepository.removeFromFavorites(adId: adId, userId: userId);
-      
     } catch (e) {
       debugPrint('Error removing from favorites: $e');
+    }
+  }
+
+  /// Remove from favorites using the full item (preferred: performs server deletion then local update)
+  Future<bool> removeFromFavoritesItem(FavoriteItemInterface item, {bool showFeedback = true}) async {
+    final ok = await _removeFavoriteOnServer(item);
+    if (!ok) {
+      if (showFeedback) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(S.of(context).favoriteRemoveFailed(S.of(context).unknownError)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return false;
+    }
+
+    final adId = _getAdId(item);
+    setState(() {
+      _favoriteAdIds.remove(adId);
+    });
+    await _saveFavoriteIds();
+
+    if (showFeedback) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).favoriteRemovedSuccess),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+
+    return true;
+  }
+
+  /// Build robust candidate slugs for deletion similar to repository logic
+  List<String> _buildDeleteSlugCandidates(String? category) {
+    final original = (category ?? '').trim();
+    final normalized = CategoryMapper.toApiFormat(original);
+
+    final slug = normalized.trim().toLowerCase();
+    final orig = original.trim().toLowerCase();
+
+    final set = <String>{};
+    if (slug.isNotEmpty) set.add(slug);
+    if (orig.isNotEmpty) set.add(orig);
+
+    final hyphen = slug.replaceAll('_', '-');
+    if (hyphen.isNotEmpty) set.add(hyphen);
+
+    final display = CategoryMapper.toDisplayFormat(slug);
+    if (display.isNotEmpty) {
+      set.add(display);
+      set.add(display.toLowerCase());
+    }
+    final spacedLower = slug.replaceAll('_', ' ');
+    if (spacedLower.isNotEmpty) set.add(spacedLower);
+
+    switch (slug) {
+      case 'car_sales':
+      case 'carsales':
+        set.addAll({'cars', 'car-sales', 'carsales', 'car_sales', 'Cars Sales', 'car sales'});
+        break;
+      case 'jobs':
+      case 'jop':
+        set.addAll({'job', 'jobs', 'Jobs', 'Jop'});
+        break;
+      case 'car_services':
+        set.addAll({'car-services', 'car_services', 'Car Services', 'car services'});
+        break;
+      case 'real_estate':
+        set.addAll({'real-estate', 'real_estate', 'Real State', 'real state'});
+        break;
+      case 'car_rent':
+        set.addAll({'car-rent', 'car_rent', 'Car Rent', 'car rent'});
+        break;
+      case 'other_services':
+        set.addAll({'other-services', 'other_services', 'Other Services', 'other services'});
+        break;
+      case 'restaurant':
+        set.addAll({'restaurant', 'Restaurant'});
+        break;
+      default:
+        set.add(orig.replaceAll('_', '-'));
+        break;
+    }
+
+    final ordered = <String>[];
+    void addOrdered(String s) {
+      if (s.isEmpty) return;
+      if (!ordered.contains(s)) ordered.add(s);
+    }
+    addOrdered(slug);
+    addOrdered(orig);
+    addOrdered(hyphen);
+    for (final s in set) {
+      addOrdered(s);
+    }
+    return ordered;
+  }
+
+  /// Remove the item from favorites on the server using DELETE /api/favorites/{userId}
+  Future<bool> _removeFavoriteOnServer(FavoriteItemInterface item) async {
+    try {
+      // Resolve adId and category from item
+      final adId = _getAdId(item);
+      if (adId == 0) throw Exception('Invalid ad ID');
+
+      String? rawCategory;
+      if (item is FavoriteItem) {
+        rawCategory = item.ad.addCategory;
+      } else {
+        rawCategory = item.addCategory ?? item.category;
+      }
+
+      // Load auth data
+      final userIdStr = await _storage.read(key: 'user_id');
+      final token = await _storage.read(key: 'auth_token');
+      final userId = int.tryParse(userIdStr ?? '') ?? 0;
+      if (userId == 0) throw Exception('User ID not found');
+
+      // Try multiple slug candidates to maximize success
+      final candidates = _buildDeleteSlugCandidates(rawCategory);
+
+      dynamic lastError;
+      for (final slug in candidates) {
+        try {
+          await _favoritesRepository.removeFromFavoritesByUser(
+            userId: userId,
+            adId: adId,
+            categorySlug: slug,
+            token: token,
+          );
+          return true;
+        } catch (e) {
+          lastError = e;
+          continue;
+        }
+      }
+
+      // إذا فشل الحذف مع كل الـ slugs، لكن الخطأ يفيد بعدم وجود المفضلة (404)، اعتبره نجاحًا محليًا
+      final errStr = (lastError?.toString() ?? '').toLowerCase();
+      final isNotFoundLike = errStr.contains('favorite not found') ||
+          (errStr.contains('api endpoint not found') && errStr.contains('/api/favorites/')) ||
+          errStr.contains('404');
+      if (isNotFoundLike) {
+        debugPrint('Server reported favorite not found (404); proceeding with local removal.');
+        return true;
+      }
+
+      debugPrint('Failed to remove from server with all candidates. Last error: $lastError');
+      return false;
+    } catch (e) {
+      debugPrint('Server removal error: $e');
+      return false;
     }
   }
 
@@ -205,17 +395,90 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     
     if (isFavorite) {
       // Show red filled heart for favorited items
+      // If a removal callback is provided, show a confirmation dialog first
+      if (onRemoveFromFavorite != null) {
+        return IconButton(
+          icon: const Icon(Icons.favorite, color: Colors.red),
+          onPressed: () async {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (ctx) {
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  title: Text(
+                    S.of(context).removeFromFavoritesTitle,
+                    style: const TextStyle(color: KTextColor, fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  content: Text(
+                    S.of(context).removeFromFavoritesMessage,
+                    style: const TextStyle(color: KTextColor, fontSize: 15),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      child: Text(S.of(context).cancel),
+                      style: TextButton.styleFrom(foregroundColor: KTextColor),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(1, 84, 126, 1)),
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      child: Text(
+                        S.of(context).remove,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      ),
+                  ],
+                );
+              },
+            );
+
+            if (confirmed == true) {
+              // حذف من الخادم أولًا
+              final ok = await _removeFavoriteOnServer(item);
+              if (!ok) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      S.of(context).favoriteRemoveFailed(S.of(context).unknownError),
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
+              // ثم تحديث الحالة محليًا لتغيير لون القلب فورًا
+              setState(() {
+                _favoriteAdIds.remove(adId);
+              });
+              await _saveFavoriteIds();
+
+              // إشعار نجاح بسيط
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(S.of(context).favoriteRemovedSuccess),
+                  backgroundColor: Colors.green,
+                ),
+              );
+
+              // استدعاء كولباك الشاشة (إن لزم) بدون تنفيذ حذف إضافي
+              onRemoveFromFavorite();
+            }
+          },
+        );
+      }
+      // No callback provided: perform local removal without dialog
       return IconButton(
         icon: const Icon(Icons.favorite, color: Colors.red),
         onPressed: () async {
-          await removeFromFavorites(adId);
-          onRemoveFromFavorite?.call();
+          // نفّذ حذف السيرفر ثم حدث الحالة محليًا باستخدام الدالة المعتمدة على الكائن
+          await removeFromFavoritesItem(item);
         },
       );
     } else if (onAddToFavorite != null) {
       // Show empty heart for non-favorited items that can be added
-      return IconButton(
-        icon: const Icon(Icons.favorite_border, color: Colors.grey),
+      return IconButton( 
+        icon: const Icon(Icons.favorite_border, color: Color.fromRGBO(245, 247, 250, 1)),
         onPressed: () => handleAddToFavorite(item, onSuccess: onAddToFavorite),
       );
     } else {
@@ -243,15 +506,15 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تسجيل الدخول مطلوب', style: TextStyle(color: KTextColor, fontSize: 18)),
-        content: const Text('يجب تسجيل الدخول أولاً لإضافة الإعلانات إلى المفضلة', style: TextStyle(color: KTextColor, fontSize: 16)),
+        title: Text(S.of(context).loginRequiredTitle, style: const TextStyle(color: KTextColor, fontSize: 18)),
+        content: Text(S.of(context).loginRequiredDescription, style: const TextStyle(color: KTextColor, fontSize: 16)),
         actions: [
           TextButton(
-            child: const Text('إلغاء', style: TextStyle(color: KTextColor, fontSize: 16)),
+            child: Text(S.of(context).cancel, style: const TextStyle(color: KTextColor, fontSize: 16)),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: const Text('تسجيل الدخول', style: TextStyle(color: Colors.blue, fontSize: 16)),
+            child: Text(S.of(context).loginAction, style: const TextStyle(color: Colors.blue, fontSize: 16)),
             onPressed: () {
               Navigator.pop(context);
               // Navigate to login screen

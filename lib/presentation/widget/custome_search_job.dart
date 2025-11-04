@@ -23,6 +23,8 @@ class SearchCardJob extends StatefulWidget {
   final String? customImageUrl;
   // اختياري: ويدجت مخصص في أسفل الكارد (مثل معلومات التواصل)
   final Widget? customBottomWidget;
+  // اختياري: ويدجت مخصص بجانب سطر الموقع (مثل أيقونة الحذف)
+  final Widget? customLocationTrailing;
 
   const SearchCardJob({
     super.key,
@@ -35,6 +37,7 @@ class SearchCardJob extends StatefulWidget {
     this.customActionButtons,
     this.customImageUrl,
     this.customBottomWidget,
+    this.customLocationTrailing,
   });
 
   @override
@@ -60,7 +63,18 @@ class _SearchCardJobState extends State<SearchCardJob> with FavoritesHelper {
 
   Widget _buildImageWidget(String imagePath) {
     // معالجة المسار عبر ImageUrlHelper (يشمل تحويل file:// و /storage إلى رابط كامل)
-    final processedUrl = ImageUrlHelper.getFullImageUrl(imagePath);
+    final rawPath = imagePath.trim();
+    if (rawPath.isEmpty || rawPath.toLowerCase() == 'null') {
+      return Container(
+        color: Colors.grey[300],
+        width: double.infinity,
+        child: const Center(
+          child: Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
+        ),
+      );
+    }
+
+    final processedUrl = ImageUrlHelper.getFullImageUrl(rawPath);
 
     // إذا كان الرابط المعالج شبكة (http/https) نستخدم CachedNetworkImage
     if (processedUrl.startsWith('http://') || processedUrl.startsWith('https://')) {
@@ -74,7 +88,7 @@ class _SearchCardJobState extends State<SearchCardJob> with FavoritesHelper {
         ),
         errorWidget: (context, url, error) {
           debugPrint('خطأ في تحميل الصورة من الشبكة: $error');
-          debugPrint('الرابط الأصلي: $imagePath');
+          debugPrint('الرابط الأصلي: $rawPath');
           debugPrint('الرابط المعالج: $processedUrl');
           return Container(
             color: Colors.grey[300],
@@ -90,25 +104,36 @@ class _SearchCardJobState extends State<SearchCardJob> with FavoritesHelper {
       );
     }
 
-    // خلاف ذلك نعاملها كأصل محلي (assets) باستخدام المسار الأصلي
-    return Image.asset(
-      imagePath,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      errorBuilder: (context, error, stackTrace) {
-        debugPrint('خطأ في تحميل الصورة المحلية: $error');
-        debugPrint('مسار الصورة: $imagePath');
-        return Container(
-          color: Colors.grey[300],
-          child: const Center(
-            child: Icon(
-              Icons.broken_image,
-              color: Colors.grey,
-              size: 50,
+    // خلاف ذلك نعاملها كأصل محلي (assets) باستخدام المسار الأصلي إذا كان يبدأ بـ assets/
+    if (rawPath.startsWith('assets/')) {
+      return Image.asset(
+        rawPath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          debugPrint('خطأ في تحميل الصورة المحلية: $error');
+          debugPrint('مسار الصورة: $rawPath');
+          return Container(
+            color: Colors.grey[300],
+            child: const Center(
+              child: Icon(
+                Icons.broken_image,
+                color: Colors.grey,
+                size: 50,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      );
+    }
+
+    // مسار غير صالح
+    return Container(
+      color: Colors.grey[300],
+      width: double.infinity,
+      child: const Center(
+        child: Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
+      ),
     );
   }
 
@@ -245,8 +270,9 @@ class _SearchCardJobState extends State<SearchCardJob> with FavoritesHelper {
                 ),
                 SizedBox(height: 6),
                 Transform.translate(
-                  offset: Offset(-16.w, 0),
+                  offset: Offset(Directionality.of(context) == TextDirection.rtl ? 16.w : -16.w, 0),
                   child: Row(
+                    textDirection: Directionality.of(context),
                     children: [
                       Icon(Icons.location_on_outlined, color: KTextColor, size: 20.sp),
                       const SizedBox(width: 1),
@@ -258,6 +284,10 @@ class _SearchCardJobState extends State<SearchCardJob> with FavoritesHelper {
                           style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
                         ),
                       ),
+                      if (widget.customLocationTrailing != null) ...[
+                        SizedBox(width: 8.w),
+                        widget.customLocationTrailing!,
+                      ]
                     ],
                   ),
                 ),

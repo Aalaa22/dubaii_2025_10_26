@@ -276,6 +276,9 @@ class CarRentAdProvider extends ChangeNotifier {
       _allFetchedAds = List.from(response.ads); // Store all fetched ads for local filtering
       _totalAds = response.total;
 
+      // Apply local filters (keyword/year/price) on top of fetched data
+      _performLocalFilter();
+
     } catch (e) {
      // // print('Error in fetchAds: $e');
       _error = e.toString();
@@ -718,13 +721,29 @@ class CarRentAdProvider extends ChangeNotifier {
   Map<String, dynamic> _currentFilters = {};
   List<CarRentAdModel> _allFetchedAds = [];
   String? yearFrom, yearTo, priceFrom, priceTo;
+  String? _keyword;
   
   Map<String, dynamic> get currentFilters => _currentFilters;
+  String? get keyword => _keyword;
 
-  /// Apply filters to the ads
+  /// Apply filters to the ads (separating API and local filters)
   void applyFilters(Map<String, dynamic> filters) {
     _currentFilters = Map<String, dynamic>.from(filters);
-    fetchAds(filters: _currentFilters);
+    // Handle local-only filters
+    final incomingKeyword = filters['keyword']?.toString();
+    _keyword = (incomingKeyword == null || incomingKeyword.trim().isEmpty)
+        ? null
+        : incomingKeyword.trim();
+
+    // Remove local filters from API params
+    final Map<String, dynamic> apiFilters = Map<String, dynamic>.from(_currentFilters);
+    apiFilters.remove('keyword');
+    apiFilters.remove('price_from');
+    apiFilters.remove('price_to');
+    apiFilters.remove('year_from');
+    apiFilters.remove('year_to');
+
+    fetchAds(filters: apiFilters.isEmpty ? null : apiFilters);
   }
 
   /// Clear all filters
@@ -734,6 +753,7 @@ class CarRentAdProvider extends ChangeNotifier {
     yearTo = null;
     priceFrom = null;
     priceTo = null;
+    _keyword = null;
     fetchAds();
   }
 
@@ -753,6 +773,25 @@ class CarRentAdProvider extends ChangeNotifier {
     if (fromPrice != null) filteredList.retainWhere((ad) => (double.tryParse(ad.dayRent.replaceAll(',', '')) ?? 0) >= fromPrice);
     if (toPrice != null) filteredList.retainWhere((ad) => (double.tryParse(ad.dayRent.replaceAll(',', '')) ?? 0) <= toPrice);
     
+    // Keyword filter: case-insensitive, uses containment across multiple fields
+    if (_keyword != null && _keyword!.isNotEmpty) {
+      final kw = _keyword!.trim().toLowerCase();
+
+      bool containsKw(String? v) => (v ?? '').toLowerCase().contains(kw);
+
+      filteredList.retainWhere((ad) {
+        final composedTitle =
+            "${ad.make ?? ''} ${ad.model ?? ''} ${ad.trim ?? ''} ${ad.year ?? ''}".trim();
+        return containsKw(ad.title) ||
+            containsKw(composedTitle) ||
+            containsKw(ad.make) ||
+            containsKw(ad.model) ||
+            containsKw(ad.trim) ||
+            containsKw(ad.year) ||
+            containsKw(ad.advertiserName);
+      });
+    }
+    
     _ads = filteredList;
     _totalAds = filteredList.length; // Update total count to reflect filtered results
     notifyListeners();
@@ -770,6 +809,12 @@ class CarRentAdProvider extends ChangeNotifier {
     priceFrom = from; 
     priceTo = to; 
     _performLocalFilter(); 
+  }
+
+  /// Update keyword and apply local filtering
+  void updateKeyword(String? value) {
+    _keyword = (value ?? '').trim().isEmpty ? null : value!.trim();
+    _performLocalFilter();
   }
 
   /// Fetch models for a specific make ID
@@ -906,6 +951,19 @@ class CarRentAdProvider extends ChangeNotifier {
         'plan_expires_at': adData['planExpiresAt']?.toString() ?? '',
       };
 
+      // أضِف الإحداثيات فقط إذا كانت متوفرة، وبصيغة عشرية مضبوطة (7 منازل)
+      final latRaw = adData['latitude'];
+      final lngRaw = adData['longitude'];
+      final latStr = _formatDecimal(latRaw, 7);
+      final lngStr = _formatDecimal(lngRaw, 7);
+      if (latStr != null) submissionData['latitude'] = latStr;
+      if (lngStr != null) submissionData['longitude'] = lngStr;
+
+      // Include payment only when explicitly set by the payment step
+      if (adData['payment'] != null) {
+        submissionData['payment'] = adData['payment'].toString();
+      }
+
      // // print('=== DETAILED SUBMISSION DATA DEBUG ===');
       submissionData.forEach((key, value) {
        // // print('$key: "$value" (${value.runtimeType}) - Length: ${value.toString().length}');
@@ -993,6 +1051,21 @@ class CarRentAdProvider extends ChangeNotifier {
       safeNotifyListeners();
      // // print('=== Car Rent Ad Submission Finished ===');
     }
+  }
+
+  /// تنسيق رقم عشري بعدد محدد من المنازل (يقبل num أو String)
+  String? _formatDecimal(dynamic value, int fractionDigits) {
+    if (value == null) return null;
+    num? n;
+    if (value is num) {
+      n = value;
+    } else if (value is String) {
+      n = double.tryParse(value);
+    } else {
+      return null;
+    }
+    if (n == null) return null;
+    return n.toStringAsFixed(fractionDigits);
   }
 
   /// Helper method to extract numeric value from string (e.g., "5 Seats" -> "5")

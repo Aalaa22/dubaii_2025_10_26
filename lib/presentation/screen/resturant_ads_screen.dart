@@ -97,6 +97,35 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
       });
     }
 
+    // عيّن الإحداثيات الافتراضية من البروفايل إذا كانت متوفرة، وإلا حوّل العنوان إلى إحداثيات عبر الدالة المساعدة
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      } else if (selectedLocation.isNotEmpty) {
+        // قد يتم أيضاً استدعاؤها في initState، لكن الشرط يمنع التكرار غير الضروري
+        if (selectedLatLng == null) {
+          try {
+            final locations = await locationFromAddress(selectedLocation);
+            if (locations.isNotEmpty) {
+              final loc = locations.first;
+              final mapsProvider = context.read<GoogleMapsProvider>();
+              selectedLatLng = LatLng(loc.latitude, loc.longitude);
+              await mapsProvider.moveCameraToLocation(loc.latitude, loc.longitude, zoom: 14.0);
+            }
+          } catch (e) {
+            debugPrint('Geocoding failed in profile check: $e');
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
 
     // التحقق من الحقول المطلوبة
@@ -121,6 +150,24 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final s = S.of(context);
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+        final textDirection = isArabic ? TextDirection.rtl : TextDirection.ltr;
+
+        final List<String> localizedMissingFields = missingFields.map((field) {
+          switch (field.trim().toLowerCase()) {
+            case 'phone number':
+              return s.phone;
+            case 'your location':
+              return s.advertiserLocation;
+            default:
+              return field;
+          }
+        }).toList();
+
+        final String description = isArabic
+            ? 'يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:'
+            : 'You must complete the following fields in your profile before adding the advertisement:';
         return WillPopScope(
           onWillPop: () async {
             // عند الضغط على زر الرجوع، الخروج من الصفحة بالكامل
@@ -128,14 +175,16 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
             Navigator.of(context).pop(); // العودة إلى الشاشة السابقة
             return false;
           },
-          child: AlertDialog(
+          child: Directionality(
+            textDirection: textDirection,
+            child: AlertDialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Text(
-              "Incomplete profile",
-              style: TextStyle(
+            title: Text(
+              s.warning,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: KTextColor,
                 fontSize: 18,
@@ -145,15 +194,15 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'You must complete the following fields in your profile before adding the advertisement:',
-                  style: TextStyle(
+                Text(
+                  description,
+                  style: const TextStyle(
                     fontSize: 16,
                     color: KTextColor,
                   ),
                 ),
                 const SizedBox(height: 15),
-                ...missingFields
+                ...localizedMissingFields
                     .map((field) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
@@ -185,8 +234,8 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.push('/editprofile');
                     Navigator.of(context).pop();
+                    Future.microtask(() => context.push('/editprofile'));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(1, 84, 126, 1),
@@ -197,9 +246,9 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Go to Profile',
-                    style: TextStyle(
+                  child: Text(
+                    s.myProfile,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -224,9 +273,9 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
+                  child: Text(
+                    s.cancel,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -236,7 +285,7 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
               ),
             ],
           ),
-        );
+        ));
       },
     );
   }
@@ -302,9 +351,10 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
     final int remainingSlots = maxImages - _thumbnailImages.length;
 
     if (remainingSlots <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('لقد أضفت الحد الأقصى من الصور (3 صور)'),
-        backgroundColor: Colors.orange,
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(isArabic ? 'لقد أضفت الحد الأقصى من الصور (3 صور)' : 'You have added the maximum number of images (3)'),
+        backgroundColor: KPrimaryColor,
       ));
       return;
     }
@@ -324,10 +374,11 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
 
       // إظهار رسالة إذا تم اختيار أكثر من العدد المسموح
       if (pickedImages.length > remainingSlots) {
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-              'تم اختيار أول $remainingSlots صور فقط. الحد الأقصى المسموح هو 3 صور'),
-          backgroundColor: Colors.orange,
+              isArabic ? 'تم اختيار أول $remainingSlots صور فقط. الحد الأقصى المسموح هو 3 صور' : 'Only the first $remainingSlots images were added. Maximum allowed is 3 images'),
+          backgroundColor: KPrimaryColor,
           duration: const Duration(seconds: 3),
         ));
       }
@@ -418,21 +469,24 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
 
   Future<void> _validateAndProceedToNext() async {
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please fill all required fields.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'يرجى تعبئة جميع الحقول المطلوبة.' : 'Please fill all required fields.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (_mainImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please add a main image.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء إضافة صورة رئيسية.' : 'Please add a main image.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (selectedLocation.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please select a location on the map.'),
-          backgroundColor: Colors.orange));
+      final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء تحديد موقع على الخريطة.' : 'Please select a location on the map.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
 
@@ -541,7 +595,7 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                     _buildFormRow([
                       _buildTitledTextFormField(
                           s.area, _areaController, borderColor, currentLocale,
-                          hintText: 'Enter your area', isRequired: true),
+                          hintText: s.enterArea, isRequired: true),
                       _buildTitledTextFormField(s.price, _priceRangeController,
                           borderColor, currentLocale,
                           hintText: 'AED 50', isRequired: true),
@@ -549,10 +603,10 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                     const SizedBox(height: 7),
                     _buildTitledTextFormField(
                         s.title, _titleController, borderColor, currentLocale,
-                        hintText: 'Enter your title',
+                        hintText: s.enterTitle,
                         isRequired: true,
-                        minLines: 2,
-                        maxLines: 2),
+                        minLines: 3,
+                        maxLines: 4),
                     const SizedBox(height: 7),
                     TitledSelectOrAddField(
                       title: s.advertiserName,
@@ -750,7 +804,7 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
           controller: controller,
           minLines: minLines,
           maxLines: maxLines,
-          maxLength: maxLines > 1 ? 85 : null,
+          maxLength: maxLines > 1 ? 100 : null,
           style: TextStyle(
               fontWeight: FontWeight.w500, color: KTextColor, fontSize: 12.sp),
           textAlign: currentLocale == 'ar' ? TextAlign.right : TextAlign.left,
@@ -763,6 +817,7 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                 }
               : null,
           decoration: InputDecoration(
+              counterText: "",
               hintText: hintText,
               hintStyle:
                   TextStyle(color: Colors.grey.shade400, fontSize: 12.sp),
@@ -941,8 +996,8 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
                 )
-              : const Text(
-                  'Locate Me',
+              :  Text(
+                  S.of(context).locateMe,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -962,8 +1017,8 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text(
-            'Pick Location',
+          child: Text(
+            S.of(context).pickLocation,
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w500,

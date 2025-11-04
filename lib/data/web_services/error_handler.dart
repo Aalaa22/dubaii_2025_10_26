@@ -35,6 +35,10 @@ class ErrorHandler {
             if (responseData['message'] != null) {
               return Exception(responseData['message']);
             }
+            // بعض الـ APIs ترجع الحقل 'error' بدلاً من 'message'
+            if (responseData['error'] != null) {
+              return Exception(responseData['error']);
+            }
           }
           return Exception("خطأ في التحقق من صحة البيانات.");
         case 500: // Internal Server Error

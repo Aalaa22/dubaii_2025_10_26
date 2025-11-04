@@ -20,15 +20,44 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
-  static String m1(date) => "Date: ${date}";
+  static String m0(max) => "Cannot add more images. Maximum is ${max} images";
 
-  static String m0(days) => "For [${days}] Days";
+  static String m1(info) => "Contact: ${info}";
 
-  static String m2(price) => "${price}";
+  static String m2(url) => "Could not launch ${url}";
+
+  static String m14(date) => "Date: ${date}";
+
+  static String m3(error) => "An error occurred while fetching data: ${error}";
+
+  static String m4(message) => "An error occurred: ${message}";
+
+  static String m5(error) => "Failed to remove ad: ${error}";
+
+  static String m6(error) => "Failed to load favorites: ${error}";
+
+  static String m7(days) => "For [${days}] Days";
+
+  static String m8(price) =>
+      "Free ads are only available for cars priced under ${price} AED. Please choose another plan.";
+
+  static String m9(count, max) =>
+      "Only ${count} images selected. Maximum ${max} images total";
+
+  static String m15(boxName) => "Activating ${boxName}...";
+
+  static String m10(number) => "Phone: ${number}";
+
+  static String m16(price) => "${price}";
+
+  static String m11(error) => "Save failed: ${error}";
+
+  static String m12(error) => "Unexpected error: ${error}";
+
+  static String m13(number) => "WhatsApp: ${number}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "Optional": MessageLookupByLibrary.simpleMessage("Optional"),
     "accountCreatedSuccessfully": MessageLookupByLibrary.simpleMessage(
       "Account Created Successfully",
     ),
@@ -36,9 +65,23 @@ class MessageLookup extends MessageLookupByLibrary {
       "Active Offers Box",
     ),
     "ad": MessageLookupByLibrary.simpleMessage("ADS NO:"),
+    "adDataIncomplete": MessageLookupByLibrary.simpleMessage(
+      "Ad data is incomplete",
+    ),
+    "adDeletedFailed": MessageLookupByLibrary.simpleMessage(
+      "Failed to delete ad",
+    ),
+    "adDeletedSuccess": MessageLookupByLibrary.simpleMessage("Ad deleted"),
+    "adIdNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "Ad ID not available",
+    ),
+    "adNotFound": MessageLookupByLibrary.simpleMessage("Ad not found."),
+    "adPublishedSuccessfully": MessageLookupByLibrary.simpleMessage(
+      "Ad posted successfully!",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Add"),
     "add10Images": MessageLookupByLibrary.simpleMessage("Add 10 Images"),
-    "add14Images": MessageLookupByLibrary.simpleMessage("Add 14 Images"),
+    "add19Images": MessageLookupByLibrary.simpleMessage("Add 19 Images"),
     "add3Images": MessageLookupByLibrary.simpleMessage("Add 3 Images"),
     "add4Images": MessageLookupByLibrary.simpleMessage("Add 4 Images"),
     "add9Images": MessageLookupByLibrary.simpleMessage("Add 9 Images"),
@@ -65,6 +108,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "all": MessageLookupByLibrary.simpleMessage("All"),
     "amount": MessageLookupByLibrary.simpleMessage("Amount"),
+    "and": MessageLookupByLibrary.simpleMessage("and"),
     "any": MessageLookupByLibrary.simpleMessage("Any"),
     "appTitle": MessageLookupByLibrary.simpleMessage("Cars Sales Ads"),
     "appearance_after_featured": MessageLookupByLibrary.simpleMessage(
@@ -85,9 +129,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "apply": MessageLookupByLibrary.simpleMessage("Apply"),
     "arabic": MessageLookupByLibrary.simpleMessage("English"),
     "area": MessageLookupByLibrary.simpleMessage("Area"),
+    "areaName": MessageLookupByLibrary.simpleMessage("Area Name"),
     "back": MessageLookupByLibrary.simpleMessage("Back"),
     "balance": MessageLookupByLibrary.simpleMessage("Balance"),
+    "byContinueIAgreeTo": MessageLookupByLibrary.simpleMessage(
+      "By continuing I agree to the",
+    ),
     "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+    "cannotAddMoreImages": m0,
     "carType": MessageLookupByLibrary.simpleMessage("Car Type"),
     "car_details": MessageLookupByLibrary.simpleMessage("Car Details"),
     "car_type": MessageLookupByLibrary.simpleMessage("Car Type"),
@@ -132,6 +181,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "color": MessageLookupByLibrary.simpleMessage("Color"),
     "confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
+    "confirmLocation": MessageLookupByLibrary.simpleMessage("Confirm Location"),
     "confirm_add_to_favorite": MessageLookupByLibrary.simpleMessage(
       "Do you want to add this item to favorites?",
     ),
@@ -139,6 +189,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "confirm remove from favorite",
     ),
     "confirmpass": MessageLookupByLibrary.simpleMessage("Confirm Password"),
+    "contactLabel": m1,
     "contactUs": MessageLookupByLibrary.simpleMessage("Contact Us"),
     "contract": MessageLookupByLibrary.simpleMessage("Contract"),
     "contractExpire": MessageLookupByLibrary.simpleMessage(
@@ -147,19 +198,27 @@ class MessageLookup extends MessageLookupByLibrary {
     "contractType": MessageLookupByLibrary.simpleMessage("Contract Type"),
     "contract_type": MessageLookupByLibrary.simpleMessage("Contract Type"),
     "cost": MessageLookupByLibrary.simpleMessage("Cost"),
+    "couldNotLaunch": m2,
     "createAccount": MessageLookupByLibrary.simpleMessage("Create Account"),
     "createAgentCode": MessageLookupByLibrary.simpleMessage(
       "Create Agent Code",
+    ),
+    "currentMainImage": MessageLookupByLibrary.simpleMessage(
+      "Current main image",
     ),
     "cvv": MessageLookupByLibrary.simpleMessage("CVV"),
     "cylinders": MessageLookupByLibrary.simpleMessage("Cylinders"),
     "daily_refresh": MessageLookupByLibrary.simpleMessage(
       "Enabled Daily Refresh",
     ),
-    "date": m1,
+    "date": m14,
     "dayRent": MessageLookupByLibrary.simpleMessage("Day Rent"),
     "days": MessageLookupByLibrary.simpleMessage("Days"),
     "delete": MessageLookupByLibrary.simpleMessage("delete"),
+    "deleteAdConfirmation": MessageLookupByLibrary.simpleMessage(
+      "Are you sure you want to delete this ad?",
+    ),
+    "deleteAdTitle": MessageLookupByLibrary.simpleMessage("Delete Ad"),
     "describeYourCar": MessageLookupByLibrary.simpleMessage(
       "Describe Your Car",
     ),
@@ -197,6 +256,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "doors_no": MessageLookupByLibrary.simpleMessage("Doors No"),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
     "edit3": MessageLookupByLibrary.simpleMessage("Edit"),
+    "editAd": MessageLookupByLibrary.simpleMessage("Edit Ad"),
     "editing1": MessageLookupByLibrary.simpleMessage("Editing"),
     "editit2": MessageLookupByLibrary.simpleMessage(
       "Do you want to edit your profile",
@@ -220,19 +280,52 @@ class MessageLookup extends MessageLookupByLibrary {
     "engineCapacity": MessageLookupByLibrary.simpleMessage("Engine Capacity"),
     "engine_capacity": MessageLookupByLibrary.simpleMessage("Engine Capacity"),
     "english": MessageLookupByLibrary.simpleMessage("عربي"),
+    "enjoyFreeAds": MessageLookupByLibrary.simpleMessage("Enjoy Free Ads"),
+    "enterArea": MessageLookupByLibrary.simpleMessage("Enter Area"),
+    "enterContactInfo": MessageLookupByLibrary.simpleMessage(
+      "Enter phone or WhatsApp or email",
+    ),
+    "enterDescription": MessageLookupByLibrary.simpleMessage(
+      "Enter your description",
+    ),
+    "enterName": MessageLookupByLibrary.simpleMessage("Enter name"),
+    "enterProductName": MessageLookupByLibrary.simpleMessage(
+      "Enter product name",
+    ),
+    "enterServiceName": MessageLookupByLibrary.simpleMessage(
+      "Enter service name",
+    ),
+    "enterTitle": MessageLookupByLibrary.simpleMessage("Enter your title"),
     "enteremail": MessageLookupByLibrary.simpleMessage("Enter Your Email"),
+    "enterpassword": MessageLookupByLibrary.simpleMessage(
+      "Enter Your Password",
+    ),
     "enterphone": MessageLookupByLibrary.simpleMessage("Enter Your phone"),
+    "errorFetchingData": m3,
+    "errorOccurredWithMessage": m4,
+    "errorSettingPassword": MessageLookupByLibrary.simpleMessage(
+      "Error setting password",
+    ),
     "expireDate": MessageLookupByLibrary.simpleMessage("Expire Date"),
     "expired": MessageLookupByLibrary.simpleMessage("Expired"),
     "expiresIn": MessageLookupByLibrary.simpleMessage("Expires In"),
+    "favoriteRemoveFailed": m5,
+    "favoriteRemovedSuccess": MessageLookupByLibrary.simpleMessage(
+      "Ad removed from favorites",
+    ),
     "favorites": MessageLookupByLibrary.simpleMessage("Favorites"),
+    "favoritesEmptySection": MessageLookupByLibrary.simpleMessage(
+      "No favorite items in this section",
+    ),
+    "favoritesLoadFailed": m6,
     "featured": MessageLookupByLibrary.simpleMessage("Featured"),
-    "for_days": m0,
+    "for_days": m7,
     "forgetyourpass": MessageLookupByLibrary.simpleMessage(
       "Forgot Your Password?",
     ),
     "forgotPassword": MessageLookupByLibrary.simpleMessage("Forgot Password?"),
     "free": MessageLookupByLibrary.simpleMessage("Free"),
+    "freeAdNotEligibleMessage": m8,
     "from": MessageLookupByLibrary.simpleMessage("From"),
     "fuelType": MessageLookupByLibrary.simpleMessage("Fuel Type"),
     "fuel_type": MessageLookupByLibrary.simpleMessage("Fuel Type"),
@@ -243,6 +336,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home": MessageLookupByLibrary.simpleMessage("Home"),
     "horsePower": MessageLookupByLibrary.simpleMessage("Horse Power"),
     "horse_power": MessageLookupByLibrary.simpleMessage("Horse Power"),
+    "incompleteProfile": MessageLookupByLibrary.simpleMessage(
+      "Incomplete profile",
+    ),
     "interiorColor": MessageLookupByLibrary.simpleMessage("Interior Color"),
     "interior_color": MessageLookupByLibrary.simpleMessage("Interior Color"),
     "invisibleInfo": MessageLookupByLibrary.simpleMessage(
@@ -259,10 +355,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "jobsAds": MessageLookupByLibrary.simpleMessage("Jobs Ads"),
     "km": MessageLookupByLibrary.simpleMessage("Km"),
     "language": MessageLookupByLibrary.simpleMessage("Language"),
+    "limitedImagesSelected": m9,
     "loading": MessageLookupByLibrary.simpleMessage("loading"),
     "locateMe": MessageLookupByLibrary.simpleMessage("Locate Me"),
     "location": MessageLookupByLibrary.simpleMessage("Location"),
+    "loggingIn": MessageLookupByLibrary.simpleMessage("Logging in..."),
     "login": MessageLookupByLibrary.simpleMessage("Log In"),
+    "loginAction": MessageLookupByLibrary.simpleMessage("Login"),
+    "loginError": MessageLookupByLibrary.simpleMessage(
+      "An error occurred during login",
+    ),
+    "loginRequiredDescription": MessageLookupByLibrary.simpleMessage(
+      "You must log in first to view your favorites",
+    ),
+    "loginRequiredTitle": MessageLookupByLibrary.simpleMessage(
+      "Login required",
+    ),
     "logout": MessageLookupByLibrary.simpleMessage("Logout"),
     "make": MessageLookupByLibrary.simpleMessage("Make"),
     "manage": MessageLookupByLibrary.simpleMessage("Manage"),
@@ -270,19 +378,47 @@ class MessageLookup extends MessageLookupByLibrary {
     "model": MessageLookupByLibrary.simpleMessage("Model"),
     "monthRent": MessageLookupByLibrary.simpleMessage("Month Rent"),
     "myProfile": MessageLookupByLibrary.simpleMessage("My Profile"),
+    "newMainImageSelected": MessageLookupByLibrary.simpleMessage(
+      "New main image selected",
+    ),
     "newpass": MessageLookupByLibrary.simpleMessage("New password"),
     "next": MessageLookupByLibrary.simpleMessage("Next"),
     "no": MessageLookupByLibrary.simpleMessage("no"),
+    "noAdIdForUpdate": MessageLookupByLibrary.simpleMessage(
+      "No ad ID to update",
+    ),
+    "noChangesToSave": MessageLookupByLibrary.simpleMessage(
+      "No changes to save",
+    ),
     "noResultsFound": MessageLookupByLibrary.simpleMessage("No Results Found"),
+    "no_restaurants_found": MessageLookupByLibrary.simpleMessage(
+      "No restaurants found",
+    ),
     "notifications": MessageLookupByLibrary.simpleMessage("Notifications"),
+    "offerBoxActivatedSuccess": MessageLookupByLibrary.simpleMessage(
+      "Offer box activated for this ad",
+    ),
+    "offerBoxActivating": m15,
+    "offerBoxActivationFailed": MessageLookupByLibrary.simpleMessage(
+      "Offer box activation failed",
+    ),
     "ok": MessageLookupByLibrary.simpleMessage("Ok"),
-    "optional": MessageLookupByLibrary.simpleMessage("optional"),
+    "optional": MessageLookupByLibrary.simpleMessage("Optional"),
     "or": MessageLookupByLibrary.simpleMessage("Or"),
     "otherServicesAds": MessageLookupByLibrary.simpleMessage(
       "Other Services Ads",
     ),
     "otherservices": MessageLookupByLibrary.simpleMessage("Other Services"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
+    "passwordRequiredToCompleteLogin": MessageLookupByLibrary.simpleMessage(
+      "Please enter password to complete login",
+    ),
+    "passwordResetComingSoon": MessageLookupByLibrary.simpleMessage(
+      "Password reset will be available soon",
+    ),
+    "passwordSetSuccessUpgraded": MessageLookupByLibrary.simpleMessage(
+      "Password set successfully and your account upgraded to advertiser",
+    ),
     "passwordTooShort": MessageLookupByLibrary.simpleMessage(
       "Password Too Short",
     ),
@@ -297,17 +433,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "payment": MessageLookupByLibrary.simpleMessage("Payment"),
     "pending": MessageLookupByLibrary.simpleMessage("Pending"),
     "phone": MessageLookupByLibrary.simpleMessage("Phone"),
+    "phoneInvalid": MessageLookupByLibrary.simpleMessage(
+      "Invalid phone number format",
+    ),
+    "phoneLabel": m10,
     "phoneLogin": MessageLookupByLibrary.simpleMessage("Phone Login"),
+    "phoneNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "Phone number not available",
+    ),
     "phoneNumber": MessageLookupByLibrary.simpleMessage("Phone Number"),
     "phoneNumberHint": MessageLookupByLibrary.simpleMessage("508236561"),
     "phonesignup": MessageLookupByLibrary.simpleMessage("phone sign Up"),
     "phoneverify": MessageLookupByLibrary.simpleMessage(
-      "We\'ve sent an SMS with an activation code to your phone",
+      "We\'ve sent an whatsApp with an activation code to your phone",
     ),
+    "pickLocation": MessageLookupByLibrary.simpleMessage("Pick Location"),
     "placeName": MessageLookupByLibrary.simpleMessage("Al Manara Motors"),
     "place_an_ad": MessageLookupByLibrary.simpleMessage("Place An Ad"),
+    "planExpiredOrInactivePleasePay": MessageLookupByLibrary.simpleMessage(
+      "Plan expired or no active plan. Please pay to complete posting",
+    ),
     "pleaseConfirmPassword": MessageLookupByLibrary.simpleMessage(
       "please Confirm Password",
+    ),
+    "pleaseEnterPassword": MessageLookupByLibrary.simpleMessage(
+      "Please enter your password",
     ),
     "pleaseEnterPhone": MessageLookupByLibrary.simpleMessage(
       "please Enter Phone",
@@ -318,17 +468,49 @@ class MessageLookup extends MessageLookupByLibrary {
     "pleaseEnterValidEmail": MessageLookupByLibrary.simpleMessage(
       "please Enter Valid Email",
     ),
+    "pleaseLoginFirst": MessageLookupByLibrary.simpleMessage(
+      "Please log in first",
+    ),
     "please_fill_required_fields": MessageLookupByLibrary.simpleMessage(
       "please_fill_required_fields",
     ),
+    "please_select_all_fields": MessageLookupByLibrary.simpleMessage(
+      "Please select all fields",
+    ),
+    "please_select_category": MessageLookupByLibrary.simpleMessage(
+      "Please select category",
+    ),
+    "please_select_district": MessageLookupByLibrary.simpleMessage(
+      "Please select district",
+    ),
+    "please_select_emirate": MessageLookupByLibrary.simpleMessage(
+      "Please select emirate",
+    ),
+    "please_select_emirate_and_category_type":
+        MessageLookupByLibrary.simpleMessage(
+          "Please select emirate and category type",
+        ),
+    "please_select_emirate_and_section_type_first":
+        MessageLookupByLibrary.simpleMessage(
+          "Please select emirate and section type first",
+        ),
     "please_select_make": MessageLookupByLibrary.simpleMessage(
-      "please_select_make",
+      "Please select make",
+    ),
+    "please_select_model": MessageLookupByLibrary.simpleMessage(
+      "Please select model",
+    ),
+    "please_select_section_type": MessageLookupByLibrary.simpleMessage(
+      "Please select section type",
+    ),
+    "please_select_service_type": MessageLookupByLibrary.simpleMessage(
+      "Please select a service type",
     ),
     "post": MessageLookupByLibrary.simpleMessage("Posting"),
     "postDate": MessageLookupByLibrary.simpleMessage("Post Date"),
     "premium": MessageLookupByLibrary.simpleMessage("Premium"),
     "price": MessageLookupByLibrary.simpleMessage("Price"),
-    "priceOnly": m2,
+    "priceOnly": m16,
     "priority_featured": MessageLookupByLibrary.simpleMessage(
       "🚀 Featured Ads",
     ),
@@ -337,13 +519,26 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "priority_free": MessageLookupByLibrary.simpleMessage("📢 Free Ads"),
     "priority_premium": MessageLookupByLibrary.simpleMessage("💎 Premium Ads"),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage("Privacy Policy"),
     "privacySecurity": MessageLookupByLibrary.simpleMessage(
       "Privacy & Security",
     ),
     "product": MessageLookupByLibrary.simpleMessage("Product"),
     "productName": MessageLookupByLibrary.simpleMessage("Product Name"),
+    "profileWarning": MessageLookupByLibrary.simpleMessage(
+      "You must complete the following fields in your profile before adding the advertisement:",
+    ),
     "propertyType": MessageLookupByLibrary.simpleMessage("Property Type"),
     "property_type": MessageLookupByLibrary.simpleMessage("Property Type"),
+    "rankAdFailed": MessageLookupByLibrary.simpleMessage(
+      "Failed to rank the ad",
+    ),
+    "rankAdInProgress": MessageLookupByLibrary.simpleMessage(
+      "Ranking the ad...",
+    ),
+    "rankAdSuccess": MessageLookupByLibrary.simpleMessage(
+      "Ad ranked successfully",
+    ),
     "read_more": MessageLookupByLibrary.simpleMessage("read more"),
     "realEstateAds": MessageLookupByLibrary.simpleMessage("Real Estate Ads"),
     "realestate": MessageLookupByLibrary.simpleMessage("Real Estate"),
@@ -351,6 +546,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "refresh": MessageLookupByLibrary.simpleMessage("Refresh"),
     "register": MessageLookupByLibrary.simpleMessage("Register"),
     "rejected": MessageLookupByLibrary.simpleMessage("Rejected"),
+    "remove": MessageLookupByLibrary.simpleMessage("Remove"),
+    "removeFromFavoritesMessage": MessageLookupByLibrary.simpleMessage(
+      "Are you sure you want to remove this ad from favorites?",
+    ),
+    "removeFromFavoritesTitle": MessageLookupByLibrary.simpleMessage(
+      "Remove from Favorites",
+    ),
     "remove_from_favorite": MessageLookupByLibrary.simpleMessage(
       "remove from favorite",
     ),
@@ -360,21 +562,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "resetpass": MessageLookupByLibrary.simpleMessage("Reset Password"),
     "restaurants": MessageLookupByLibrary.simpleMessage("Restaurants"),
     "restaurantsAds": MessageLookupByLibrary.simpleMessage("Restaurants Ads"),
+    "retry": MessageLookupByLibrary.simpleMessage("Retry"),
     "salary": MessageLookupByLibrary.simpleMessage("Salary"),
     "save": MessageLookupByLibrary.simpleMessage("Save"),
+    "saveFailed": m11,
+    "saveSuccess": MessageLookupByLibrary.simpleMessage("Saved successfully"),
     "search": MessageLookupByLibrary.simpleMessage("Search"),
     "searchCountry": MessageLookupByLibrary.simpleMessage("search Country"),
+    "searchForLocation": MessageLookupByLibrary.simpleMessage(
+      "Search for a location",
+    ),
     "seatsNo": MessageLookupByLibrary.simpleMessage("Seats No"),
     "seats_no": MessageLookupByLibrary.simpleMessage("Seats No"),
     "section": MessageLookupByLibrary.simpleMessage("Section "),
     "sectionType": MessageLookupByLibrary.simpleMessage("Section Type"),
     "section_type": MessageLookupByLibrary.simpleMessage("Section Type"),
+    "secureYourAccount": MessageLookupByLibrary.simpleMessage(
+      "Secure Your Account",
+    ),
     "see_all_ads": MessageLookupByLibrary.simpleMessage("See All Ads"),
     "sendcode": MessageLookupByLibrary.simpleMessage("Send Code"),
     "service": MessageLookupByLibrary.simpleMessage("Service"),
     "serviceName": MessageLookupByLibrary.simpleMessage("Service Name"),
     "serviceType": MessageLookupByLibrary.simpleMessage("Service Type"),
     "service_type": MessageLookupByLibrary.simpleMessage("Service name"),
+    "setPassword": MessageLookupByLibrary.simpleMessage("Set Password"),
+    "setPasswordToUpgradeDescription": MessageLookupByLibrary.simpleMessage(
+      "Before upgrading to an Advertiser account, please set a password to safeguard your account and confirm the update.",
+    ),
     "show_less": MessageLookupByLibrary.simpleMessage("show_less"),
     "signUp": MessageLookupByLibrary.simpleMessage("Sign Up"),
     "smart_search": MessageLookupByLibrary.simpleMessage("Smart Search"),
@@ -399,26 +614,38 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "total": MessageLookupByLibrary.simpleMessage("Total"),
     "totalAds": MessageLookupByLibrary.simpleMessage("Total ADS"),
+    "totalPrice": MessageLookupByLibrary.simpleMessage("Total price"),
     "transType": MessageLookupByLibrary.simpleMessage("Trans Type"),
     "trans_type": MessageLookupByLibrary.simpleMessage("Trans Type"),
     "translate": MessageLookupByLibrary.simpleMessage("Translate"),
     "trim": MessageLookupByLibrary.simpleMessage("Trim"),
     "type": MessageLookupByLibrary.simpleMessage("Type"),
+    "unexpectedError": m12,
     "unknownError": MessageLookupByLibrary.simpleMessage("unknown Error"),
     "upgrade": MessageLookupByLibrary.simpleMessage("Upgrade"),
     "uploadYourLogo": MessageLookupByLibrary.simpleMessage("Upload Your Logo"),
     "use_this_space_for_ads": MessageLookupByLibrary.simpleMessage(
       "Contact us To Use This Space For Your Ads",
     ),
+    "userId": MessageLookupByLibrary.simpleMessage("User Id"),
     "userName": MessageLookupByLibrary.simpleMessage("User Name"),
     "valid": MessageLookupByLibrary.simpleMessage("Valid"),
     "verifnum": MessageLookupByLibrary.simpleMessage("Verify Your Number"),
     "verify": MessageLookupByLibrary.simpleMessage("Verify"),
     "view_all_ads": MessageLookupByLibrary.simpleMessage("View All Ads"),
     "views": MessageLookupByLibrary.simpleMessage("Search & Views"),
+    "warning": MessageLookupByLibrary.simpleMessage("Warning"),
     "warranty": MessageLookupByLibrary.simpleMessage("Warranty"),
     "whatsApp": MessageLookupByLibrary.simpleMessage("WhatsApp"),
+    "whatsappInvalid": MessageLookupByLibrary.simpleMessage(
+      "Invalid WhatsApp number format",
+    ),
+    "whatsappLabel": m13,
+    "whatsappNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "WhatsApp number not available",
+    ),
     "year": MessageLookupByLibrary.simpleMessage("Year"),
     "yes": MessageLookupByLibrary.simpleMessage("Yes"),
+    "yesDelete": MessageLookupByLibrary.simpleMessage("Yes, Delete"),
   };
 }

@@ -30,7 +30,7 @@ class RestaurantsAdProvider extends ChangeNotifier {
         return false;
       }
       
-      await _repository.createRestaurantAd(
+      final response = await _repository.createRestaurantAd(
         token: token,
         title: adData['title'],
         description: adData['description'],
@@ -48,9 +48,24 @@ class RestaurantsAdProvider extends ChangeNotifier {
         planType: adData['planType'],
         planDays: adData['planDays'],
         planExpiresAt: adData['planExpiresAt'],
+        payment: adData['payment']?.toString(),
       );
       
-      return true;
+      bool success = false;
+      String? apiMessage;
+      if (response is Map<String, dynamic>) {
+        success = response['success'] == true || response.containsKey('id');
+        apiMessage = response['message']?.toString();
+      } else {
+        success = true;
+      }
+
+      if (success) {
+        return true;
+      } else {
+        _error = apiMessage ?? 'فشل إنشاء إعلان المطاعم';
+        return false;
+      }
     } catch (e) {
       _error = e.toString();
       return false;

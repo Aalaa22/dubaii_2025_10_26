@@ -234,8 +234,8 @@ class _OtherServicesDetailsScreenState
                       trimLines: 5,
                       colorClickableText: KPrimaryColor,
                       trimMode: TrimMode.Line,
-                      trimCollapsedText: 'Read more',
-                      trimExpandedText: '  Show less',
+                      trimCollapsedText: S.of(context).read_more,
+                      trimExpandedText: '  ${S.of(context).show_less}',
                       style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,

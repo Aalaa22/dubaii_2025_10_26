@@ -534,7 +534,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                     crossAxisCount: 2,
                     mainAxisExtent:
                         Localizations.localeOf(context).languageCode == 'ar'
-                            ? MediaQuery.of(context).size.height * 0.087.h
+                            ? MediaQuery.of(context).size.height * 0.09.h
                             : MediaQuery.of(context).size.height * 0.08.h,
                     crossAxisSpacing: 30.w,
                   ),

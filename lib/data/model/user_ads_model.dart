@@ -78,6 +78,7 @@ class UserAdsResponse {
     switch (category) {
       case 'car sales':
       case 'carsales':
+      case 'cars sales':
         return 'car_sales';
       case 'real estate':
       case 'realestate':
@@ -106,6 +107,7 @@ class UserAd implements FavoriteItemInterface {
   final String area;
   final String district;
   final String description;
+  final String? contactInfo;
   final String category; // Changed from String? to String
   final String mainImage;
   final List<String> thumbnailImages;
@@ -155,6 +157,9 @@ class UserAd implements FavoriteItemInterface {
   final String section_type;
   final String job_name;
   final String salary;
+  final String category_type;
+  final int price_range;
+  final String category2;
   // FavoriteItemInterface implementation
   @override
   String get line1 => title;
@@ -180,6 +185,7 @@ class UserAd implements FavoriteItemInterface {
   final int? activeOffersBoxRank;
 
   UserAd(
+    this.category_type,
     this.section_type,
     this.product_name,
     this.km,
@@ -188,11 +194,16 @@ class UserAd implements FavoriteItemInterface {
     this.area,
     this.contract_type,
     this.property_type,
-    this.district, this.job_name, this.salary, {
+    this.district,
+    this.job_name,
+    this.salary,
+    this.price_range,
+    this.category2, {
     required this.id,
     required this.userId,
     required this.title,
     required this.description,
+    this.contactInfo,
     required this.category,
     required this.mainImage,
     required this.thumbnailImages,
@@ -241,6 +252,12 @@ class UserAd implements FavoriteItemInterface {
 
   factory UserAd.fromJson(Map<String, dynamic> json) {
     return UserAd(
+      // ترتيب الوسيطات ليطابق المُنشئ بدقة:
+      // category_type, section_type, product_name, km, specs, emirate, area,
+      // contract_type, property_type, district, job_name, salary
+      json['category_type']?.toString() ?? '',
+      json['section_type']?.toString() ?? '',
+      json['product_name']?.toString() ?? '',
       json['km']?.toString() ?? '',
       json['specs']?.toString() ?? '',
       json['emirate']?.toString() ?? '',
@@ -248,14 +265,21 @@ class UserAd implements FavoriteItemInterface {
       json['contract_type']?.toString() ?? '',
       json['property_type']?.toString() ?? '',
       json['district']?.toString() ?? '',
-      json["product_name"]?.toString() ?? '',
-      json['section_type']?.toString() ?? '',
-      json['salary']?.toString() ?? '',
       json['job_name']?.toString() ?? '',
+      json['salary']?.toString() ?? '',
+      (() {
+        final v = json['price_range'];
+        if (v is int) return v;
+        if (v == null) return 0;
+        final s = v.toString().trim();
+        return int.tryParse(s) ?? 0;
+      })(),
+      json['category']?.toString() ?? '',
       id: json['id'] ?? 0,
       userId: json['user_id'] ?? 0,
       title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
+      contactInfo: json['contact_info']?.toString(),
       category: json['category']?.toString() ?? '',
       mainImage: json['main_image']?.toString() ?? '',
       thumbnailImages: json['thumbnail_images'] != null

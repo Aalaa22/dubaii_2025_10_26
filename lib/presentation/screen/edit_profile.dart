@@ -17,6 +17,8 @@ import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/widget/custom_bottom_nav.dart';
 
+const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
+
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
 
@@ -33,6 +35,8 @@ class _EditProfileState extends State<EditProfile> {
   final _emailController = TextEditingController();
   final _advertiserNameController = TextEditingController();
   final _advertiserTypeController = TextEditingController();
+  final _userIdController = TextEditingController();
+  final _referralCodeController = TextEditingController();
 
   // State variables for image handling
   final ImagePicker _picker = ImagePicker();
@@ -49,11 +53,11 @@ class _EditProfileState extends State<EditProfile> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = context.read<AuthProvider>();
-      if (authProvider.user == null) {
-        authProvider.fetchUserProfile();
-      }
+      // Always fetch fresh profile data to avoid stale placeholders
+      await authProvider.fetchUserProfile();
+      _updateTextFields(authProvider.user);
       // Load saved location data when the screen initializes
       _loadSavedLocation();
     });
@@ -160,10 +164,17 @@ class _EditProfileState extends State<EditProfile> {
   // Fills the text fields with data from the user model
   void _updateTextFields(UserModel? user) {
     if (user != null) {
-      _userNameController.text = user.username;
+      final s = S.of(context);
+      _userNameController.text = (user.username.isNotEmpty)
+          ? user.username
+          : 'add ${s.userName}';
       _emailController.text = user.email;
       _phoneController.text = user.phone;
       _whatsAppController.text = user.whatsapp ?? '';
+      _userIdController.text = (user.id != 0) ? user.id.toString() : 'add User Id';
+      _referralCodeController.text = (user.referral_code != null && user.referral_code!.isNotEmpty)
+          ? user.referral_code!
+          : 'add ${s.referralCode}';
       _advertiserNameController.text = user.advertiserName ?? '';
       _advertiserTypeController.text = user.advertiserType ?? '';
       _passwordController.text = "••••••••"; // Placeholder for password
@@ -207,6 +218,15 @@ class _EditProfileState extends State<EditProfile> {
     if (pickedFile != null) {
       final authProvider = context.read<AuthProvider>();
       final newLogoFile = File(pickedFile.path);
+      // Validate extension locally to avoid 422 from backend
+      final ext = pickedFile.path.split('.').last.toLowerCase();
+      const allowed = ['jpg','jpeg','png','gif'];
+      if (!allowed.contains(ext)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF'), backgroundColor: Colors.red),
+        );
+        return;
+      }
       
       final success = await authProvider.uploadLogo(newLogoFile.path);
       if (success) {
@@ -289,7 +309,8 @@ class _EditProfileState extends State<EditProfile> {
         duration: Duration(seconds: 2),
       ),
     );
-    
+    // ignore: avoid_print
+    print('DEBUG(edit_profile): Sending location lat=${_userLocation!.latitude}, lng=${_userLocation!.longitude}, address=${_userAddress}');
     final success = await authProvider.updateUserProfile(
       username: user.username,
       email: user.email,
@@ -307,6 +328,8 @@ class _EditProfileState extends State<EditProfile> {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     
     if (success) {
+      // ignore: avoid_print
+      print('DEBUG(edit_profile): Server user lat=${authProvider.user?.latitude}, lng=${authProvider.user?.longitude}');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -621,6 +644,8 @@ class _EditProfileState extends State<EditProfile> {
     _emailController.dispose();
     _advertiserNameController.dispose();
     _advertiserTypeController.dispose();
+    _userIdController.dispose();
+    _referralCodeController.dispose();
     super.dispose();
   }
 
@@ -628,10 +653,7 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        // Update text fields whenever the user data changes
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _updateTextFields(authProvider.user);
-        });
+        // Removed post-frame update inside build to avoid setState during build errors
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -684,8 +706,8 @@ class _EditProfileState extends State<EditProfile> {
                             ),
                             const SizedBox(height: 10),
                             
-                            _buildLabel("User Id"),
-                            _buildEditableField(_userNameController, () => context.push('/profile')),
+                            _buildLabel(S.of(context).userId),
+                            _buildEditableField(_userIdController, () => context.push('/profile')),
                             
                             // Display-only fields
                             _buildLabel(S.of(context).userName),
@@ -697,39 +719,41 @@ class _EditProfileState extends State<EditProfile> {
                                 Expanded(
                                   child: _buildPhoneField(_phoneController, () => context.push('/profile')),
                                 ),
-                                const SizedBox(width: 8),
-                                Consumer<AuthProvider>(
-                                  builder: (context, authProvider, child) {
-                                    // إظهار زر التحقق فقط إذا كان verify_account = false
-                                    if (authProvider.verifyAccount == false) {
-                                      return ElevatedButton(
-                                        onPressed: () => context.push('/phonecode'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF01547E),
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                    child: const Text(
-                                          'Verify',
-                                          style: TextStyle(color: Colors.white, fontSize: 12),
-                                        ),
-                                      );
-                                    }
-                                    // إظهار أيقونة التحقق إذا كان verify_account = true
-                                    return const Icon(
-                                      Icons.verified,
-                                      color: Colors.green,
-                                      size: 24,
-                                    );
-                                  },
-                                ),
+                                // const SizedBox(width: 8),
+                                // Consumer<AuthProvider>(
+                                //   builder: (context, authProvider, child) {
+                                //     // إظهار زر التحقق فقط إذا كان verify_account = false
+                                //     if (authProvider.verifyAccount == false) {
+                                //       return ElevatedButton(
+                                //         onPressed: () => context.push('/phonecode'),
+                                //         style: ElevatedButton.styleFrom(
+                                //           backgroundColor: const Color(0xFF01547E),
+                                //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                //           shape: RoundedRectangleBorder(
+                                //             borderRadius: BorderRadius.circular(8),
+                                //           ),
+                                //         ),
+                                //     child: const Text(
+                                //           'Verify',
+                                //           style: TextStyle(color: Colors.white, fontSize: 12),
+                                //         ),
+                                //       );
+                                //     }
+                                //     // إظهار أيقونة التحقق إذا كان verify_account = true
+                                //     return const Icon(
+                                //       Icons.verified,
+                                //       color: Colors.green,
+                                //       size: 24,
+                                //     );
+                                //   },
+                                // ),
+                             
+                             
                               ],
                             ),
                             
                             _buildLabel(S.of(context).referralCode),
-                            _buildPhoneField(_whatsAppController, () => context.push('/profile')),
+                            _buildEditableField(_referralCodeController, () => context.push('/profile')),
                             
                             // _buildLabel(S.of(context).password),
                             // _buildEditableField(_passwordController, () => context.push('/profile'), isPassword: true),
@@ -745,12 +769,27 @@ class _EditProfileState extends State<EditProfile> {
                             
                             // Interactive Logo Section
                             _buildLabel(S.of(context).advertiserLogo),
-                            if (_logoImageFile == null)
-                              // If no image is selected, show the "Upload" button
-                              _buildUploadButton()
-                            else
-                              // If an image is selected, show it with Edit/Delete buttons
-                              _buildImagePreview(),
+                            // Show existing network logo if available; otherwise show upload with placeholder
+                            Builder(
+                              builder: (context) {
+                                final hasNetworkLogo = authProvider.user?.advertiserLogo != null && (authProvider.user!.advertiserLogo!.isNotEmpty);
+                                if (_logoImageFile == null && !hasNetworkLogo) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildUploadButton(),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'add ${S.of(context).advertiserLogo}',
+                                        style: TextStyle(color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  );
+                                }
+                                // If there is a selected image or an existing logo, show preview
+                                return _buildImagePreview();
+                              },
+                            ),
                             
                             const SizedBox(height: 10),
                             
@@ -804,26 +843,30 @@ class _EditProfileState extends State<EditProfile> {
 
   /// Builds the "Upload Your Logo" button.
   Widget _buildUploadButton() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color.fromRGBO(8, 194, 201, 1)),
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey[50],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.camera_alt, color: KTextColor),
-          const SizedBox(width: 5),
-          Flexible(
-            child: Text(
-              S.of(context).uploadYourLogo,
-              style: const TextStyle(color: KTextColor, fontSize: 15, fontWeight: FontWeight.w500),
+    return InkWell(
+      onTap: () => _showEditPopup(() => _pickLogoImage()),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color.fromRGBO(8, 194, 201, 1)),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.grey[50],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.camera_alt, color: KTextColor),
+            const SizedBox(width: 5),
+            Flexible(
+              child: Text(
+                S.of(context).uploadYourLogo,
+                style: const TextStyle(color: KTextColor, fontSize: 15, fontWeight: FontWeight.w500),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -873,12 +916,12 @@ class _EditProfileState extends State<EditProfile> {
                   onTap: _pickLogoImage,
                   color: Colors.white,
                 ),
-                _buildImageActionButton(
-                  icon: Icons.delete,
-                  label: "delete", // "Delete"
-                  onTap: _deleteLogoImage,
-                  color: Colors.red.shade300,
-                ),
+                // _buildImageActionButton(
+                //   icon: Icons.delete,
+                //   label: "delete", // "Delete"
+                //   onTap: _deleteLogoImage,
+                //   color: Colors.red.shade300,
+                // ),
               ],
             ),
           ),
@@ -1062,43 +1105,32 @@ class _EditProfileState extends State<EditProfile> {
                             children: [
                               // Locate Me button
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: _isLoadingLocation 
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                        ),
-                                      )
-                                    : const Icon(Icons.my_location, color: Colors.white, size: 20),
-                                  label: Text(
-                                    _isLoadingLocation ? 'loading..' : s.locateMe,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
-                                  ),
+                                child: ElevatedButton(
                                   onPressed: _isLoadingLocation ? null : _getCurrentLocation,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _isLoadingLocation ? Colors.grey : const Color(0xFF01547E),
                                     minimumSize: const Size(0, 40),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   ),
+                                  child: Text(
+                                    _isLoadingLocation ? 'loading..' : s.locateMe,
+                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               // Location Picker button
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
-                                  label: const Text(
-                                    "open google map",
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
-                                  ),
+                                child: ElevatedButton(
                                   onPressed: _navigateToLocationPicker,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF01547E), // Green color for contrast
+                                    backgroundColor: const Color(0xFF01547E),
                                     minimumSize: const Size(0, 40),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  child:  Text(
+                                    s.pickLocation,
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
                                   ),
                                 ),
                               ),
@@ -1191,34 +1223,48 @@ class _EditProfileState extends State<EditProfile> {
                             children: [
                               // Locate Me button
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.my_location, color: Colors.white, size: 20),
-                                  label: Text(
-                                    s.locateMe,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
-                                  ),
-                                  onPressed: _getCurrentLocation,
+                                child: ElevatedButton(
+                                  onPressed: _isLoadingLocation ? null : _getCurrentLocation,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF01547E),
-                                    minimumSize: const Size(0, 40),
+                                    backgroundColor: _isLoadingLocation ? Colors.grey : KPrimaryColor,
+                                    minimumSize: const Size(double.infinity, 43),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                                   ),
+                                  child: _isLoadingLocation
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          ),
+                                        )
+                                      : Text(
+                                          s.locateMe,
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14),
+                                        ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 10),
                               // Open Location Picker button
                               Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.map_outlined, color: Colors.white, size: 20),
-                                  label: const Text(
-                                    "open google map",
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
-                                  ),
+                                child: ElevatedButton(
                                   onPressed: _navigateToLocationPicker,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:  const Color(0xFF01547E),
-                                    minimumSize: const Size(0, 40),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    backgroundColor: const Color(0xFF01547E),
+                                    minimumSize: const Size(double.infinity, 43),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    s.pickLocation,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12.5),
                                   ),
                                 ),
                               ),

@@ -13,6 +13,7 @@ import 'package:advertising_app/presentation/widget/custom_text_field.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/constant/string.dart';
+import 'package:advertising_app/core/scaffold_messenger_key.dart';
 
 class CustomBottomNav extends StatefulWidget {
   final int currentIndex;
@@ -31,6 +32,72 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
   bool _isLoading = false;
   int? _pendingNavIndex;
 
+  void _showTopMessage(String message, {Color backgroundColor = Colors.red, Duration duration = const Duration(seconds: 2)}) {
+    final overlay = Navigator.of(context, rootNavigator: true).overlay;
+    if (overlay == null) {
+      // Fallback to global scaffold messenger
+      rootScaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: backgroundColor,
+          duration: duration,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final locale = Localizations.localeOf(context).languageCode;
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => SafeArea(
+        child: Directionality(
+          textDirection: locale == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+              child: Material(
+                elevation: 6,
+                borderRadius: BorderRadius.circular(8.r),
+                color: backgroundColor,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        backgroundColor == Colors.red ? Icons.error_outline : Icons.check_circle,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 8.w),
+                      Flexible(
+                        child: Text(
+                          message,
+                          style: TextStyle(color: Colors.white, fontSize: 14.sp, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(entry);
+    Future.delayed(duration, () {
+      entry.remove();
+    });
+  }
+
   @override
   void dispose() {
     _passwordController.dispose();
@@ -41,44 +108,24 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
   Future<void> _setPassword() async {
     // Validate passwords
     if (_passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى إدخال كلمة المرور'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showTopMessage(S.of(context).pleaseEnterPassword, backgroundColor: Colors.red);
       return;
     }
 
     if (_confirmPasswordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى تأكيد كلمة المرور'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showTopMessage(S.of(context).pleaseConfirmPassword, backgroundColor: Colors.red);
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('كلمة المرور وتأكيدها غير متطابقين'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showTopMessage(S.of(context).passwordsDoNotMatch, backgroundColor: Colors.red);
       return;
     }
 
     // Password strength validation
     final password = _passwordController.text;
-    if (password.length < 7) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('كلمة المرور يجب أن تكون 7 أحرف على الأقل'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (password.length < 8) {
+      _showTopMessage(S.of(context).passwordTooShort, backgroundColor: Colors.red);
       return;
     }
 
@@ -118,12 +165,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       }
       
       Navigator.of(context).pop(); // Close dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم تعيين كلمة المرور بنجاح وتم ترقية حسابك إلى معلن'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      _showTopMessage(S.of(context).passwordSetSuccessUpgraded, backgroundColor: Colors.green, duration: const Duration(seconds: 3));
 
       // تحديث حالة AuthProvider من التخزين لضمان قراءة userType الجديد فوراً
       await context.read<AuthProvider>().checkStoredSession();
@@ -141,32 +183,30 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       _confirmPasswordController.clear();
 
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('خطأ في تعيين كلمة المرور: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showTopMessage('${S.of(context).errorSettingPassword}: ${e.toString()}', backgroundColor: Colors.red, duration: const Duration(seconds: 3));
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
-
-  void _showNonAdvertiserDialog() {
+ void _showNonAdvertiserDialog() {
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (BuildContext context) {
-        return StatefulBuilder(
+        final locale = Localizations.localeOf(context).languageCode;
+        return Directionality(
+          textDirection: locale == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+          child: StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              title: const Text(
-                'Secure Your Account',
-                style: TextStyle(
+              title: Text(
+                S.of(context).secureYourAccount,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF1B365D),
@@ -177,9 +217,9 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Before upgrading to an Advertiser account, please set a password to safeguard your account and confirm the update.',
-                      style: TextStyle(
+                    Text(
+                      S.of(context).setPasswordToUpgradeDescription,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Color(0xFF666666),
                         height: 1.4,
@@ -191,14 +231,14 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                     // Password field
                   CustomTextField(
                     controller: _passwordController,
-                    hintText: 'Enter Password',
+                    hintText: S.of(context).enterpassword,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Password is required';
+                        return S.of(context).passwordRequiredToCompleteLogin;
                       }
                       if (value.length < 8) {
-                        return 'Password must be at least 8 characters';
+                        return S.of(context).passwordTooShort;
                       }
                       return null;
                     },
@@ -208,14 +248,14 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                     // Confirm password field
                   CustomTextField(
                     controller: _confirmPasswordController,
-                    hintText: 'Confirm Password',
+                    hintText: S.of(context).confirmpass,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please confirm your password';
+                        return S.of(context).pleaseConfirmPassword;
                       }
                       if (value != _passwordController.text) {
-                        return 'Passwords do not match';
+                        return S.of(context).passwordsDoNotMatch;
                       }
                       return null;
                     },
@@ -243,8 +283,8 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                            // side: const BorderSide(color: Color(0xFF1B365D)),
                           ),
                         ),
-                        child: const Text(
-                          'Cancel',
+                        child:  Text(
+                          S.of(context).cancel,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -273,9 +313,9 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text(
-                                'Set Password',
-                                style: TextStyle(
+                            :  Text(
+                                S.of(context).setPassword, 
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -288,11 +328,13 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
               ],
             );
           },
+        ),
         );
       },
     );
   }
 
+ 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
@@ -302,7 +344,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       showUnselectedLabels: true, 
       selectedItemColor: Color(0xFF01547E),
       unselectedItemColor:Color.fromRGBO( 5, 194, 201,1),
-      onTap: (index) {
+      onTap: (index) async {
         switch (index) {
           case 0:
             context.push('/home');
@@ -312,7 +354,16 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
             break;
           case 2: {
             final auth = context.read<AuthProvider>();
-            final userType = auth.userType?.toLowerCase();
+            String? userType = auth.userType?.toLowerCase();
+
+            // Fallback to secure storage in case provider state is stale
+            if (userType != 'advertiser') {
+              final storedUserType = await _storage.read(key: 'user_type');
+              if ((storedUserType ?? '').toLowerCase() == 'advertiser') {
+                await auth.checkStoredSession();
+                userType = 'advertiser';
+              }
+            }
 
             if (userType == 'advertiser') {
               context.push('/postad');
@@ -324,7 +375,16 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
           }
           case 3: {
             final auth = context.read<AuthProvider>();
-            final userType = auth.userType?.toLowerCase();
+            String? userType = auth.userType?.toLowerCase();
+
+            // Fallback to secure storage in case provider state is stale
+            if (userType != 'advertiser') {
+              final storedUserType = await _storage.read(key: 'user_type');
+              if ((storedUserType ?? '').toLowerCase() == 'advertiser') {
+                await auth.checkStoredSession();
+                userType = 'advertiser';
+              }
+            }
 
             if (userType == 'advertiser') {
               context.push('/manage');

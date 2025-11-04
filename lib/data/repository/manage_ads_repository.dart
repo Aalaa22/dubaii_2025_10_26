@@ -54,6 +54,24 @@ class ManageAdsRepository {
     }
   }
 
+  // إرسال طلب جعل الإعلان "Rank One" بحسب الفئة ورقم الإعلان
+  Future<void> makeRankOne({
+    required String token,
+    required String category,
+    required int adId,
+  }) async {
+    final body = {
+      'category': category,
+      'ad_id': adId,
+    };
+
+    try {
+      await _apiService.post('/api/make-rank-one', data: body, token: token);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   String _resolveEndpointBase(String category) {
     final c = category.toLowerCase().trim();
     if (c.contains('real') && (c.contains('estate') || c.contains('state'))) {

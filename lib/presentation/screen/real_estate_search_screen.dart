@@ -146,6 +146,11 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
       filterParams['contract_type'] = filters['contractType'];
     }
 
+    // Handle keyword (local filter)
+    if (filters['keyword'] != null && filters['keyword']!.isNotEmpty) {
+      filterParams['keyword'] = filters['keyword']!;
+    }
+
     // If all filters are 'All' or no specific filters, fetch all ads
     if (filterParams.isEmpty) {
       provider.fetchAds();

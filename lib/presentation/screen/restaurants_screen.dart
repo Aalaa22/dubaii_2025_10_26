@@ -14,6 +14,12 @@ import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/restaurants_info_provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
+import 'dart:async';
+import 'package:advertising_app/data/repository/smart_search_repository.dart';
+import 'package:advertising_app/data/model/smart_search_model.dart';
+import 'package:advertising_app/data/web_services/api_service.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -27,7 +33,7 @@ class RestaurantsScreen extends StatefulWidget {
   State<RestaurantsScreen> createState() => _RestaurantsScreenState();
 }
 
-class _RestaurantsScreenState extends State<RestaurantsScreen> {
+class _RestaurantsScreenState extends State<RestaurantsScreen> with FavoritesHelper<RestaurantsScreen> {
   int _selectedIndex = 6;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   
@@ -35,13 +41,63 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
   String? _selectedEmirate;
   String? _selectedDistrict;
   String? _selectedCategory;
+
+  // Smart search state (same pattern as CarSales)
+  final TextEditingController _smartSearchController = TextEditingController();
+  Timer? _smartDebounce;
+  late final SmartSearchRepository _smartRepo;
+  SmartSearchResponse? _smartSearchResponse;
+  List<SmartSearchItem> _suggestions = [];
   
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load favorites cache
+      loadFavoriteIds();
       _loadData();
     });
+    // Initialize smart search repository and listener
+    _smartRepo = SmartSearchRepository(ApiService());
+    _smartSearchController.addListener(_onSmartSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _smartDebounce?.cancel();
+    _smartSearchController.dispose();
+    super.dispose();
+  }
+
+  void _onSmartSearchChanged() {
+    final text = _smartSearchController.text.trim();
+    _smartDebounce?.cancel();
+    _smartDebounce = Timer(const Duration(milliseconds: 350), () async {
+      if (text.isEmpty) {
+        setState(() {
+          _suggestions = [];
+          _smartSearchResponse = null;
+        });
+        return;
+      }
+      final resp = await _smartRepo.smartSearch(text);
+      if (!mounted) return;
+      setState(() {
+        _smartSearchResponse = resp;
+        _suggestions = resp.results;
+      });
+    });
+  }
+
+  Future<void> _performSmartSearch(String keyword) async {
+    final resp = await _smartRepo.smartSearch(keyword);
+    if (!mounted) return;
+    setState(() {
+      _smartSearchResponse = resp;
+      _suggestions = resp.results;
+    });
+    // Navigate to smart search results page
+    await context.push('/smart_search', extra: resp);
   }
   
   Future<void> _loadData() async {
@@ -104,22 +160,43 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                         child: SizedBox(
                           height: 35.h,
                           child: TextField(
+                            style: TextStyle(
+                              color: KTextColor,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            controller: _smartSearchController,
+                            onSubmitted: (value) {
+                              final text = value.trim();
+                              if (text.isNotEmpty) {
+                                _performSmartSearch(text);
+                              }
+                            },
                             decoration: InputDecoration(
                               hintText: s.smart_search,
                               hintStyle: TextStyle(
                                   color: const Color.fromRGBO(129, 126, 126, 1),
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500),
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: borderColor,
-                                size: 25.sp,
+                              //prefixIcon: Icon(
+                              //  Icons.search,
+                              //  color: borderColor,
+                              //  size: 25.sp,
+                              //),
+                              prefixIcon: IconButton(
+                                icon: Icon(Icons.search, color: borderColor, size: 22.sp),
+                                onPressed: () {
+                                  final text = _smartSearchController.text.trim();
+                                  if (text.isNotEmpty) {
+                                    _performSmartSearch(text);
+                                  }
+                                },
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.r),
                                 borderSide: BorderSide(
                                   color: borderColor,
-                                ),
+                                  ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.r),
@@ -150,6 +227,56 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                     ],
                   ),
                 ),
+                // Suggestions list below smart search (same pattern as CarSales)
+                if (_suggestions.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(color: borderColor.withOpacity(0.4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _suggestions.length,
+                        separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+                        itemBuilder: (context, index) {
+                          final item = _suggestions[index];
+                          return ListTile(
+                            dense: true,
+                            title: Text(
+                              '${S.of(context).category} ${item.itemType}',
+                              style: TextStyle(color: KTextColor, fontSize: 13.sp),
+                            ),
+                            trailing: Text(
+                              '${(Localizations.localeOf(context).languageCode == 'ar' ? 'إجمالي الإعلانات' : 'Total Ads')} ${item.totalAds}',
+                              style: TextStyle(color: KPrimaryColor, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                            ),
+                            onTap: () {
+                              final current = _smartSearchResponse;
+                              if (current != null) {
+                                context.push('/smart_search', extra: current);
+                              } else {
+                                final text = _smartSearchController.text.trim();
+                                if (text.isNotEmpty) {
+                                  _performSmartSearch(text);
+                                }
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 SizedBox(height: 2.h),
                 Padding(
                   padding: EdgeInsetsDirectional.symmetric(horizontal: 10.w),
@@ -249,7 +376,7 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                             if (_selectedEmirate == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text("Please Select Emirate."),
+                                  content: Text(s.please_select_emirate),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -259,7 +386,7 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                             if (_selectedDistrict == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text("Please Select District."),
+                                  content: Text(s.please_select_district),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -269,7 +396,7 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                             if (_selectedCategory == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text("Please Select Category."),
+                                  content: Text(s.please_select_category),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -521,10 +648,11 @@ class _RestaurantsScreenState extends State<RestaurantsScreen> {
                                                             Positioned(
                                                               top: 8,
                                                               right: 8,
-                                                              child: Icon(
-                                                                  Icons.favorite_border,
-                                                                  color:
-                                                                      Colors.grey.shade300),
+                                                              child: buildFavoriteIcon(
+                                                                BestAdvertiserRestaurantItemAdapter(ad),
+                                                                onAddToFavorite: () {},
+                                                                onRemoveFromFavorite: null,
+                                                              ),
                                                             ),
                                                           ],
                                                         ),

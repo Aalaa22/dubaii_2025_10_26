@@ -20,18 +20,58 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ar';
 
-  static String m0(days) => "لمدة [${days}] يومًا";
+  static String m0(max) =>
+      "لا يمكن إضافة المزيد من الصور. الحد الأقصى ${max} صور";
+
+  static String m1(info) => "تواصل: ${info}";
+
+  static String m2(url) => "تعذر فتح ${url}";
+
+  static String m3(error) => "حدث خطأ أثناء جلب البيانات: ${error}";
+
+  static String m4(message) => "حدث خطأ: ${message}";
+
+  static String m5(error) => "فشل إزالة الإعلان: ${error}";
+
+  static String m6(error) => "فشل تحميل المفضلة: ${error}";
+
+  static String m7(days) => "لمدة [${days}] يومًا";
+
+  static String m8(price) =>
+      "الإعلان المجاني متاح فقط للسيارات بسعر أقل من ${price} درهم. يرجى اختيار خطة أخرى.";
+
+  static String m9(count, max) =>
+      "تم اختيار ${count} صورة فقط. الحد الأقصى ${max} صورة إجمالية";
+
+  static String m10(number) => "هاتف: ${number}";
+
+  static String m11(error) => "فشل الحفظ: ${error}";
+
+  static String m12(error) => "حدث خطأ غير متوقع: ${error}";
+
+  static String m13(number) => "واتساب: ${number}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "Optional": MessageLookupByLibrary.simpleMessage("اختيارى"),
     "accountCreatedSuccessfully": MessageLookupByLibrary.simpleMessage(
       "تم إنشاء الحساب بنجاح",
     ),
     "ad": MessageLookupByLibrary.simpleMessage("عدد الإعلانات"),
+    "adDataIncomplete": MessageLookupByLibrary.simpleMessage(
+      "بيانات الإعلان غير كاملة",
+    ),
+    "adIdNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "معرّف الإعلان غير متوفر",
+    ),
+    "adNotFound": MessageLookupByLibrary.simpleMessage(
+      "لم يتم العثور على الإعلان.",
+    ),
+    "adPublishedSuccessfully": MessageLookupByLibrary.simpleMessage(
+      "تم نشر الإعلان بنجاح!",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("إضافة"),
     "add10Images": MessageLookupByLibrary.simpleMessage("إضافة 10 صور"),
-    "add14Images": MessageLookupByLibrary.simpleMessage("إضافة 14 صورة"),
+    "add19Images": MessageLookupByLibrary.simpleMessage("إضافة 19 صورة"),
     "add3Images": MessageLookupByLibrary.simpleMessage("إضافة 3 صور"),
     "add4Images": MessageLookupByLibrary.simpleMessage("إضافة 4 صور"),
     "add9Images": MessageLookupByLibrary.simpleMessage("إضافة 9 صور"),
@@ -59,6 +99,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "all": MessageLookupByLibrary.simpleMessage("الكل"),
     "amount": MessageLookupByLibrary.simpleMessage("المبلغ"),
+    "and": MessageLookupByLibrary.simpleMessage("و"),
     "any": MessageLookupByLibrary.simpleMessage("أي"),
     "appTitle": MessageLookupByLibrary.simpleMessage("إعلانات بيع السيارات"),
     "appearance_after_featured": MessageLookupByLibrary.simpleMessage(
@@ -79,9 +120,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "apply": MessageLookupByLibrary.simpleMessage("تطبيق"),
     "arabic": MessageLookupByLibrary.simpleMessage("English"),
     "area": MessageLookupByLibrary.simpleMessage("المنطقة"),
+    "areaName": MessageLookupByLibrary.simpleMessage("اسم المنطقة"),
     "back": MessageLookupByLibrary.simpleMessage("رجوع"),
     "balance": MessageLookupByLibrary.simpleMessage("الرصيد"),
-    "cancel": MessageLookupByLibrary.simpleMessage("الغاء"),
+    "byContinueIAgreeTo": MessageLookupByLibrary.simpleMessage(
+      "بالمتابعة أوافق على",
+    ),
+    "cancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
+    "cannotAddMoreImages": m0,
     "carType": MessageLookupByLibrary.simpleMessage("نوع السيارة"),
     "car_details": MessageLookupByLibrary.simpleMessage("تفاصيل السيارة"),
     "car_type": MessageLookupByLibrary.simpleMessage("نوع السيارة"),
@@ -128,6 +174,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "color": MessageLookupByLibrary.simpleMessage("اللون"),
     "confirm": MessageLookupByLibrary.simpleMessage("تأكيد"),
+    "confirmLocation": MessageLookupByLibrary.simpleMessage("تأكيد الموقع"),
     "confirm_add_to_favorite": MessageLookupByLibrary.simpleMessage(
       "هل تريد إضافة هذا العنصر إلى المفضلة؟",
     ),
@@ -135,6 +182,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "تأكيد الحذف من المفضلة",
     ),
     "confirmpass": MessageLookupByLibrary.simpleMessage("تأكيد كلمة المرور"),
+    "contactLabel": m1,
     "contactUs": MessageLookupByLibrary.simpleMessage("اتصل بنا"),
     "contract": MessageLookupByLibrary.simpleMessage("العقد"),
     "contractExpire": MessageLookupByLibrary.simpleMessage(
@@ -143,8 +191,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "contractType": MessageLookupByLibrary.simpleMessage("نوع العقد"),
     "contract_type": MessageLookupByLibrary.simpleMessage("نوع العقد"),
     "cost": MessageLookupByLibrary.simpleMessage("السعر"),
+    "couldNotLaunch": m2,
     "createAccount": MessageLookupByLibrary.simpleMessage("إنشاء حساب"),
     "createAgentCode": MessageLookupByLibrary.simpleMessage("إنشاء كود الخصم"),
+    "currentMainImage": MessageLookupByLibrary.simpleMessage(
+      "الصورة الرئيسية الحالية",
+    ),
     "cvv": MessageLookupByLibrary.simpleMessage("CVV"),
     "cylinders": MessageLookupByLibrary.simpleMessage("عدد الأسطوانات"),
     "daily_refresh": MessageLookupByLibrary.simpleMessage("تحديث يومي مفعّل"),
@@ -184,6 +236,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "doors_no": MessageLookupByLibrary.simpleMessage("عدد الأبواب"),
     "edit": MessageLookupByLibrary.simpleMessage("تعديل"),
     "edit3": MessageLookupByLibrary.simpleMessage("تعديل"),
+    "editAd": MessageLookupByLibrary.simpleMessage("تعديل الإعلان"),
     "editing1": MessageLookupByLibrary.simpleMessage("جاري التعديل"),
     "editit2": MessageLookupByLibrary.simpleMessage(
       "هل تريد تعديل ملفك الشخصي؟",
@@ -209,21 +262,48 @@ class MessageLookup extends MessageLookupByLibrary {
     "engineCapacity": MessageLookupByLibrary.simpleMessage("سعة المحرك"),
     "engine_capacity": MessageLookupByLibrary.simpleMessage("سعة المحرك"),
     "english": MessageLookupByLibrary.simpleMessage("عربي"),
+    "enjoyFreeAds": MessageLookupByLibrary.simpleMessage(
+      "استمتع بالإعلانات المجانية",
+    ),
+    "enterArea": MessageLookupByLibrary.simpleMessage("ادخل المنطقة"),
+    "enterContactInfo": MessageLookupByLibrary.simpleMessage(
+      "ادخل رقم الهاتف أو الواتساب أو البريد الإلكتروني",
+    ),
+    "enterDescription": MessageLookupByLibrary.simpleMessage("ادخل الوصف"),
+    "enterName": MessageLookupByLibrary.simpleMessage("ادخل الاسم"),
+    "enterProductName": MessageLookupByLibrary.simpleMessage("ادخل اسم المنتج"),
+    "enterServiceName": MessageLookupByLibrary.simpleMessage("ادخل اسم الخدمة"),
+    "enterTitle": MessageLookupByLibrary.simpleMessage("ادخل العنوان"),
     "enteremail": MessageLookupByLibrary.simpleMessage(
       "ادخل البريد الالكتروني",
     ),
+    "enterpassword": MessageLookupByLibrary.simpleMessage("أدخل كلمة المرور"),
     "enterphone": MessageLookupByLibrary.simpleMessage("ادخل رقم الهاتف"),
+    "errorFetchingData": m3,
+    "errorOccurredWithMessage": m4,
+    "errorSettingPassword": MessageLookupByLibrary.simpleMessage(
+      "خطأ في تعيين كلمة المرور",
+    ),
     "expireDate": MessageLookupByLibrary.simpleMessage("تاريخ الإنتهاء"),
     "expired": MessageLookupByLibrary.simpleMessage("منتهي"),
     "expiresIn": MessageLookupByLibrary.simpleMessage("ينتهي خلال"),
+    "favoriteRemoveFailed": m5,
+    "favoriteRemovedSuccess": MessageLookupByLibrary.simpleMessage(
+      "تم إزالة الإعلان من المفضلة",
+    ),
     "favorites": MessageLookupByLibrary.simpleMessage("المفضلة"),
+    "favoritesEmptySection": MessageLookupByLibrary.simpleMessage(
+      "لا توجد عناصر مفضلة في هذا القسم",
+    ),
+    "favoritesLoadFailed": m6,
     "featured": MessageLookupByLibrary.simpleMessage("مُفضل"),
-    "for_days": m0,
+    "for_days": m7,
     "forgetyourpass": MessageLookupByLibrary.simpleMessage("نسيت كلمة المرور؟"),
     "forgotPassword": MessageLookupByLibrary.simpleMessage(
       "هل نسيت كلمة المرور؟",
     ),
     "free": MessageLookupByLibrary.simpleMessage("مجاني"),
+    "freeAdNotEligibleMessage": m8,
     "from": MessageLookupByLibrary.simpleMessage("من"),
     "fuelType": MessageLookupByLibrary.simpleMessage("نوع الوقود"),
     "fuel_type": MessageLookupByLibrary.simpleMessage("نوع الوقود"),
@@ -232,6 +312,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "home": MessageLookupByLibrary.simpleMessage("الرئيسية"),
     "horsePower": MessageLookupByLibrary.simpleMessage("قوة الحصان"),
     "horse_power": MessageLookupByLibrary.simpleMessage("قوة المحرك (حصان)"),
+    "incompleteProfile": MessageLookupByLibrary.simpleMessage(
+      "ملفك الشخصي غير مكتمل",
+    ),
     "interiorColor": MessageLookupByLibrary.simpleMessage("اللون الداخلي"),
     "interior_color": MessageLookupByLibrary.simpleMessage("اللون الداخلي"),
     "invisibleInfo": MessageLookupByLibrary.simpleMessage(
@@ -246,10 +329,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "jobsAds": MessageLookupByLibrary.simpleMessage("إعلانات الوظائف"),
     "km": MessageLookupByLibrary.simpleMessage("كم"),
     "language": MessageLookupByLibrary.simpleMessage("اللغة"),
+    "limitedImagesSelected": m9,
     "loading": MessageLookupByLibrary.simpleMessage("جار التحميل"),
     "locateMe": MessageLookupByLibrary.simpleMessage("حدد موقعي"),
     "location": MessageLookupByLibrary.simpleMessage("الموقع"),
+    "loggingIn": MessageLookupByLibrary.simpleMessage("جاري تسجيل الدخول..."),
     "login": MessageLookupByLibrary.simpleMessage("تسجيل دخول"),
+    "loginAction": MessageLookupByLibrary.simpleMessage("تسجيل الدخول"),
+    "loginError": MessageLookupByLibrary.simpleMessage(
+      "حدث خطأ في تسجيل الدخول",
+    ),
+    "loginRequiredDescription": MessageLookupByLibrary.simpleMessage(
+      "يجب تسجيل الدخول أولاً لعرض المفضلة",
+    ),
+    "loginRequiredTitle": MessageLookupByLibrary.simpleMessage(
+      "تسجيل الدخول مطلوب",
+    ),
     "logout": MessageLookupByLibrary.simpleMessage("تسجيل الخروج"),
     "make": MessageLookupByLibrary.simpleMessage("النوع (الماركة)"),
     "manage": MessageLookupByLibrary.simpleMessage("الإدارة"),
@@ -257,10 +352,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "model": MessageLookupByLibrary.simpleMessage("الموديل"),
     "monthRent": MessageLookupByLibrary.simpleMessage("الإيجار الشهري"),
     "myProfile": MessageLookupByLibrary.simpleMessage("ملفي الشخصي"),
+    "newMainImageSelected": MessageLookupByLibrary.simpleMessage(
+      "تم اختيار صورة رئيسية جديدة",
+    ),
     "newpass": MessageLookupByLibrary.simpleMessage("كلمة المرور الجديدة"),
     "next": MessageLookupByLibrary.simpleMessage("التالي"),
     "no": MessageLookupByLibrary.simpleMessage("لا"),
+    "noAdIdForUpdate": MessageLookupByLibrary.simpleMessage(
+      "لا يوجد معرّف للإعلان للتحديث",
+    ),
+    "noChangesToSave": MessageLookupByLibrary.simpleMessage(
+      "لا توجد تغييرات للحفظ",
+    ),
     "noResultsFound": MessageLookupByLibrary.simpleMessage("لا توجد نتائج"),
+    "no_restaurants_found": MessageLookupByLibrary.simpleMessage(
+      "لم يتم العثور على مطاعم",
+    ),
     "notifications": MessageLookupByLibrary.simpleMessage("الإشعارات"),
     "ok": MessageLookupByLibrary.simpleMessage("تمام"),
     "optional": MessageLookupByLibrary.simpleMessage("اختياري"),
@@ -270,6 +377,15 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "otherservices": MessageLookupByLibrary.simpleMessage("خدمات أخرى"),
     "password": MessageLookupByLibrary.simpleMessage("كلمة المرور"),
+    "passwordRequiredToCompleteLogin": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال كلمة المرور لإكمال تسجيل الدخول",
+    ),
+    "passwordResetComingSoon": MessageLookupByLibrary.simpleMessage(
+      "ميزة استعادة كلمة المرور ستكون متاحة قريباً",
+    ),
+    "passwordSetSuccessUpgraded": MessageLookupByLibrary.simpleMessage(
+      "تم تعيين كلمة المرور بنجاح وتم ترقية حسابك إلى معلن",
+    ),
     "passwordTooShort": MessageLookupByLibrary.simpleMessage(
       "كلمة المرور قصيرة جدًا",
     ),
@@ -284,17 +400,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "payment": MessageLookupByLibrary.simpleMessage("الدفع"),
     "pending": MessageLookupByLibrary.simpleMessage("قيد المراجعة"),
     "phone": MessageLookupByLibrary.simpleMessage("رقم الهاتف"),
+    "phoneInvalid": MessageLookupByLibrary.simpleMessage(
+      "صيغة رقم الهاتف غير صحيحة",
+    ),
+    "phoneLabel": m10,
     "phoneLogin": MessageLookupByLibrary.simpleMessage("دخول بالهاتف"),
+    "phoneNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "رقم الهاتف غير متوفر",
+    ),
     "phoneNumber": MessageLookupByLibrary.simpleMessage("رقم الهاتف"),
     "phoneNumberHint": MessageLookupByLibrary.simpleMessage("508236561"),
     "phonesignup": MessageLookupByLibrary.simpleMessage("دخول برقم الهاتف"),
     "phoneverify": MessageLookupByLibrary.simpleMessage(
       " أرسلنا رسالة نصية تحتوي على رمز التفعيل إلى رقم هاتفك",
     ),
+    "pickLocation": MessageLookupByLibrary.simpleMessage("اختر الموقع"),
     "placeName": MessageLookupByLibrary.simpleMessage("منارة موتورز"),
     "place_an_ad": MessageLookupByLibrary.simpleMessage("نشر"),
+    "planExpiredOrInactivePleasePay": MessageLookupByLibrary.simpleMessage(
+      "انتهت الباقة أو لا توجد باقة نشطة. يرجى الدفع لإكمال النشر",
+    ),
     "pleaseConfirmPassword": MessageLookupByLibrary.simpleMessage(
       "الرجاء تأكيد كلمة المرور",
+    ),
+    "pleaseEnterPassword": MessageLookupByLibrary.simpleMessage(
+      "يرجى إدخال كلمة المرور",
     ),
     "pleaseEnterPhone": MessageLookupByLibrary.simpleMessage(
       "الرجاء إدخال رقم الهاتف",
@@ -305,11 +435,41 @@ class MessageLookup extends MessageLookupByLibrary {
     "pleaseEnterValidEmail": MessageLookupByLibrary.simpleMessage(
       "الرجاء إدخال بريد إلكتروني صحيح",
     ),
+    "pleaseLoginFirst": MessageLookupByLibrary.simpleMessage(
+      "يرجى تسجيل الدخول أولاً",
+    ),
     "please_fill_required_fields": MessageLookupByLibrary.simpleMessage(
       "الرجاء ملء الحقول المطلوبة",
     ),
+    "please_select_all_fields": MessageLookupByLibrary.simpleMessage(
+      "يرجى اختيار جميع الحقول",
+    ),
+    "please_select_category": MessageLookupByLibrary.simpleMessage(
+      "يرجى اختيار الفئة",
+    ),
+    "please_select_district": MessageLookupByLibrary.simpleMessage(
+      "يرجى اختيار المنطقة",
+    ),
+    "please_select_emirate": MessageLookupByLibrary.simpleMessage(
+      "يرجى اختيار الإمارة",
+    ),
+    "please_select_emirate_and_category_type":
+        MessageLookupByLibrary.simpleMessage("يرجى اختيار الإمارة ونوع الفئة"),
+    "please_select_emirate_and_section_type_first":
+        MessageLookupByLibrary.simpleMessage(
+          "يرجى اختيار الإمارة ونوع القسم أولاً",
+        ),
     "please_select_make": MessageLookupByLibrary.simpleMessage(
       "الرجاء اختيار الماركة",
+    ),
+    "please_select_model": MessageLookupByLibrary.simpleMessage(
+      "الرجاء اختيار الطراز",
+    ),
+    "please_select_section_type": MessageLookupByLibrary.simpleMessage(
+      "يرجى اختيار نوع القسم",
+    ),
+    "please_select_service_type": MessageLookupByLibrary.simpleMessage(
+      "يرجى اختيار نوع الخدمة",
     ),
     "post": MessageLookupByLibrary.simpleMessage(" مكان إضافةإعلان"),
     "postDate": MessageLookupByLibrary.simpleMessage("تاريخ النشر"),
@@ -325,11 +485,24 @@ class MessageLookup extends MessageLookupByLibrary {
     "priority_premium": MessageLookupByLibrary.simpleMessage(
       "💎 إعلانات Premium",
     ),
+    "privacyPolicy": MessageLookupByLibrary.simpleMessage("سياسة الخصوصية"),
     "privacySecurity": MessageLookupByLibrary.simpleMessage("الخصوصية والأمان"),
     "product": MessageLookupByLibrary.simpleMessage("المنتج"),
     "productName": MessageLookupByLibrary.simpleMessage("اسم المنتج"),
+    "profileWarning": MessageLookupByLibrary.simpleMessage(
+      "يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:",
+    ),
     "propertyType": MessageLookupByLibrary.simpleMessage("نوع العقار"),
     "property_type": MessageLookupByLibrary.simpleMessage("نوع العقار"),
+    "rankAdFailed": MessageLookupByLibrary.simpleMessage(
+      "فشل في ترقية الإعلان",
+    ),
+    "rankAdInProgress": MessageLookupByLibrary.simpleMessage(
+      "جاري ترقية الإعلان...",
+    ),
+    "rankAdSuccess": MessageLookupByLibrary.simpleMessage(
+      "تم ترقية الإعلان بنجاح",
+    ),
     "read_more": MessageLookupByLibrary.simpleMessage("قراءة المزيد"),
     "realEstateAds": MessageLookupByLibrary.simpleMessage("إعلانات العقارات"),
     "realestate": MessageLookupByLibrary.simpleMessage("العقارات"),
@@ -337,6 +510,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "refresh": MessageLookupByLibrary.simpleMessage("تحديث"),
     "register": MessageLookupByLibrary.simpleMessage("انشاء"),
     "rejected": MessageLookupByLibrary.simpleMessage("مرفوض"),
+    "remove": MessageLookupByLibrary.simpleMessage("إزالة"),
+    "removeFromFavoritesMessage": MessageLookupByLibrary.simpleMessage(
+      "هل أنت متأكد من إزالة هذا الإعلان من المفضلة؟",
+    ),
+    "removeFromFavoritesTitle": MessageLookupByLibrary.simpleMessage(
+      "إزالة من المفضلة",
+    ),
     "remove_from_favorite": MessageLookupByLibrary.simpleMessage(
       "حذف من المفضلة؟",
     ),
@@ -350,21 +530,30 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "restaurants": MessageLookupByLibrary.simpleMessage("مطاعم"),
     "restaurantsAds": MessageLookupByLibrary.simpleMessage("إعلانات المطاعم"),
+    "retry": MessageLookupByLibrary.simpleMessage("إعادة المحاولة"),
     "salary": MessageLookupByLibrary.simpleMessage("الراتب"),
     "save": MessageLookupByLibrary.simpleMessage("حفظ"),
+    "saveFailed": m11,
+    "saveSuccess": MessageLookupByLibrary.simpleMessage("تم الحفظ بنجاح"),
     "search": MessageLookupByLibrary.simpleMessage("بحث"),
     "searchCountry": MessageLookupByLibrary.simpleMessage("البحث عن دولة"),
+    "searchForLocation": MessageLookupByLibrary.simpleMessage("البحث عن موقع"),
     "seatsNo": MessageLookupByLibrary.simpleMessage("عدد المقاعد"),
     "seats_no": MessageLookupByLibrary.simpleMessage("عدد المقاعد"),
     "section": MessageLookupByLibrary.simpleMessage("القسم"),
     "sectionType": MessageLookupByLibrary.simpleMessage("نوع القسم"),
     "section_type": MessageLookupByLibrary.simpleMessage("نوع القسم"),
+    "secureYourAccount": MessageLookupByLibrary.simpleMessage("أمّن حسابك"),
     "see_all_ads": MessageLookupByLibrary.simpleMessage("عرض كل الإعلانات"),
     "sendcode": MessageLookupByLibrary.simpleMessage("ارسل الكود"),
     "service": MessageLookupByLibrary.simpleMessage("الخدمة"),
     "serviceName": MessageLookupByLibrary.simpleMessage("اسم الخدمة"),
     "serviceType": MessageLookupByLibrary.simpleMessage("نوع الخدمة"),
     "service_type": MessageLookupByLibrary.simpleMessage("اسم الخدمة"),
+    "setPassword": MessageLookupByLibrary.simpleMessage("تعيين كلمة المرور"),
+    "setPasswordToUpgradeDescription": MessageLookupByLibrary.simpleMessage(
+      "قبل الترقية إلى حساب معلن، يرجى تعيين كلمة مرور لحماية حسابك وتأكيد التحديث.",
+    ),
     "show_less": MessageLookupByLibrary.simpleMessage("إظهار أقل"),
     "signUp": MessageLookupByLibrary.simpleMessage("انشاء حساب"),
     "smart_search": MessageLookupByLibrary.simpleMessage("بحث ذكي"),
@@ -389,25 +578,36 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "total": MessageLookupByLibrary.simpleMessage("المجموع"),
     "totalAds": MessageLookupByLibrary.simpleMessage("مجموع الإعلانات"),
+    "totalPrice": MessageLookupByLibrary.simpleMessage("السعر الإجمالي"),
     "transType": MessageLookupByLibrary.simpleMessage("نوع الجير"),
     "trans_type": MessageLookupByLibrary.simpleMessage("نوع ناقل الحركة"),
     "translate": MessageLookupByLibrary.simpleMessage("ترجمة"),
     "trim": MessageLookupByLibrary.simpleMessage("الفئة"),
     "type": MessageLookupByLibrary.simpleMessage("النوع"),
+    "unexpectedError": m12,
     "unknownError": MessageLookupByLibrary.simpleMessage("خطأ غير معروف"),
     "upgrade": MessageLookupByLibrary.simpleMessage("ترقية"),
     "uploadYourLogo": MessageLookupByLibrary.simpleMessage("ارفع شعارك"),
     "use_this_space_for_ads": MessageLookupByLibrary.simpleMessage(
       "تواصل معنا لاستخدام هذه المساحة لإعلاناتك",
     ),
+    "userId": MessageLookupByLibrary.simpleMessage("رقم تعريف المستخدم"),
     "userName": MessageLookupByLibrary.simpleMessage("اسم المستخدم"),
     "valid": MessageLookupByLibrary.simpleMessage("صالح"),
     "verifnum": MessageLookupByLibrary.simpleMessage("تحقّق من رقمك"),
     "verify": MessageLookupByLibrary.simpleMessage("تحقّق"),
     "view_all_ads": MessageLookupByLibrary.simpleMessage("عرض جميع الإعلانات"),
     "views": MessageLookupByLibrary.simpleMessage("بحث و مشاهدات"),
+    "warning": MessageLookupByLibrary.simpleMessage("تنبيه"),
     "warranty": MessageLookupByLibrary.simpleMessage("الضمان"),
     "whatsApp": MessageLookupByLibrary.simpleMessage("واتساب"),
+    "whatsappInvalid": MessageLookupByLibrary.simpleMessage(
+      "صيغة رقم واتساب غير صحيحة",
+    ),
+    "whatsappLabel": m13,
+    "whatsappNotAvailable": MessageLookupByLibrary.simpleMessage(
+      "رقم واتساب غير متوفر",
+    ),
     "year": MessageLookupByLibrary.simpleMessage("السنة"),
     "yes": MessageLookupByLibrary.simpleMessage("نعم"),
   };

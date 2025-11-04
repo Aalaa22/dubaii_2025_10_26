@@ -17,11 +17,69 @@ import 'package:advertising_app/data/car_rent_dummy_data.dart'; // For dummy dat
 import 'package:advertising_app/presentation/providers/car_rent_info_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
+import 'dart:async';
+import 'package:advertising_app/data/repository/smart_search_repository.dart';
+import 'package:advertising_app/data/model/smart_search_model.dart';
+import 'package:advertising_app/data/web_services/api_service.dart';
+import 'package:advertising_app/data/model/best_advertiser_model.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
 const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
 final Color borderColor = Color.fromRGBO(8, 194, 201, 1);
+
+class BestAdvertiserCarRentItemAdapter implements FavoriteItemInterface {
+  final BestAdvertiserAd _ad;
+  BestAdvertiserCarRentItemAdapter(this._ad);
+
+  @override
+  String get contact => _ad.advertiserName;
+
+  @override
+  String get details => _ad.title ?? '';
+
+  @override
+  List<String> get images => [
+        ImageUrlHelper.getMainImageUrl(_ad.mainImage),
+        ..._ad.images
+      ].where((img) => img.isNotEmpty).toList();
+
+  @override
+  String get line1 =>
+      'Day Rent: ${_ad.dayRent ?? ''}  Month Rent: ${_ad.monthRent ?? ''}'.trim();
+
+  @override
+  String get price => _ad.price;
+
+  @override
+  String get location =>
+      '${_ad.emirate ?? ''} ${_ad.district ?? ''} ${_ad.area ?? ''}'.trim();
+
+  @override
+  String get title =>
+      '${_ad.make} ${_ad.model} ${_ad.trim ?? ''} ${_ad.year}'.trim();
+
+  @override
+  String get date => '';
+
+  @override
+  bool get isPremium => false;
+
+  @override
+  AdPriority get priority => AdPriority.free;
+
+  @override
+  int get id => _ad.id;
+
+  @override
+  String get category => 'Car Rent';
+
+  @override
+  String get addCategory => 'Car Rent';
+}
 
 class CarRentScreen extends StatefulWidget {
   const CarRentScreen({super.key});
@@ -30,15 +88,27 @@ class CarRentScreen extends StatefulWidget {
   State<CarRentScreen> createState() => _CarRentScreenState();
 }
 
-class _CarRentScreenState extends State<CarRentScreen> {
+class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
   int _selectedIndex = 4;
 
   String? _selectedMake;
   String? _selectedModel;
 
+  // Smart search state (same pattern as CarSales)
+  final TextEditingController _smartSearchController = TextEditingController();
+  Timer? _smartDebounce;
+  late final SmartSearchRepository _smartRepo;
+  SmartSearchResponse? _smartSearchResponse;
+  List<SmartSearchItem> _suggestions = [];
+
   @override
   void initState() {
     super.initState();
+    // Ensure favorite IDs are loaded so icons reflect saved favorites
+    loadFavoriteIds();
+    // Initialize smart search repository and listener
+    _smartRepo = SmartSearchRepository(ApiService());
+    _smartSearchController.addListener(_onSmartSearchChanged);
     // Use addPostFrameCallback to safely call provider after the first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -48,6 +118,44 @@ class _CarRentScreenState extends State<CarRentScreen> {
       info.fetchTopDealerAds();
       info.fetchBestAdvertiserAds();
     });
+  }
+
+  @override
+  void dispose() {
+    _smartDebounce?.cancel();
+    _smartSearchController.dispose();
+    super.dispose();
+  }
+
+  void _onSmartSearchChanged() {
+    final text = _smartSearchController.text.trim();
+    _smartDebounce?.cancel();
+    _smartDebounce = Timer(const Duration(milliseconds: 350), () async {
+      if (text.isEmpty) {
+        setState(() {
+          _suggestions = [];
+          _smartSearchResponse = null;
+        });
+        return;
+      }
+      final resp = await _smartRepo.smartSearch(text);
+      if (!mounted) return;
+      setState(() {
+        _smartSearchResponse = resp;
+        _suggestions = resp.results;
+      });
+    });
+  }
+
+  Future<void> _performSmartSearch(String keyword) async {
+    final resp = await _smartRepo.smartSearch(keyword);
+    if (!mounted) return;
+    setState(() {
+      _smartSearchResponse = resp;
+      _suggestions = resp.results;
+    });
+    // Navigate to smart search results page
+    await context.push('/smart_search', extra: resp);
   }
 
   List<String> get categories => [
@@ -103,6 +211,17 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                   height: 35.h,
                                   child: TextField(
                                       textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          color: KTextColor,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                      controller: _smartSearchController,
+                                      onSubmitted: (value) {
+                                        final text = value.trim();
+                                        if (text.isNotEmpty) {
+                                          _performSmartSearch(text);
+                                        }
+                                      },
                                       decoration: InputDecoration(
                                           hintText: s.smart_search,
                                           hintStyle: TextStyle(
@@ -110,8 +229,17 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                                   129, 126, 126, 1),
                                               fontSize: 14.sp,
                                               fontWeight: FontWeight.w500),
-                                          prefixIcon: Icon(Icons.search,
-                                              color: borderColor, size: 25.sp),
+                                          //prefixIcon: Icon(Icons.search,
+                                          //    color: borderColor, size: 25.sp),
+                                          prefixIcon: IconButton(
+                                            icon: Icon(Icons.search, color: borderColor, size: 22.sp),
+                                            onPressed: () {
+                                              final text = _smartSearchController.text.trim();
+                                              if (text.isNotEmpty) {
+                                                _performSmartSearch(text);
+                                              }
+                                            },
+                                          ),
                                           border: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.r),
@@ -132,6 +260,66 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                   color: borderColor, size: 35.sp),
                               onPressed: () {})
                         ])),
+                    // Suggestions list below smart search (same pattern as CarSales)
+                    if (_suggestions.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(color: borderColor.withOpacity(0.4)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 6,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: min(180.h, (_suggestions.length * 48.h)),
+                                child: ListView.separated(
+                                  itemCount: _suggestions.length,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  separatorBuilder: (_, __) => Divider(height: 1, color: borderColor.withOpacity(0.4)),
+                                  itemBuilder: (context, index) {
+                                    final item = _suggestions[index];
+                                    return ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      leading: Icon(Icons.search, color: KPrimaryColor, size: 18.sp),
+                                      title: Text(
+                                        '${S.of(context).category} ${item.itemType}',
+                                        style: TextStyle(color: KTextColor, fontSize: 13.sp, fontWeight: FontWeight.w500),
+                                      ),
+                                      trailing: Text(
+                                        '${(Localizations.localeOf(context).languageCode == 'ar' ? 'إجمالي الإعلانات' : 'Total Ads')} ${item.totalAds}',
+                                        style: TextStyle(color: KPrimaryColor, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                      ),
+                                      onTap: () {
+                                        final current = _smartSearchResponse;
+                                        if (current != null) {
+                                          context.push('/smart_search', extra: current);
+                                        } else {
+                                          final text = _smartSearchController.text.trim();
+                                          if (text.isNotEmpty) {
+                                            _performSmartSearch(text);
+                                          }
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     Padding(
                       padding:
                           EdgeInsetsDirectional.symmetric(horizontal: 10.w),
@@ -208,8 +396,8 @@ class _CarRentScreenState extends State<CarRentScreen> {
                               if (_selectedMake == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Please select make" ??
-                                        'Please select make'),
+                                    content: Text(s.please_select_make ??
+                                        s.please_select_model ),
                                     backgroundColor: Colors.red,
                                     duration: Duration(seconds: 2),
                                   ),
@@ -454,9 +642,10 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                 Positioned(
                                   top: 8,
                                   right: 8,
-                                  child: Icon(
-                                    Icons.favorite_border,
-                                    color: Colors.grey.shade300,
+                                  child: buildFavoriteIcon(
+                                    BestAdvertiserCarRentItemAdapter(ad),
+                                    onAddToFavorite: () {},
+                                    onRemoveFromFavorite: null,
                                   ),
                                 ),
                               ],
@@ -686,11 +875,12 @@ class _CarRentScreenState extends State<CarRentScreen> {
                                   Positioned(
                                     top: 8,
                                     right: 8,
-                                    child: Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.grey.shade300,
-                                    ),
+                                  child: buildFavoriteIcon(
+                                    BestAdvertiserCarRentItemAdapter(ad),
+                                    onAddToFavorite: () {},
+                                    onRemoveFromFavorite: null,
                                   ),
+                                ),
                                 ],
                               ),
                               Expanded(

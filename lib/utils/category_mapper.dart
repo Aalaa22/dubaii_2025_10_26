@@ -6,7 +6,14 @@ class CategoryMapper {
     'Car Rent': 'car_rent',
     'Car Services': 'car_services',
     'restaurant': 'restaurant',
+    // دعم صيغ عرض إضافية للفئات (إنجليزية/عربية)
+    'Restaurants': 'restaurant',
+    'مطاعم': 'restaurant',
+    // وظائف
     'Jop': 'jobs',
+    'Job': 'jobs',
+    'Jobs': 'jobs',
+    'وظائف': 'jobs',
     'Electronics': 'electronics',
     'Other Services': 'other_services',
   };

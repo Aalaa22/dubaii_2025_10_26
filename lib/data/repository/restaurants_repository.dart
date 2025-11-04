@@ -93,7 +93,7 @@ class RestaurantsRepository {
   }
 
   // دالة لإنشاء إعلان مطعم جديد
-  Future<void> createRestaurantAd({
+  Future<dynamic> createRestaurantAd({
     required String token,
     required String title,
     required String description,
@@ -112,6 +112,7 @@ class RestaurantsRepository {
     required String planType,
     required int planDays,
     required String planExpiresAt,
+    String? payment,
   }) async {
     // التحقق من وجود الصورة الرئيسية
     if (mainImage == null) {
@@ -134,14 +135,18 @@ class RestaurantsRepository {
       'plan_days': planDays,
       'plan_expires_at': planExpiresAt,
     };
+    if (payment != null) {
+      textData['payment'] = payment;
+    }
     
-    await _apiService.postFormData(
+    final response = await _apiService.postFormData(
       '/api/restaurants',
       data: textData,
       mainImage: mainImage,
       thumbnailImages: thumbnailImages,
       token: token,
     );
+    return response;
   }
 
   Future<RestaurantAdModel> getRestaurantAdDetails({required int adId, String? token}) async {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:advertising_app/data/model/user_model.dart';
 import 'package:advertising_app/data/repository/auth_repository.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
@@ -332,6 +334,7 @@ class AuthProvider with ChangeNotifier {
   Future<bool> updateUserProfile({
     required String username, required String email, required String phone,
     String? whatsapp, String? advertiserName, String? advertiserType,
+    String? referralCode, File? advertiserLogoFile,
     double? latitude, double? longitude, String? address, String? advertiserLocation,
   }) async {
     _isUpdating = true; 
@@ -355,6 +358,8 @@ class AuthProvider with ChangeNotifier {
         whatsapp: whatsapp,
         advertiserName: advertiserName,
         advertiserType: advertiserType,
+        advertiserLogoFile: advertiserLogoFile,
+        referralCode: referralCode,
         latitude: latitude,
         longitude: longitude,
         address: address,
@@ -401,6 +406,13 @@ class AuthProvider with ChangeNotifier {
     _updateError = null;
     notifyListeners();
     try {
+      // Validate supported image extensions before calling API
+      final String ext = logoPath.split('.').last.toLowerCase();
+      const allowed = ['jpg', 'jpeg', 'png', 'gif'];
+      if (!allowed.contains(ext)) {
+        _updateError = 'صيغة الصورة غير مدعومة. الرجاء اختيار JPG/PNG/GIF.';
+        return false;
+      }
       // الاعتماد حصراً على auth_token
       final authToken = await _storage.read(key: 'auth_token');
       if (authToken == null) throw Exception('Not authenticated.');
@@ -414,6 +426,10 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e) {
       _updateError = e.toString();
+      final msg = _updateError?.toLowerCase() ?? '';
+      if (msg.contains('validation_error') && msg.contains('advertiser_logo')) {
+        _updateError = 'صيغة الصورة غير مدعومة. الرجاء اختيار JPG/PNG/GIF.';
+      }
       return false;
     } finally {
       _isUpdating = false;

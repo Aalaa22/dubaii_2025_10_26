@@ -7,6 +7,8 @@ class MyAdModel {
   final String status;
   final String category;
   final String createdAt;
+  // نوع الفئة للوظائف (Job Offer / Job Seeker)
+  final String? categoryType;
   // إضافة حقول Make, Model, Trim للسيارات
   final String? make;
   final String? model;
@@ -31,6 +33,7 @@ class MyAdModel {
     required this.category,
     required this.createdAt,
     required this.categorySlug,
+    this.categoryType,
     this.make,
     this.model,
     this.trim,
@@ -45,15 +48,50 @@ class MyAdModel {
   });
 
   factory MyAdModel.fromJson(Map<String, dynamic> json) {
+    // Normalize planType from various possible API shapes
+    String? _extractPlanType(Map<String, dynamic> j) {
+      // Direct keys first (snake_case and camelCase)
+      var raw = j['plan_type'] ?? j['planType'];
+
+      // Some payloads might nest plan info in 'plan' object/string
+      if (raw == null && j['plan'] != null) {
+        final planVal = j['plan'];
+        if (planVal is String) raw = planVal;
+        if (planVal is Map) raw = planVal['type'] ?? planVal['plan_type'] ?? planVal['name'];
+      }
+
+      // Fallback to priority field used by several models
+      if (raw == null && j['priority'] != null) {
+        final p = j['priority'].toString().toLowerCase();
+        if (p.contains('featured')) raw = 'featured';
+        if (p.contains('premium_star')) raw = 'premium_star';
+        if (p == 'premium') raw = 'premium';
+      }
+
+      // Fallback to boolean flags indicating premium/featured status
+      if (raw == null) {
+        final offersActive = (j['active_offers_box_status'] == true);
+        final isFeatured = (j['is_featured'] == true) || (j['featured'] == true);
+        if (isFeatured) raw = 'featured';
+        else if (offersActive) raw = 'premium';
+      }
+
+      // Normalize to string
+      return raw?.toString();
+    }
+
     return MyAdModel(
       id: int.tryParse(json['id']?.toString() ?? '') ?? (json['id'] is int ? json['id'] as int : 0),
       title: json['title']?.toString() ?? '',
-      planType: json['plan_type']?.toString(),
+      // Support multiple shapes for plan type to ensure visibility across categories
+      planType: _extractPlanType(json),
       mainImageUrl: json['main_image_url']?.toString() ?? '',
       price: json['price']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       category: json['category']?.toString() ?? '',
       createdAt: json['created_at']?.toString() ?? '',
+      // في إعلانات الوظائف قد يأتي الحقل باسم category_type أو contract_type
+      categoryType: json['category_type']?.toString() ?? json['contract_type']?.toString(),
       make: json['make']?.toString(),
       model: json['model']?.toString(),
       trim: json['trim']?.toString(),

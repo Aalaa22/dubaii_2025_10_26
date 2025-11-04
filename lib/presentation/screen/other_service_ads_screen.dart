@@ -81,6 +81,22 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
       });
     }
 
+    // عيّن الإحداثيات تلقائياً من البروفايل إن وُجدت، وإلا حوّل العنوان إلى إحداثيات
+    try {
+      final hasCoords = user.latitude != null && user.longitude != null;
+      if (hasCoords) {
+        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        setState(() => selectedLatLng = latLng);
+        await context
+            .read<GoogleMapsProvider>()
+            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+      } else if (selectedLocation.isNotEmpty) {
+        await _applySelectedLocationAddress();
+      }
+    } catch (e) {
+      debugPrint('Failed to set default coordinates from profile: $e');
+    }
+
     List<String> missingFields = [];
     if (user.phone.trim().isEmpty) {
       missingFields.add('phone number');
@@ -99,86 +115,121 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+        final textDirection = isArabic ? TextDirection.rtl : TextDirection.ltr;
+        final s = S.of(context);
+
+        // ترجم عناصر الحقول الناقصة إلى اللغة المختارة
+        final localizedMissingFields = missingFields.map((field) {
+          switch (field) {
+            case 'phone number':
+              return s.phone; // "Phone"
+            case 'your location':
+              return s.advertiserLocation; // "Advertiser Location"
+            default:
+              return field;
+          }
+        }).toList();
+
         return WillPopScope(
           onWillPop: () async {
             Navigator.of(context).pop();
             Navigator.of(context).pop();
             return false;
           },
-          child: AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text(
-              "Incomplete profile",
-              style: TextStyle(fontWeight: FontWeight.bold, color: KTextColor, fontSize: 18),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'You must complete the following fields in your profile before adding the advertisement:',
-                  style: TextStyle(fontSize: 16, color: KTextColor),
+          child: Directionality(
+            textDirection: textDirection,
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(
+                s.editprof4,
+                style: const TextStyle(fontWeight: FontWeight.bold, color: KTextColor, fontSize: 18),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s.profileWarning,
+                    style: const TextStyle(fontSize: 16, color: KTextColor),
+                  ),
+                  const SizedBox(height: 8),
+                  ...localizedMissingFields.map(
+                    (f) => Row(
+                    
+                                  
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red,size: 18,),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            f,
+                            style: const TextStyle(
+                                      color: Color(0xFFE74C3C),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      context.push('/profile');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromRGBO(1, 84, 126, 1),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      s.myProfile,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
-                ...missingFields.map((f) => Row(children: [const Icon(Icons.warning_amber_rounded, color: Colors.orange), const SizedBox(width: 8), Text(f, style: const TextStyle(color: KTextColor))])),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: KPrimaryColor),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      s.cancel,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-            actions: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.push('/profile');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Go to profile',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
         );
       },
@@ -251,22 +302,23 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
   }
 
   Future<void> _validateAndProceedToNext() async {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please fill all required fields.'),
-          backgroundColor: Colors.orange));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(S.of(context).please_fill_required_fields),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (_mainImageBytes == null || _mainImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please add a main image.'),
-          backgroundColor: Colors.orange));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء إضافة صورة رئيسية.' : 'Please add a main image.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
     if (selectedLocation.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please select a location on the map.'),
-          backgroundColor: Colors.orange));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(isArabic ? 'الرجاء تحديد موقع على الخريطة.' : 'Please select a location on the map.'),
+          backgroundColor: KPrimaryColor));
       return;
     }
 
@@ -364,7 +416,7 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                     _buildFormRow([
                       _buildTitledTextFormField(
                           s.area, _areaController, borderColor, currentLocale,
-                          hintText: 'Jumeira1', isRequired: true),
+                          hintText: s.enterArea, isRequired: true),
                       _buildTitledTextFormField(
                           s.price, _priceController, borderColor, currentLocale,
                           hintText: '1000', isNumber: true, isRequired: true),
@@ -373,7 +425,7 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                     _buildFormRow([
                       _buildTitledTextFormField(s.serviceName,
                           _serviceNameController, borderColor, currentLocale,
-                          hintText: 'Account Audit', isRequired: true),
+                          hintText: s.enterServiceName, isRequired: true),
                       _buildSingleSelectField(
                           context,
                           s.sectionType,
@@ -386,10 +438,10 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                     const SizedBox(height: 7),
                     _buildTitledTextFormField(
                         s.title, _titleController, borderColor, currentLocale,
-                        minLines: 2,
-                        hintText: "Enter your title",
+                        minLines: 3,
+                        hintText: s.enterTitle,
                         isRequired: true,
-                        maxLength: 93),
+                        maxLength: 100),
                     const SizedBox(height: 7),
                     TitledSelectOrAddField(
                         title: s.advertiserName,
@@ -724,7 +776,7 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
                                                 Colors.white)))
-                                : const Text('Locate Me',
+                                :  Text(S.of(context).locateMe,
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w500,
@@ -738,7 +790,7 @@ class _OtherServicesAdScreenState extends State<OtherServicesAdScreen> {
                                 minimumSize: const Size(double.infinity, 43),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8))),
-                            child: const Text('Pick Location',
+                            child:Text(S.of(context).pickLocation,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w500,
@@ -779,6 +831,7 @@ class TitledDescriptionBox extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title,
           style: TextStyle(
@@ -803,7 +856,7 @@ class TitledDescriptionBox extends StatelessWidget {
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(12),
                     counterText: "",
-                    hintText: 'Enter your description',
+                    hintText: s.enterDescription,
                     hintStyle:
                         TextStyle(fontSize: 14, color: Colors.grey.shade400)),
               ),

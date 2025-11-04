@@ -4,6 +4,11 @@ import 'package:advertising_app/data/model/best_advertiser_model.dart';
 import 'package:advertising_app/presentation/providers/car_sales_ad_provider.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/widget/custom_bottom_nav.dart';
+import 'package:advertising_app/data/repository/smart_search_repository.dart';
+import 'package:advertising_app/data/model/smart_search_model.dart';
+import 'package:advertising_app/presentation/widget/smart_search_card.dart';
+import 'package:advertising_app/data/web_services/api_service.dart';
+import 'dart:async';
 import 'package:advertising_app/presentation/widget/custom_category.dart';
 import 'package:advertising_app/presentation/widget/test_search_widget.dart';
 import '../widget/unified_dropdown.dart';
@@ -16,6 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
 
 // تعريف الثوابت
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -29,16 +36,17 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen> {
   int _selectedIndex = 0;
   bool _showValidationError = false;
   String _validationMessage = "";
+  final TextEditingController _smartSearchController = TextEditingController();
+  Timer? _smartDebounce;
+  late final SmartSearchRepository _smartRepo;
+  SmartSearchResponse? _smartSearchResponse;
+  List<SmartSearchItem> _suggestions = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _refreshData();
-  }
+  // initState merged below
 
   @override
   void didChangeDependencies() {
@@ -53,6 +61,58 @@ class _HomeScreenState extends State<HomeScreen> {
       provider.fetchMakes();
       provider.fetchTopDealerAds(forceRefresh: true);
     });
+  }
+
+  bool _localeIsAr(BuildContext context) {
+    return Localizations.localeOf(context).languageCode.toLowerCase().startsWith('ar');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Load existing favorite ids
+    loadFavoriteIds();
+    _refreshData();
+    _smartRepo = SmartSearchRepository(ApiService());
+    _smartSearchController.addListener(_onSmartSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _smartDebounce?.cancel();
+    _smartSearchController.dispose();
+    super.dispose();
+  }
+
+  void _onSmartSearchChanged() {
+    final text = _smartSearchController.text.trim();
+    _smartDebounce?.cancel();
+    _smartDebounce = Timer(const Duration(milliseconds: 350), () async {
+      if (text.isEmpty) {
+        setState(() {
+          _suggestions = [];
+          _smartSearchResponse = null;
+        });
+        return;
+      }
+      final resp = await _smartRepo.smartSearch(text);
+      if (!mounted) return;
+      setState(() {
+        _smartSearchResponse = resp;
+        _suggestions = resp.results;
+      });
+    });
+  }
+
+  Future<void> _performSmartSearch(String keyword) async {
+    final resp = await _smartRepo.smartSearch(keyword);
+    if (!mounted) return;
+    setState(() {
+      _smartSearchResponse = resp;
+      _suggestions = resp.results;
+    });
+    // Navigate to smart search results page
+    await context.push('/smart_search', extra: resp);
   }
 
   List<CarModel> _getModelsWithAllAndOther(CarAdProvider provider) {
@@ -117,8 +177,53 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsetsDirectional.symmetric(horizontal: 12.w),
                     child: Row(children: [
                       Expanded(
-                        child: TestSearchWidget(),
-                      ),
+                          child: SizedBox(
+                              height: 35.h,
+                              child: TextField(
+                                  style: TextStyle(
+                                      color: KTextColor,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500),
+                                  controller: _smartSearchController,
+                                  onSubmitted: (value) {
+                                    final text = value.trim();
+                                    if (text.isNotEmpty) {
+                                      _performSmartSearch(text);
+                                    }
+                                  },
+                                  decoration: InputDecoration(
+                                      hintText: s.smart_search,
+                                      hintStyle: TextStyle(
+                                          color:
+                                              Color.fromRGBO(129, 126, 126, 1),
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                      //prefixIcon: Icon(Icons.search,
+                                        //  color: borderColor, size: 25.sp),
+                                      prefixIcon: IconButton(
+                                        icon: Icon(Icons.search, color: borderColor, size: 22.sp),
+                                        onPressed: () {
+                                          final text = _smartSearchController.text.trim();
+                                          if (text.isNotEmpty) {
+                                            _performSmartSearch(text);
+                                          }
+                                        },
+                                      ),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide:
+                                              BorderSide(color: borderColor)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          borderSide: BorderSide(
+                                              color: borderColor, width: 1.5)),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 8.w, vertical: 0.h))))),
                       IconButton(
                           icon: Icon(Icons.notifications_none,
                               color: borderColor, size: 35.sp),
@@ -126,6 +231,56 @@ class _HomeScreenState extends State<HomeScreen> {
                     ]),
                   ),
                   const SizedBox(height: 2),
+                  // Suggestions list below smart search
+                  if (_suggestions.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(color: borderColor.withOpacity(0.4)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _suggestions.length,
+                          separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+                          itemBuilder: (context, index) {
+                            final item = _suggestions[index];
+                            return ListTile(
+                              dense: true,
+                              title: Text(
+                                '${S.of(context).category} ${item.itemType}',
+                                style: TextStyle(color: KTextColor, fontSize: 13.sp),
+                              ),
+                              trailing: Text(
+                                '${_localeIsAr(context) ? 'إجمالي الإعلانات' : 'Total Ads'} ${item.totalAds}',
+                                style: TextStyle(color: KPrimaryColor, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                              ),
+                              onTap: () {
+                                final current = _smartSearchResponse;
+                                if (current != null) {
+                                  context.push('/smart_search', extra: current);
+                                } else {
+                                  final text = _smartSearchController.text.trim();
+                                  if (text.isNotEmpty) {
+                                    _performSmartSearch(text);
+                                  }
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   Padding(
                     padding: EdgeInsetsDirectional.symmetric(horizontal: 10.w),
                     child: CustomCategoryGrid(
@@ -328,7 +483,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () {
                         // تمرير معرف المعلن عند النقر على "عرض كل الإعلانات"
                         final advertiserId = dealer.id.toString();
-                        debugPrint('Navigating to all ads with advertiser ID: $advertiserId');
+                        debugPrint(
+                            'Navigating to all ads with advertiser ID: $advertiserId');
                         context.push('/all_ad_car_sales/$advertiserId');
                       },
                       child: Text(s.see_all_ads,
@@ -387,6 +543,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Image.asset('assets/images/car.jpg',
                                             fit: BoxFit.cover),
                                   )),
+
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: buildFavoriteIcon(
+                                      BestAdvertiserCarSalesItemAdapter(car),
+                                      onAddToFavorite: () {},
+                                    ),
+                                  ),
                             ]),
                             Expanded(
                               child: Padding(

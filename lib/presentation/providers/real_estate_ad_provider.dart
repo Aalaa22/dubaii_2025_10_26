@@ -21,6 +21,9 @@ class RealEstateAdProvider extends ChangeNotifier {
   // Price filter properties
   String? priceFrom;
   String? priceTo;
+  // Keyword filter property
+  String? _keyword;
+  String? get keyword => _keyword;
 
   List<RealEstateAdModel> get ads => _ads;
   bool get isLoading => _isLoading;
@@ -44,8 +47,8 @@ class RealEstateAdProvider extends ChangeNotifier {
         localFilters = {};
         
         filters.forEach((key, value) {
-          if (key == 'price_from' || key == 'price_to') {
-            // Price filters are applied locally
+          if (key == 'price_from' || key == 'price_to' || key == 'keyword') {
+            // Price and keyword filters are applied locally
             localFilters![key] = value;
           } else {
             // Other filters are sent to API
@@ -62,7 +65,7 @@ class RealEstateAdProvider extends ChangeNotifier {
       _allFetchedAds = List.from(resultAds); // Store original ads
       _totalAds = response.total;
       
-      // Apply local filters (price)
+      // Apply local filters (price + keyword)
       if (localFilters != null && localFilters.isNotEmpty) {
         if (localFilters.containsKey('price_from')) {
           priceFrom = localFilters['price_from'];
@@ -70,11 +73,14 @@ class RealEstateAdProvider extends ChangeNotifier {
         if (localFilters.containsKey('price_to')) {
           priceTo = localFilters['price_to'];
         }
+        final incomingKeyword = localFilters['keyword']?.toString();
+        _keyword = (incomingKeyword == null || incomingKeyword.trim().isEmpty)
+            ? null
+            : incomingKeyword.trim();
       }
       
-      // Apply price filter locally
-      resultAds = _applyPriceFilter(resultAds);
-      _ads = resultAds;
+      // Apply local filtering on stored data
+      _performLocalFilter();
 
     } catch (e) {
       _error = e.toString();
@@ -129,8 +135,24 @@ class RealEstateAdProvider extends ChangeNotifier {
     // Apply price filter
     filteredList = _applyPriceFilter(filteredList);
     
+    // Apply keyword filter (case-insensitive, contains in title/description)
+    if (_keyword != null && _keyword!.isNotEmpty) {
+      final kw = _keyword!.trim().toLowerCase();
+      filteredList = filteredList.where((ad) {
+        final title = ad.title.trim().toLowerCase();
+        final desc = (ad.description ?? '').trim().toLowerCase();
+        return title.contains(kw) || desc.contains(kw);
+      }).toList();
+    }
+    
     _ads = filteredList;
     notifyListeners();
+  }
+
+  /// Update keyword and apply filter locally
+  void updateKeyword(String? value) {
+    _keyword = (value ?? '').trim().isEmpty ? null : value!.trim();
+    _performLocalFilter();
   }
 
   Future<bool> submitRealEstateAd(Map<String, dynamic> adData) async {
@@ -141,12 +163,27 @@ class RealEstateAdProvider extends ChangeNotifier {
     try {
       final token = await _storage.read(key: 'auth_token');
       if (token == null) throw Exception('Token not found');
-      
-      await _repository.createRealEstateAd(token: token, adData: adData);
-      
+
+      final response = await _repository.createRealEstateAd(token: token, adData: adData);
+
+      bool success = false;
+      String? apiMessage;
+      if (response is Map<String, dynamic>) {
+        success = response['success'] == true || response.containsKey('id');
+        apiMessage = response['message']?.toString();
+      } else {
+        // If backend returns non-Map but did not throw, assume success
+        success = true;
+      }
+
       _isSubmitting = false;
       notifyListeners();
-      return true;
+      if (success) {
+        return true;
+      } else {
+        _error = apiMessage ?? 'فشل إنشاء إعلان العقارات';
+        return false;
+      }
     } catch(e) {
       _error = e.toString();
       _isSubmitting = false;

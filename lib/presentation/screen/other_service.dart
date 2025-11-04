@@ -13,6 +13,13 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:math';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/best_advertiser_model.dart';
+import 'package:advertising_app/data/model/best_advertiser_adapters.dart';
+import 'dart:async';
+import 'package:advertising_app/data/repository/smart_search_repository.dart';
+import 'package:advertising_app/data/model/smart_search_model.dart';
+import 'package:advertising_app/data/web_services/api_service.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -26,12 +33,20 @@ class OtherServiceScreen extends StatefulWidget {
   State<OtherServiceScreen> createState() => _OtherServiceScreenState();
 }
 
-class _OtherServiceScreenState extends State<OtherServiceScreen> {
+class _OtherServiceScreenState extends State<OtherServiceScreen>
+    with FavoritesHelper<OtherServiceScreen> {
   int _selectedIndex = 7;
 
   // +++ اختيارات فردية مع خيار All +++
   String? _selectedEmirate;
   String? _selectedSectionType;
+
+  // Smart search state (same pattern as CarSales)
+  final TextEditingController _smartSearchController = TextEditingController();
+  Timer? _smartDebounce;
+  late final SmartSearchRepository _smartRepo;
+  SmartSearchResponse? _smartSearchResponse;
+  List<SmartSearchItem> _suggestions = [];
 
   @override
   void initState() {
@@ -41,7 +56,49 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
       context.read<OtherServicesAdProvider>().fetchAds();
       // جلب بيانات الفلاتر (الإمارات و الأقسام) من المصدر الحقيقي
       context.read<OtherServicesInfoProvider>().fetchAllData();
+      loadFavoriteIds();
     });
+    // Initialize smart search repository and listener
+    _smartRepo = SmartSearchRepository(ApiService());
+    _smartSearchController.addListener(_onSmartSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _smartDebounce?.cancel();
+    _smartSearchController.dispose();
+    super.dispose();
+  }
+
+  void _onSmartSearchChanged() {
+    final text = _smartSearchController.text.trim();
+    _smartDebounce?.cancel();
+    _smartDebounce = Timer(const Duration(milliseconds: 350), () async {
+      if (text.isEmpty) {
+        setState(() {
+          _suggestions = [];
+          _smartSearchResponse = null;
+        });
+        return;
+      }
+      final resp = await _smartRepo.smartSearch(text);
+      if (!mounted) return;
+      setState(() {
+        _smartSearchResponse = resp;
+        _suggestions = resp.results;
+      });
+    });
+  }
+
+  Future<void> _performSmartSearch(String keyword) async {
+    final resp = await _smartRepo.smartSearch(keyword);
+    if (!mounted) return;
+    setState(() {
+      _smartSearchResponse = resp;
+      _suggestions = resp.results;
+    });
+    // Navigate to smart search results page
+    await context.push('/smart_search', extra: resp);
   }
 
   List<String> get categories => [
@@ -96,13 +153,34 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
                         child: SizedBox(
                           height: 35.h,
                           child: TextField(
+                            style: TextStyle(
+                              color: KTextColor,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            controller: _smartSearchController,
+                            onSubmitted: (value) {
+                              final text = value.trim();
+                              if (text.isNotEmpty) {
+                                _performSmartSearch(text);
+                              }
+                            },
                             decoration: InputDecoration(
                               hintText: s.smart_search,
                               hintStyle: TextStyle(
                                   color: const Color.fromRGBO(129, 126, 126, 1),
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500),
-                              prefixIcon: Icon(Icons.search, color: borderColor, size: 25.sp),
+                              //prefixIcon: Icon(Icons.search, color: borderColor, size: 25.sp),
+                              prefixIcon: IconButton(
+                                icon: Icon(Icons.search, color: borderColor, size: 22.sp),
+                                onPressed: () {
+                                  final text = _smartSearchController.text.trim();
+                                  if (text.isNotEmpty) {
+                                    _performSmartSearch(text);
+                                  }
+                                },
+                              ),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r), borderSide: BorderSide(color: borderColor)),
                               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r), borderSide: BorderSide(color: borderColor, width: 1.5)),
                               filled: true,
@@ -128,6 +206,56 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
                   ),
                 ),
                 SizedBox(height: 2.h),
+                // Suggestions list below smart search (same pattern as CarSales)
+                if (_suggestions.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(color: borderColor.withOpacity(0.4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _suggestions.length,
+                        separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+                        itemBuilder: (context, index) {
+                          final item = _suggestions[index];
+                          return ListTile(
+                            dense: true,
+                            title: Text(
+                              '${S.of(context).category} ${item.itemType}',
+                              style: TextStyle(color: KTextColor, fontSize: 13.sp),
+                            ),
+                            trailing: Text(
+                              '${(Localizations.localeOf(context).languageCode == 'ar' ? 'إجمالي الإعلانات' : 'Total Ads')} ${item.totalAds}',
+                              style: TextStyle(color: KPrimaryColor, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                            ),
+                            onTap: () {
+                              final current = _smartSearchResponse;
+                              if (current != null) {
+                                context.push('/smart_search', extra: current);
+                              } else {
+                                final text = _smartSearchController.text.trim();
+                                if (text.isNotEmpty) {
+                                  _performSmartSearch(text);
+                                }
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 Padding(
                   padding: EdgeInsetsDirectional.symmetric(horizontal: 10.w),
                   child: CustomCategoryGrid(
@@ -205,20 +333,27 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
                         onPressed: () {
                           if (_selectedEmirate == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("please select emirate")),
+                              SnackBar(content: Text(s.please_select_emirate)),
                             );
                             return;
                           }
                           if (_selectedSectionType == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("please select section type")),
+                              SnackBar(content: Text(s.please_select_section_type)),
                             );
                             return;
                           }
-                          context.push('/other_service_search', extra: {
-                            'emirate': _selectedEmirate,
-                            'sectionType': _selectedSectionType,
-                          });
+                          // لا ترسل قيمة All إلى الراوتر/الـ API
+                          final Map<String, String> extras = {};
+                          final emirateVal = _selectedEmirate?.trim();
+                          final sectionVal = _selectedSectionType?.trim();
+                          if (emirateVal != null && emirateVal.toLowerCase() != 'all') {
+                            extras['emirate'] = emirateVal;
+                          }
+                          if (sectionVal != null && sectionVal.toLowerCase() != 'all') {
+                            extras['section_type'] = sectionVal; // استخدم المفتاح المتوافق مع الـ API
+                          }
+                          context.push('/other_service_search', extra: extras);
                         },
                       ),
 
@@ -360,38 +495,53 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
 
                                         return Padding(
                                           padding: EdgeInsetsDirectional.only(end: index == latestAds.length - 1 ? 0 : 4.w),
-                                          child: Container(
-                                            width: 145,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(4.r),
-                                              border: Border.all(color: Colors.grey.shade300),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.grey.withOpacity(0.15),
-                                                  blurRadius: 5.r,
-                                                  offset: Offset(0, 2.h),
-                                                ),
-                                              ],
-                                            ),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius: BorderRadius.circular(4.r),
-                                                      child: imageUrl.isNotEmpty
-                                                          ? CachedNetworkImage(
-                                                              imageUrl: imageUrl,
-                                                              height: 94.h,
-                                                              width: double.infinity,
-                                                              fit: BoxFit.cover,
-                                                              placeholder: (context, url) => Container(
-                                                                color: Colors.grey[300],
-                                                                child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                                              ),
-                                                              errorWidget: (context, url, error) => Container(
+                                          child: GestureDetector(
+                                             onTap: () {
+       // context.push('/other_service-details/${ad.id}');
+      },
+                                            child: Container(
+                                              width: 145,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(4.r),
+                                                border: Border.all(color: Colors.grey.shade300),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey.withOpacity(0.15),
+                                                    blurRadius: 5.r,
+                                                    offset: Offset(0, 2.h),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Stack(
+                                                    children: [
+                                                      ClipRRect(
+                                                        borderRadius: BorderRadius.circular(4.r),
+                                                        child: imageUrl.isNotEmpty
+                                                            ? CachedNetworkImage(
+                                                                imageUrl: imageUrl,
+                                                                height: 94.h,
+                                                                width: double.infinity,
+                                                                fit: BoxFit.cover,
+                                                                placeholder: (context, url) => Container(
+                                                                  color: Colors.grey[300],
+                                                                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                                ),
+                                                                errorWidget: (context, url, error) => Container(
+                                                                  height: 94.h,
+                                                                  width: double.infinity,
+                                                                  color: Colors.grey.shade200,
+                                                                  child: Icon(
+                                                                    Icons.miscellaneous_services,
+                                                                    color: Colors.grey.shade400,
+                                                                    size: 40,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : Container(
                                                                 height: 94.h,
                                                                 width: double.infinity,
                                                                 color: Colors.grey.shade200,
@@ -401,63 +551,63 @@ class _OtherServiceScreenState extends State<OtherServiceScreen> {
                                                                   size: 40,
                                                                 ),
                                                               ),
-                                                            )
-                                                          : Container(
-                                                              height: 94.h,
-                                                              width: double.infinity,
-                                                              color: Colors.grey.shade200,
-                                                              child: Icon(
-                                                                Icons.miscellaneous_services,
-                                                                color: Colors.grey.shade400,
-                                                                size: 40,
-                                                              ),
+                                                      ),
+                                                      Positioned(
+                                                        top: 8,
+                                                        right: 8,
+                                                        child: buildFavoriteIcon(
+                                                          BestAdvertiserOtherServiceItemAdapter(
+                                                            BestAdvertiserAd.fromJson(
+                                                              ad,
+                                                              advertiserId: advertiserId,
+                                                              advertiserName: advertiserName,
                                                             ),
-                                                    ),
-                                                    Positioned(
-                                                      top: 8,
-                                                      right: 8,
-                                                      child: Icon(Icons.favorite_border, color: Colors.grey.shade300),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(horizontal: 6.w),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                      children: [
-                                                        Text(
-                                                          "${NumberFormatter.formatPrice(price)}",
-                                                          style: TextStyle(
-                                                            color: Colors.red,
-                                                            fontWeight: FontWeight.w600,
-                                                            fontSize: 11.5.sp,
                                                           ),
+                                                          onAddToFavorite: () {},
+                                                          onRemoveFromFavorite: null,
                                                         ),
-                                                        Text(
-                                                          serviceName,
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow.ellipsis,
-                                                          style: TextStyle(
-                                                            fontWeight: FontWeight.w600,
-                                                            fontSize: 11.5.sp,
-                                                            color: KTextColor,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.symmetric(horizontal: 6.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                        children: [
+                                                          Text(
+                                                            "${NumberFormatter.formatPrice(price)}",
+                                                            style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontWeight: FontWeight.w600,
+                                                              fontSize: 11.5.sp,
+                                                            ),
                                                           ),
-                                                        ),
-                                                        Text(
-                                                          '${emirate} ${district}'.trim(),
-                                                          style: TextStyle(
-                                                            fontSize: 11.5.sp,
-                                                            color: const Color.fromRGBO(165, 164, 162, 1),
-                                                            fontWeight: FontWeight.w600,
+                                                          Text(
+                                                            serviceName,
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: TextStyle(
+                                                              fontWeight: FontWeight.w600,
+                                                              fontSize: 11.5.sp,
+                                                              color: KTextColor,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
+                                                          Text(
+                                                            '${emirate} ${district}'.trim(),
+                                                            style: TextStyle(
+                                                              fontSize: 11.5.sp,
+                                                              color: const Color.fromRGBO(165, 164, 162, 1),
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         );

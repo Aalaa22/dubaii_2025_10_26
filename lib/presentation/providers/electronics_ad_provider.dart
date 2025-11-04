@@ -37,6 +37,12 @@ class ElectronicsAdProvider extends ChangeNotifier {
   String? offerPriceFrom;
   String? offerPriceTo;
 
+  // Keyword filter
+  String? _keyword;
+  String? get keyword => _keyword;
+  // If keyword was sent to API, avoid applying it locally to prevent double-filtering
+  bool _skipLocalKeywordFilter = false;
+
   List<ElectronicAdModel> get offerAds => _offerAds;
   bool get isLoadingOffers => _isLoadingOffers;
   String? get offersError => _offersError;
@@ -56,7 +62,37 @@ class ElectronicsAdProvider extends ChangeNotifier {
 
     try {
       // Public data - no token required for browsing electronic ads
-      final response = await _repository.getElectronicAds(query: filters);
+      // Separate API filters from local-only filters (price)
+      Map<String, dynamic>? apiFilters;
+      if (filters != null && filters.isNotEmpty) {
+        apiFilters = Map<String, dynamic>.from(filters);
+        // Keyword: keep it in API filters and store it for UI state
+        final incomingKeyword = apiFilters['keyword']?.toString();
+        if (incomingKeyword != null && incomingKeyword.trim().isNotEmpty) {
+          _keyword = incomingKeyword.trim();
+          _skipLocalKeywordFilter = true; // API handles keyword, so skip locally
+        } else {
+          _keyword = null;
+          _skipLocalKeywordFilter = false;
+        }
+
+        // Local price filters
+        final fromStr = apiFilters['price_from']?.toString();
+        final toStr = apiFilters['price_to']?.toString();
+        priceFrom = (fromStr != null && fromStr.isNotEmpty)
+            ? fromStr.replaceAll(RegExp(r'[^0-9.]'), '')
+            : null;
+        priceTo = (toStr != null && toStr.isNotEmpty)
+            ? toStr.replaceAll(RegExp(r'[^0-9.]'), '')
+            : null;
+
+        // Remove local-only keys before API call
+        apiFilters.remove('price_from');
+        apiFilters.remove('price_to');
+      }
+
+      final response = await _repository.getElectronicAds(
+          query: apiFilters?.isNotEmpty == true ? apiFilters : null);
       _allFetchedAds = response.ads; // Store all fetched ads
       _ads = response.ads;
       _totalAds = response.total;
@@ -66,7 +102,7 @@ class ElectronicsAdProvider extends ChangeNotifier {
         _productNames = _ads.map((ad) => ad.productName).where((name) => name != null).cast<String>().toSet().toList();
       }
 
-      // Apply local price filter if exists
+      // Apply local filters if exists (price, product names, keyword when not handled by API)
       _performLocalFilter();
       
     } catch (e) {
@@ -86,6 +122,13 @@ class ElectronicsAdProvider extends ChangeNotifier {
   void updateSelectedProductNames(List<String> names) {
     _selectedProductNames = names;
     // Apply on both regular ads and offer ads
+    _performLocalFilter();
+    _performLocalOfferFilter();
+  }
+
+  /// Update keyword and apply local filtering
+  void updateKeyword(String? value) {
+    _keyword = (value ?? '').trim().isEmpty ? null : value!.trim();
     _performLocalFilter();
     _performLocalOfferFilter();
   }
@@ -211,6 +254,17 @@ class ElectronicsAdProvider extends ChangeNotifier {
     // Apply price filter
     filteredList = _applyOfferPriceFilter(filteredList);
 
+    // Apply keyword filter (case-insensitive, contains in title/product/description)
+    if (_keyword != null && _keyword!.isNotEmpty) {
+      final kw = _keyword!.trim().toLowerCase();
+      filteredList = filteredList.where((ad) {
+        final title = ad.title.trim().toLowerCase();
+        final prod = (ad.productName ?? '').trim().toLowerCase();
+        final desc = (ad.description ?? '').trim().toLowerCase();
+        return title.contains(kw) || prod.contains(kw) || desc.contains(kw);
+      }).toList();
+    }
+
     // Apply product name filter locally for offers
     if (_selectedProductNames.isNotEmpty) {
       filteredList = filteredList.where((ad) {
@@ -241,6 +295,17 @@ class ElectronicsAdProvider extends ChangeNotifier {
     
     // Apply price filter
     filteredList = _applyPriceFilter(filteredList);
+    
+    // Apply keyword filter locally only if API did not handle it
+    if (!_skipLocalKeywordFilter && _keyword != null && _keyword!.isNotEmpty) {
+      final kw = _keyword!.trim().toLowerCase();
+      filteredList = filteredList.where((ad) {
+        final title = ad.title.trim().toLowerCase();
+        final prod = (ad.productName ?? '').trim().toLowerCase();
+        final desc = (ad.description ?? '').trim().toLowerCase();
+        return title.contains(kw) || prod.contains(kw) || desc.contains(kw);
+      }).toList();
+    }
     
     // Apply product name filter locally
     if (_selectedProductNames.isNotEmpty) {

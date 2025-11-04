@@ -355,9 +355,9 @@ class S {
     return Intl.message('Cancel', name: 'cancel', desc: '', args: []);
   }
 
-  /// `optional`
+  /// `Optional`
   String get optional {
-    return Intl.message('optional', name: 'optional', desc: '', args: []);
+    return Intl.message('Optional', name: 'optional', desc: '', args: []);
   }
 
   /// `Premium`
@@ -373,6 +373,36 @@ class S {
   /// `Location`
   String get location {
     return Intl.message('Location', name: 'location', desc: '', args: []);
+  }
+
+  /// `Please select emirate`
+  String get please_select_emirate {
+    return Intl.message(
+      'Please select emirate',
+      name: 'please_select_emirate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select district`
+  String get please_select_district {
+    return Intl.message(
+      'Please select district',
+      name: 'please_select_district',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select category`
+  String get please_select_category {
+    return Intl.message(
+      'Please select category',
+      name: 'please_select_category',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Al Manara Motors`
@@ -445,10 +475,10 @@ class S {
     );
   }
 
-  /// `We've sent an SMS with an activation code to your phone`
+  /// `We've sent an whatsApp with an activation code to your phone`
   String get phoneverify {
     return Intl.message(
-      'We\'ve sent an SMS with an activation code to your phone',
+      'We\'ve sent an whatsApp with an activation code to your phone',
       name: 'phoneverify',
       desc: '',
       args: [],
@@ -505,6 +535,26 @@ class S {
     return Intl.message('Favorites', name: 'favorites', desc: '', args: []);
   }
 
+  /// `Incomplete profile`
+  String get incompleteProfile {
+    return Intl.message(
+      'Incomplete profile',
+      name: 'incompleteProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must complete the following fields in your profile before adding the advertisement:`
+  String get profileWarning {
+    return Intl.message(
+      'You must complete the following fields in your profile before adding the advertisement:',
+      name: 'profileWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Car Sales`
   String get carsales {
     return Intl.message('Car Sales', name: 'carsales', desc: '', args: []);
@@ -555,6 +605,106 @@ class S {
     return Intl.message(
       'Other Services',
       name: 'otherservices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enjoy Free Ads`
+  String get enjoyFreeAds {
+    return Intl.message(
+      'Enjoy Free Ads',
+      name: 'enjoyFreeAds',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter Your Password`
+  String get enterpassword {
+    return Intl.message(
+      'Enter Your Password',
+      name: 'enterpassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter your password`
+  String get pleaseEnterPassword {
+    return Intl.message(
+      'Please enter your password',
+      name: 'pleaseEnterPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please enter password to complete login`
+  String get passwordRequiredToCompleteLogin {
+    return Intl.message(
+      'Please enter password to complete login',
+      name: 'passwordRequiredToCompleteLogin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred during login`
+  String get loginError {
+    return Intl.message(
+      'An error occurred during login',
+      name: 'loginError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unexpected error: {error}`
+  String unexpectedError(Object error) {
+    return Intl.message(
+      'Unexpected error: $error',
+      name: 'unexpectedError',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `Logging in...`
+  String get loggingIn {
+    return Intl.message('Logging in...', name: 'loggingIn', desc: '', args: []);
+  }
+
+  /// `By continuing I agree to the`
+  String get byContinueIAgreeTo {
+    return Intl.message(
+      'By continuing I agree to the',
+      name: 'byContinueIAgreeTo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `and`
+  String get and {
+    return Intl.message('and', name: 'and', desc: '', args: []);
+  }
+
+  /// `Privacy Policy`
+  String get privacyPolicy {
+    return Intl.message(
+      'Privacy Policy',
+      name: 'privacyPolicy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password reset will be available soon`
+  String get passwordResetComingSoon {
+    return Intl.message(
+      'Password reset will be available soon',
+      name: 'passwordResetComingSoon',
       desc: '',
       args: [],
     );
@@ -823,6 +973,141 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Ad not found.`
+  String get adNotFound {
+    return Intl.message(
+      'Ad not found.',
+      name: 'adNotFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred while fetching data: {error}`
+  String errorFetchingData(Object error) {
+    return Intl.message(
+      'An error occurred while fetching data: $error',
+      name: 'errorFetchingData',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `New main image selected`
+  String get newMainImageSelected {
+    return Intl.message(
+      'New main image selected',
+      name: 'newMainImageSelected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current main image`
+  String get currentMainImage {
+    return Intl.message(
+      'Current main image',
+      name: 'currentMainImage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved successfully`
+  String get saveSuccess {
+    return Intl.message(
+      'Saved successfully',
+      name: 'saveSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save failed: {error}`
+  String saveFailed(Object error) {
+    return Intl.message(
+      'Save failed: $error',
+      name: 'saveFailed',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `No ad ID to update`
+  String get noAdIdForUpdate {
+    return Intl.message(
+      'No ad ID to update',
+      name: 'noAdIdForUpdate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No changes to save`
+  String get noChangesToSave {
+    return Intl.message(
+      'No changes to save',
+      name: 'noChangesToSave',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cannot add more images. Maximum is {max} images`
+  String cannotAddMoreImages(Object max) {
+    return Intl.message(
+      'Cannot add more images. Maximum is $max images',
+      name: 'cannotAddMoreImages',
+      desc: '',
+      args: [max],
+    );
+  }
+
+  /// `Only {count} images selected. Maximum {max} images total`
+  String limitedImagesSelected(Object count, Object max) {
+    return Intl.message(
+      'Only $count images selected. Maximum $max images total',
+      name: 'limitedImagesSelected',
+      desc: '',
+      args: [count, max],
+    );
+  }
+
+  /// `Ranking the ad...`
+  String get rankAdInProgress {
+    return Intl.message(
+      'Ranking the ad...',
+      name: 'rankAdInProgress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ad ranked successfully`
+  String get rankAdSuccess {
+    return Intl.message(
+      'Ad ranked successfully',
+      name: 'rankAdSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to rank the ad`
+  String get rankAdFailed {
+    return Intl.message(
+      'Failed to rank the ad',
+      name: 'rankAdFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `User Id`
+  String get userId {
+    return Intl.message('User Id', name: 'userId', desc: '', args: []);
   }
 
   /// `🌟 Top Premium Ads`
@@ -1455,11 +1740,11 @@ class S {
     );
   }
 
-  /// `Add 14 Images`
-  String get add14Images {
+  /// `Add 19 Images`
+  String get add19Images {
     return Intl.message(
-      'Add 14 Images',
-      name: 'add14Images',
+      'Add 19 Images',
+      name: 'add19Images',
       desc: '',
       args: [],
     );
@@ -1705,6 +1990,11 @@ class S {
     return Intl.message('Edit', name: 'edit', desc: '', args: []);
   }
 
+  /// `Edit Ad`
+  String get editAd {
+    return Intl.message('Edit Ad', name: 'editAd', desc: '', args: []);
+  }
+
   /// `Renew`
   String get renew {
     return Intl.message('Renew', name: 'renew', desc: '', args: []);
@@ -1823,11 +2113,6 @@ class S {
   /// `Pay Now`
   String get payNow {
     return Intl.message('Pay Now', name: 'payNow', desc: '', args: []);
-  }
-
-  /// `Optional`
-  String get Optional {
-    return Intl.message('Optional', name: 'Optional', desc: '', args: []);
   }
 
   /// `No Results Found`
@@ -2005,11 +2290,21 @@ class S {
     return Intl.message('delete', name: 'delete', desc: '', args: []);
   }
 
-  /// `please_select_make`
+  /// `Please select make`
   String get please_select_make {
     return Intl.message(
-      'please_select_make',
+      'Please select make',
       name: 'please_select_make',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select model`
+  String get please_select_model {
+    return Intl.message(
+      'Please select model',
+      name: 'please_select_model',
       desc: '',
       args: [],
     );
@@ -2020,6 +2315,526 @@ class S {
     return Intl.message(
       'please_fill_required_fields',
       name: 'please_fill_required_fields',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search for a location`
+  String get searchForLocation {
+    return Intl.message(
+      'Search for a location',
+      name: 'searchForLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm Location`
+  String get confirmLocation {
+    return Intl.message(
+      'Confirm Location',
+      name: 'confirmLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick Location`
+  String get pickLocation {
+    return Intl.message(
+      'Pick Location',
+      name: 'pickLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter Area`
+  String get enterArea {
+    return Intl.message('Enter Area', name: 'enterArea', desc: '', args: []);
+  }
+
+  /// `Area Name`
+  String get areaName {
+    return Intl.message('Area Name', name: 'areaName', desc: '', args: []);
+  }
+
+  /// `Enter name`
+  String get enterName {
+    return Intl.message('Enter name', name: 'enterName', desc: '', args: []);
+  }
+
+  /// `Enter service name`
+  String get enterServiceName {
+    return Intl.message(
+      'Enter service name',
+      name: 'enterServiceName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter product name`
+  String get enterProductName {
+    return Intl.message(
+      'Enter product name',
+      name: 'enterProductName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your title`
+  String get enterTitle {
+    return Intl.message(
+      'Enter your title',
+      name: 'enterTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your description`
+  String get enterDescription {
+    return Intl.message(
+      'Enter your description',
+      name: 'enterDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Total price`
+  String get totalPrice {
+    return Intl.message('Total price', name: 'totalPrice', desc: '', args: []);
+  }
+
+  /// `Enter phone or WhatsApp or email`
+  String get enterContactInfo {
+    return Intl.message(
+      'Enter phone or WhatsApp or email',
+      name: 'enterContactInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select all fields`
+  String get please_select_all_fields {
+    return Intl.message(
+      'Please select all fields',
+      name: 'please_select_all_fields',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select emirate and section type first`
+  String get please_select_emirate_and_section_type_first {
+    return Intl.message(
+      'Please select emirate and section type first',
+      name: 'please_select_emirate_and_section_type_first',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select emirate and category type`
+  String get please_select_emirate_and_category_type {
+    return Intl.message(
+      'Please select emirate and category type',
+      name: 'please_select_emirate_and_category_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a service type`
+  String get please_select_service_type {
+    return Intl.message(
+      'Please select a service type',
+      name: 'please_select_service_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select section type`
+  String get please_select_section_type {
+    return Intl.message(
+      'Please select section type',
+      name: 'please_select_section_type',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Secure Your Account`
+  String get secureYourAccount {
+    return Intl.message(
+      'Secure Your Account',
+      name: 'secureYourAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Before upgrading to an Advertiser account, please set a password to safeguard your account and confirm the update.`
+  String get setPasswordToUpgradeDescription {
+    return Intl.message(
+      'Before upgrading to an Advertiser account, please set a password to safeguard your account and confirm the update.',
+      name: 'setPasswordToUpgradeDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set Password`
+  String get setPassword {
+    return Intl.message(
+      'Set Password',
+      name: 'setPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password set successfully and your account upgraded to advertiser`
+  String get passwordSetSuccessUpgraded {
+    return Intl.message(
+      'Password set successfully and your account upgraded to advertiser',
+      name: 'passwordSetSuccessUpgraded',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error setting password`
+  String get errorSettingPassword {
+    return Intl.message(
+      'Error setting password',
+      name: 'errorSettingPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Warning`
+  String get warning {
+    return Intl.message('Warning', name: 'warning', desc: '', args: []);
+  }
+
+  /// `Free ads are only available for cars priced under {price} AED. Please choose another plan.`
+  String freeAdNotEligibleMessage(Object price) {
+    return Intl.message(
+      'Free ads are only available for cars priced under $price AED. Please choose another plan.',
+      name: 'freeAdNotEligibleMessage',
+      desc: '',
+      args: [price],
+    );
+  }
+
+  /// `Ad data is incomplete`
+  String get adDataIncomplete {
+    return Intl.message(
+      'Ad data is incomplete',
+      name: 'adDataIncomplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ad posted successfully!`
+  String get adPublishedSuccessfully {
+    return Intl.message(
+      'Ad posted successfully!',
+      name: 'adPublishedSuccessfully',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan expired or no active plan. Please pay to complete posting`
+  String get planExpiredOrInactivePleasePay {
+    return Intl.message(
+      'Plan expired or no active plan. Please pay to complete posting',
+      name: 'planExpiredOrInactivePleasePay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An error occurred: {message}`
+  String errorOccurredWithMessage(Object message) {
+    return Intl.message(
+      'An error occurred: $message',
+      name: 'errorOccurredWithMessage',
+      desc: '',
+      args: [message],
+    );
+  }
+
+  /// `Failed to load favorites: {error}`
+  String favoritesLoadFailed(Object error) {
+    return Intl.message(
+      'Failed to load favorites: $error',
+      name: 'favoritesLoadFailed',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `Ad removed from favorites`
+  String get favoriteRemovedSuccess {
+    return Intl.message(
+      'Ad removed from favorites',
+      name: 'favoriteRemovedSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to remove ad: {error}`
+  String favoriteRemoveFailed(Object error) {
+    return Intl.message(
+      'Failed to remove ad: $error',
+      name: 'favoriteRemoveFailed',
+      desc: '',
+      args: [error],
+    );
+  }
+
+  /// `Retry`
+  String get retry {
+    return Intl.message('Retry', name: 'retry', desc: '', args: []);
+  }
+
+  /// `Login required`
+  String get loginRequiredTitle {
+    return Intl.message(
+      'Login required',
+      name: 'loginRequiredTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You must log in first to view your favorites`
+  String get loginRequiredDescription {
+    return Intl.message(
+      'You must log in first to view your favorites',
+      name: 'loginRequiredDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login`
+  String get loginAction {
+    return Intl.message('Login', name: 'loginAction', desc: '', args: []);
+  }
+
+  /// `No favorite items in this section`
+  String get favoritesEmptySection {
+    return Intl.message(
+      'No favorite items in this section',
+      name: 'favoritesEmptySection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from Favorites`
+  String get removeFromFavoritesTitle {
+    return Intl.message(
+      'Remove from Favorites',
+      name: 'removeFromFavoritesTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Are you sure you want to remove this ad from favorites?`
+  String get removeFromFavoritesMessage {
+    return Intl.message(
+      'Are you sure you want to remove this ad from favorites?',
+      name: 'removeFromFavoritesMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove`
+  String get remove {
+    return Intl.message('Remove', name: 'remove', desc: '', args: []);
+  }
+
+  /// `Please log in first`
+  String get pleaseLoginFirst {
+    return Intl.message(
+      'Please log in first',
+      name: 'pleaseLoginFirst',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Ad ID not available`
+  String get adIdNotAvailable {
+    return Intl.message(
+      'Ad ID not available',
+      name: 'adIdNotAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact: {info}`
+  String contactLabel(Object info) {
+    return Intl.message(
+      'Contact: $info',
+      name: 'contactLabel',
+      desc: '',
+      args: [info],
+    );
+  }
+
+  /// `Could not launch {url}`
+  String couldNotLaunch(Object url) {
+    return Intl.message(
+      'Could not launch $url',
+      name: 'couldNotLaunch',
+      desc: '',
+      args: [url],
+    );
+  }
+
+  /// `Invalid WhatsApp number format`
+  String get whatsappInvalid {
+    return Intl.message(
+      'Invalid WhatsApp number format',
+      name: 'whatsappInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WhatsApp number not available`
+  String get whatsappNotAvailable {
+    return Intl.message(
+      'WhatsApp number not available',
+      name: 'whatsappNotAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Invalid phone number format`
+  String get phoneInvalid {
+    return Intl.message(
+      'Invalid phone number format',
+      name: 'phoneInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Phone number not available`
+  String get phoneNotAvailable {
+    return Intl.message(
+      'Phone number not available',
+      name: 'phoneNotAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WhatsApp: {number}`
+  String whatsappLabel(Object number) {
+    return Intl.message(
+      'WhatsApp: $number',
+      name: 'whatsappLabel',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Phone: {number}`
+  String phoneLabel(Object number) {
+    return Intl.message(
+      'Phone: $number',
+      name: 'phoneLabel',
+      desc: '',
+      args: [number],
+    );
+  }
+
+  /// `Activating {boxName}...`
+  String offerBoxActivating(Object boxName) {
+    return Intl.message(
+      'Activating $boxName...',
+      name: 'offerBoxActivating',
+      desc: '',
+      args: [boxName],
+    );
+  }
+
+  /// `Offer box activated for this ad`
+  String get offerBoxActivatedSuccess {
+    return Intl.message(
+      'Offer box activated for this ad',
+      name: 'offerBoxActivatedSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Offer box activation failed`
+  String get offerBoxActivationFailed {
+    return Intl.message(
+      'Offer box activation failed',
+      name: 'offerBoxActivationFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete Ad`
+  String get deleteAdTitle {
+    return Intl.message('Delete Ad', name: 'deleteAdTitle', desc: '', args: []);
+  }
+
+  /// `Are you sure you want to delete this ad?`
+  String get deleteAdConfirmation {
+    return Intl.message(
+      'Are you sure you want to delete this ad?',
+      name: 'deleteAdConfirmation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Yes, Delete`
+  String get yesDelete {
+    return Intl.message('Yes, Delete', name: 'yesDelete', desc: '', args: []);
+  }
+
+  /// `Ad deleted`
+  String get adDeletedSuccess {
+    return Intl.message(
+      'Ad deleted',
+      name: 'adDeletedSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to delete ad`
+  String get adDeletedFailed {
+    return Intl.message(
+      'Failed to delete ad',
+      name: 'adDeletedFailed',
       desc: '',
       args: [],
     );

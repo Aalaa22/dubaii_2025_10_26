@@ -361,9 +361,8 @@ class _FavoriteCardState extends State<FavoriteCard> {
 
   /// بناء ويدجت الصورة باستخدام ImageUrlHelper
   Widget _buildImageWidget(String imagePath) {
-    final fullImageUrl = ImageUrlHelper.getFullImageUrl(imagePath);
-    
-    if (fullImageUrl.isEmpty) {
+    final rawPath = imagePath.trim();
+    if (rawPath.isEmpty || rawPath.toLowerCase() == 'null') {
       return Container(
         width: double.infinity,
         height: 200,
@@ -372,25 +371,54 @@ class _FavoriteCardState extends State<FavoriteCard> {
       );
     }
 
-    return CachedNetworkImage(
-      imageUrl: fullImageUrl,
-      fit: BoxFit.cover,
+    final processedUrl = ImageUrlHelper.getFullImageUrl(rawPath);
+
+    // Try network when the processed URL is http/https
+    if (processedUrl.startsWith('http://') || processedUrl.startsWith('https://')) {
+      return CachedNetworkImage(
+        imageUrl: processedUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 200,
+        placeholder: (context, url) => Container(
+          width: double.infinity,
+          height: 200,
+          color: Colors.grey[300],
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        errorWidget: (context, url, error) => Container(
+          width: double.infinity,
+          height: 200,
+          color: Colors.grey[300],
+          child: const Icon(Icons.error, size: 50, color: Colors.red),
+        ),
+      );
+    }
+
+    // Use local asset if path explicitly begins with assets/
+    if (rawPath.startsWith('assets/')) {
+      return Image.asset(
+        rawPath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 200,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: double.infinity,
+          height: 200,
+          color: Colors.grey[300],
+          child: const Icon(Icons.error, size: 50, color: Colors.red),
+        ),
+      );
+    }
+
+    // Unknown/invalid path -> neutral placeholder
+    return Container(
       width: double.infinity,
       height: 200,
-      placeholder: (context, url) => Container(
-        width: double.infinity,
-        height: 200,
-        color: Colors.grey[300],
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      errorWidget: (context, url, error) => Container(
-        width: double.infinity,
-        height: 200,
-        color: Colors.grey[300],
-        child: const Icon(Icons.error, size: 50, color: Colors.red),
-      ),
+      color: Colors.grey[300],
+      child: const Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
     );
   }
 }

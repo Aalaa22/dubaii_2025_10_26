@@ -17,17 +17,27 @@ class CarSalesAdAdapter implements FavoriteItemInterface {
   String get details => userAd.title;
 
   @override
-  String get imageUrl => ImageUrlHelper.getMainImageUrl(userAd.mainImage);
+  String get imageUrl {
+    final url = (userAd.mainImageUrl).trim();
+    if (url.isNotEmpty) return url;
+    return ImageUrlHelper.getMainImageUrl(userAd.mainImage);
+  }
 
   @override
-  List<String> get images => [
-        ImageUrlHelper.getMainImageUrl(userAd.mainImage),
-        ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
-      ].where((img) => img.isNotEmpty).toList();
+  List<String> get images {
+    final urls = userAd.thumbnailImagesUrls;
+    if (urls.isNotEmpty) {
+      return [userAd.mainImageUrl, ...urls].where((img) => img.isNotEmpty).toList();
+    }
+    return [
+      ImageUrlHelper.getMainImageUrl(userAd.mainImage),
+      ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
+    ].where((img) => img.isNotEmpty).toList();
+  }
 
   @override
-  String get line1 =>   "Year: ${userAd.year}  Km: ${NumberFormatter.formatNumber(userAd.km)}   Specs: ${userAd.specs ?? ''}";
-
+  String get line1 =>
+      "Year: ${userAd.year}  Km: ${NumberFormatter.formatNumber(userAd.km)}   Specs: ${userAd.specs ?? ''}";
 
   @override
   String get line2 => '${userAd.title ?? ''} '.trim();
@@ -36,16 +46,24 @@ class CarSalesAdAdapter implements FavoriteItemInterface {
   String get price => userAd.price;
 
   @override
-  String get location => '${userAd.emirate ?? ''} ${userAd.area ?? ''}';
+  String get location {
+    // القيمة الأساسية من الإمارة والمنطقة
+    final primary = '${userAd.emirate} ${userAd.area}'.trim();
+    if (primary.isNotEmpty) return primary;
+    // fallback: استخدم الحي إن وجد، وإلا استخدم location الخام من API
+    if (userAd.district.trim().isNotEmpty) return userAd.district.trim();
+    return userAd.location.trim();
+  }
 
   @override
-  String get title => '${userAd.make ?? ''} ${userAd.model ?? ''} ${userAd.trim ?? ''}'.trim();
+  String get title =>
+      '${userAd.make ?? ''} ${userAd.model ?? ''} ${userAd.trim ?? ''}'.trim();
 
   @override
   String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
-  bool get  isPremium {
+  bool get isPremium {
     // الإعلان يعتبر Premium إذا كان planType موجودًا وقيمته ليست 'free'
     if (userAd.planType == null) return false;
     return userAd.planType!.toLowerCase() != 'free';
@@ -65,10 +83,10 @@ class CarSalesAdAdapter implements FavoriteItemInterface {
   String get seatsNo => userAd.seatsNo ?? '';
   @override
   String get id => userAd.id.toString();
-  
+
   @override
   String get category => userAd.category;
-  
+
   @override
   String get addCategory => userAd.addCategory;
 }
@@ -82,20 +100,49 @@ class CarRentAdAdapter implements FavoriteItemInterface {
   String get dayRent => userAd.dayRent ?? '';
   String get model => userAd.monthRent ?? '';
 
-  @override int get id => userAd.id;
-  @override String get contact => userAd.advertiserName;
-  @override String get details => userAd.title;
-  @override String get category => 'Car Rent'; // Category for car rent
-  
-  @override String get addCategory => 'Car Rent'; // Dynamic category for API
-  @override String get imageUrl => ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
-  @override List<String> get images => [ ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? ''), ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages) ].where((img) => img.isNotEmpty).toList();
-  @override String get line1 => 'Day/ ${userAd.dayRent} Month Rent'; // تغيير من '' إلى قيمة غير فارغة
-  @override String get line2 => userAd.title;
-  @override String get price => userAd.price;
-  @override String get location => "${userAd.location} ";
-  @override String get title => "${userAd.make ?? ''} ${userAd.model ?? ''} ${userAd.trim ?? ''} ${userAd.year ?? ''}".trim();
-  @override String get date => userAd.createdAt?.split('T').first ?? '';
+  @override
+  int get id => userAd.id;
+  @override
+  String get contact => userAd.advertiserName;
+  @override
+  String get details => userAd.title;
+  @override
+  String get category => 'Car Rent'; // Category for car rent
+
+  @override
+  String get addCategory => 'Car Rent'; // Dynamic category for API
+  @override
+  String get imageUrl {
+    final url = (userAd.mainImageUrl).trim();
+    if (url.isNotEmpty) return url;
+    return ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
+  }
+  @override
+  List<String> get images {
+    final urls = userAd.thumbnailImagesUrls;
+    if (urls.isNotEmpty) {
+      return [userAd.mainImageUrl, ...urls].where((img) => img.isNotEmpty).toList();
+    }
+    return [
+      ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? ''),
+      ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
+    ].where((img) => img.isNotEmpty).toList();
+  }
+  @override
+  String get line1 =>
+      'Day ${userAd.dayRent} Month Rent ${userAd.monthRent}'; // تغيير من '' إلى قيمة غير فارغة
+  @override
+  String get line2 => userAd.title;
+  @override
+  String get price => userAd.price;
+  @override
+  String get location => "${userAd.emirate} ${userAd.district} ${userAd.area}";
+  @override
+  String get title =>
+      "${userAd.make ?? ''} ${userAd.model ?? ''} ${userAd.trim ?? ''} ${userAd.year ?? ''}"
+          .trim();
+  @override
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   AdPriority get priority {
@@ -106,8 +153,11 @@ class CarRentAdAdapter implements FavoriteItemInterface {
     if (plan.contains('featured')) return AdPriority.featured;
     return AdPriority.free;
   }
-  @override bool get isPremium => priority != AdPriority.free;
+
+  @override
+  bool get isPremium => priority != AdPriority.free;
 }
+
 /// محول لتحويل UserAd إلى شكل إعلان خدمات السيارات
 class CarServiceAdAdapter implements FavoriteItemInterface {
   final UserAd userAd;
@@ -118,14 +168,14 @@ class CarServiceAdAdapter implements FavoriteItemInterface {
   String get contact => userAd.advertiserName;
 
   @override
-  String get details => userAd.description;
+  String get details => userAd.serviceType ?? '';
 
   @override
   String get imageUrl => userAd.mainImageUrl;
 
   @override
-  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty 
-      ? userAd.thumbnailImagesUrls 
+  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty
+      ? userAd.thumbnailImagesUrls
       : [userAd.mainImageUrl];
 
   @override
@@ -138,13 +188,13 @@ class CarServiceAdAdapter implements FavoriteItemInterface {
   String get price => userAd.price;
 
   @override
-  String get location => userAd.location;
+  String get location => "${userAd.emirate} ${userAd.district} ${userAd.area}";
 
   @override
-  String get title => userAd.title;
+  String get title => userAd.serviceName ?? '';
 
   @override
-  String get date => userAd.createdAt;
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   bool get isPremium => userAd.planType != null && userAd.planType!.isNotEmpty;
@@ -173,15 +223,25 @@ class RealEstateAdAdapter implements FavoriteItemInterface {
   String get contact => userAd.advertiserName ?? '';
 
   @override
-  String get details => userAd.description;
+  String get details => "${userAd.property_type} ${userAd.contract_type}";
 
   @override
-  String get imageUrl =>  ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
+  String get imageUrl {
+    final url = (userAd.mainImageUrl).trim();
+    if (url.isNotEmpty) return url;
+    return ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
+  }
   @override
-  List<String> get images => [
-        ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? ''),
-        ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
-      ].where((img) => img.isNotEmpty).toList();
+  List<String> get images {
+    final urls = userAd.thumbnailImagesUrls;
+    if (urls.isNotEmpty) {
+      return [userAd.mainImageUrl, ...urls].where((img) => img.isNotEmpty).toList();
+    }
+    return [
+      ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? ''),
+      ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
+    ].where((img) => img.isNotEmpty).toList();
+  }
 
   @override
   String get line1 => '';
@@ -193,7 +253,8 @@ class RealEstateAdAdapter implements FavoriteItemInterface {
   String get price => userAd.price;
 
   @override
-  String get location => '${userAd.emirate ?? ''} ${userAd.district ?? ''}  ${userAd.area ?? ''}';
+  String get location =>
+      '${userAd.emirate ?? ''} ${userAd.district ?? ''}  ${userAd.area ?? ''}';
 
   @override
   String get title => userAd.title;
@@ -221,16 +282,29 @@ class ElectronicsAdAdapter implements FavoriteItemInterface {
   ElectronicsAdAdapter(this.userAd);
 
   @override
-  String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
+  String get contact => userAd.advertiserName ?? '';
 
   @override
   String get details => userAd.product_name;
 
   @override
-  String get imageUrl => ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
+  String get imageUrl {
+    final url = (userAd.mainImageUrl).trim();
+    if (url.isNotEmpty) return url;
+    return ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? '');
+  }
 
   @override
-  List<String> get images => [imageUrl, ... userAd.thumbnailImages].where((img) => img.isNotEmpty).toList();
+  List<String> get images {
+    final urls = userAd.thumbnailImagesUrls;
+    if (urls.isNotEmpty) {
+      return [userAd.mainImageUrl, ...urls].where((img) => img.isNotEmpty).toList();
+    }
+    return [
+      ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? ''),
+      ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
+    ].where((img) => img.isNotEmpty).toList();
+  }
 
   @override
   String get line1 => userAd.section_type;
@@ -242,10 +316,12 @@ class ElectronicsAdAdapter implements FavoriteItemInterface {
   String get price => userAd.price;
 
   @override
-  String get location => "${userAd.emirate ?? ''} ${userAd.district ?? ''} ${userAd.area ?? ''}".trim(); 
+  String get location =>
+      "${userAd.emirate ?? ''} ${userAd.district ?? ''} ${userAd.area ?? ''}"
+          .trim();
 
   @override
-  String get title => userAd.product_name;
+  String get title => userAd.title;
 
   @override
   String get date => userAd.createdAt?.split('T').first ?? '';
@@ -270,17 +346,26 @@ class JobAdAdapter implements FavoriteItemInterface {
   JobAdAdapter(this.userAd);
 
   @override
-  String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
+  String get contact => userAd.advertiserName ?? '';
 
   @override
-  String get details => "${userAd.contract_type ?? 'N/A'} ${userAd.section_type ?? 'N/A'} "; // Job Category Type
- 
+  String get details =>
+      "${userAd.category_type ?? 'N/A'} ${userAd.section_type ?? 'N/A'} "; // Job Category Type
 
   @override
-  String get imageUrl => ImageUrlHelper.getMainImageUrl(userAd.mainImageUrl);
+  String get imageUrl => (userAd.mainImageUrl).trim();
 
   @override
-  List<String> get images =>  [imageUrl, ...userAd.thumbnailImages].where((img) => img.isNotEmpty).toList();
+  List<String> get images {
+    final urls = userAd.thumbnailImagesUrls;
+    if (urls.isNotEmpty) {
+      return [userAd.mainImageUrl, ...urls].where((img) => img.isNotEmpty).toList();
+    }
+    return [
+      ImageUrlHelper.getMainImageUrl(userAd.mainImage ?? ''),
+      ...ImageUrlHelper.getThumbnailImageUrls(userAd.thumbnailImages)
+    ].where((img) => img.isNotEmpty).toList();
+  }
 
   @override
   String get line1 => userAd.job_name;
@@ -289,10 +374,11 @@ class JobAdAdapter implements FavoriteItemInterface {
   String get line2 => userAd.salary;
 
   @override
-  String get price => userAd.price;
+  String get price => userAd.salary;
 
   @override
-  String get location => '${userAd.emirate ?? ''} ${userAd.district ?? ''}  ${userAd.area ?? ''}';
+  String get location =>
+      '${userAd.emirate ?? ''} ${userAd.district ?? ''}  ${userAd.area ?? ''}';
 
   @override
   String get title => userAd.title;
@@ -320,36 +406,36 @@ class RestaurantAdAdapter implements FavoriteItemInterface {
   RestaurantAdAdapter(this.userAd);
 
   @override
-  String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
+  String get contact => userAd.advertiserName ?? '';
 
   @override
-  String get details => userAd.description;
+  String get details => '';
 
   @override
   String get imageUrl => userAd.mainImageUrl;
 
   @override
-  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty 
-      ? userAd.thumbnailImagesUrls 
+  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty
+      ? userAd.thumbnailImagesUrls
       : [userAd.mainImageUrl];
 
   @override
-  String get line1 => userAd.title;
+  String get line1 => userAd.category.trim();
 
   @override
-  String get line2 => userAd.category;
+  String get line2 => '';
 
   @override
-  String get price => userAd.price;
+  String get price => userAd.price_range?.toString() ?? '';
 
   @override
-  String get location => userAd.location;
+  String get location => "${userAd.emirate} ${userAd.district} ${userAd.area}";
 
   @override
   String get title => userAd.title;
 
   @override
-  String get date => userAd.createdAt;
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   bool get isPremium => userAd.planType != null && userAd.planType!.isNotEmpty;
@@ -371,36 +457,54 @@ class OtherServiceAdAdapter implements FavoriteItemInterface {
   OtherServiceAdAdapter(this.userAd);
 
   @override
-  String get contact => userAd.whatsappNumber ?? userAd.phoneNumber ?? '';
+  String get contact => userAd.advertiserName ?? '';
 
   @override
-  String get details => userAd.description;
+  String get details {
+    final sec = userAd.section_type.trim();
+    if (sec.isNotEmpty && sec.toLowerCase() != 'null') return sec;
+    final st = (userAd.serviceType ?? '').trim();
+    if (st.isNotEmpty && st.toLowerCase() != 'null') return st;
+    return '';
+  }
 
   @override
   String get imageUrl => userAd.mainImageUrl;
 
   @override
-  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty 
-      ? userAd.thumbnailImagesUrls 
+  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty
+      ? userAd.thumbnailImagesUrls
       : [userAd.mainImageUrl];
 
   @override
   String get line1 => userAd.title;
 
   @override
-  String get line2 => userAd.serviceType ?? userAd.serviceName ?? userAd.category;
+  String get line2 {
+    final sec = userAd.section_type.trim();
+    if (sec.isNotEmpty && sec.toLowerCase() != 'null') return sec;
+    final st = (userAd.serviceType ?? '').trim();
+    if (st.isNotEmpty && st.toLowerCase() != 'null') return st;
+    final sn = (userAd.serviceName ?? '').trim();
+    if (sn.isNotEmpty && sn.toLowerCase() != 'null') return sn;
+    return userAd.category;
+  }
 
   @override
   String get price => userAd.price;
 
   @override
-  String get location => userAd.location;
+  String get location => "${userAd.emirate} ${userAd.district} ${userAd.area}";
 
   @override
-  String get title => userAd.title;
+  String get title {
+    final sn = (userAd.serviceName ?? '').trim();
+    if (sn.isNotEmpty && sn.toLowerCase() != 'null') return sn;
+    return userAd.title;
+  }
 
   @override
-  String get date => userAd.createdAt;
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   bool get isPremium => userAd.planType != null && userAd.planType!.isNotEmpty;
@@ -463,8 +567,8 @@ class _GenericAdAdapter implements FavoriteItemInterface {
   String get imageUrl => userAd.mainImageUrl;
 
   @override
-  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty 
-      ? userAd.thumbnailImagesUrls 
+  List<String> get images => userAd.thumbnailImagesUrls.isNotEmpty
+      ? userAd.thumbnailImagesUrls
       : [userAd.mainImageUrl];
 
   @override
@@ -477,13 +581,13 @@ class _GenericAdAdapter implements FavoriteItemInterface {
   String get price => userAd.price;
 
   @override
-  String get location => userAd.location;
+  String get location => "${userAd.emirate} ${userAd.district} ${userAd.area}";
 
   @override
   String get title => userAd.title;
 
   @override
-  String get date => userAd.createdAt;
+  String get date => userAd.createdAt?.split('T').first ?? '';
 
   @override
   bool get isPremium => userAd.planType != null && userAd.planType!.isNotEmpty;

@@ -96,14 +96,14 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
   }
 
   Future<void> _pickThumbnailImages() async {
-    // الحد الأقصى 14 صورة (يتضمن الصور القديمة والجديدة)
-    const int maxThumbnails = 14;
+    // الحد الأقص صورة (يتضمن الصور القديمة والجديدة)
+    const int maxThumbnails = 19;
     final int currentTotal = _existingThumbnailUrls.length + _thumbnailImageFiles.length;
 
     if (currentTotal >= maxThumbnails) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('لا يمكن إضافة المزيد من الصور. الحد الأقصى $maxThumbnails صور'),
+          content: Text(S.of(context).cannotAddMoreImages(maxThumbnails)),
           backgroundColor: Colors.red,
         ),
       );
@@ -119,8 +119,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         newImages = newImages.take(remainingSlots).toList();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تم اختيار ${newImages.length} صورة فقط. الحد الأقصى $maxThumbnails صورة إجمالية'),
-            backgroundColor: Colors.orange,
+            content: Text(S.of(context).limitedImagesSelected(newImages.length, maxThumbnails)),
+            backgroundColor:Color.fromRGBO(1, 84, 126, 1),
           ),
         );
       }
@@ -208,10 +208,10 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
 
       if (mounted) {
           if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم الحفظ بنجاح'), backgroundColor: Colors.green));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).saveSuccess), backgroundColor: Colors.green));
               context.pop(); // العودة للشاشة السابقة
           } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل الحفظ: ${provider.updateAdError}'), backgroundColor: Colors.red));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).saveFailed(provider.updateAdError ?? '')), backgroundColor: Colors.red));
           }
       }
   }
@@ -233,10 +233,10 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
       body: provider.isLoadingDetails
           ? const Center(child: CircularProgressIndicator())
           : provider.detailsError != null
-              ? Center(child: Text('حدث خطأ أثناء جلب البيانات: ${provider.detailsError}'))
+              ? Center(child: Text(S.of(context).errorFetchingData(provider.detailsError ?? '')))
               : provider.adDetails == null
-                  ? const Center(child: Text('لم يتم العثور على الإعلان.'))
-          : _buildFormUI(provider.adDetails!), // بناء الواجهة بعد جلب البيانات
+                  ? Center(child: Text(S.of(context).adNotFound))
+                  : _buildFormUI(provider.adDetails!), // بناء الواجهة بعد جلب البيانات
     );
   }
   
@@ -338,7 +338,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               _buildImageButton(s.addMainImage, Icons.add_a_photo_outlined, borderColor, onPressed: _pickMainImage),
               const SizedBox(height: 6),
               if (_mainImageFile != null) ...[
-                Text('تم اختيار صورة رئيسية جديدة', style: const TextStyle(color: Colors.green)),
+                Text(S.of(context).newMainImageSelected, style: const TextStyle(color: Colors.green)),
                 const SizedBox(height: 8),
                 Container(
                   height: 100,
@@ -353,8 +353,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
                   ),
                 ),
               ] else if (ad.mainImage.isNotEmpty) ...[
-                Text('الصورة الرئيسية الحالية', style: TextStyle(color: KTextColor, fontSize: 12.sp, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 8),
+                // Text(S.of(context).currentMainImage, style: TextStyle(color: KTextColor, fontSize: 12.sp, fontWeight: FontWeight.w500)),
+                // const SizedBox(height: 8),
                 Container(
                   height: 100,
                   width: 100,
@@ -375,137 +375,101 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               ],
               const SizedBox(height: 10),
               // القسم الخاص بالصور المصغرة
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(s.add14Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
-                  Text(
-                    '${_existingThumbnailUrls.length + _thumbnailImageFiles.length}/14',
-                    style: TextStyle(
-                      color: (_existingThumbnailUrls.length + _thumbnailImageFiles.length) >= 14 ? Colors.red : KTextColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
               SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _existingThumbnailUrls.length + _thumbnailImageFiles.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index < _existingThumbnailUrls.length) {
-                      // صور موجودة مسبقاً (شبكة)
-                      return Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: CachedNetworkImage(
-                                  imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]),
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Container(
-                                    color: Colors.grey[300],
-                                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                                  ),
-                                  errorWidget: (context, url, error) => Container(
-                                    color: Colors.grey[300],
-                                    child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 30)),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () => _removeExistingThumbnail(index),
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (index < _existingThumbnailUrls.length + _thumbnailImageFiles.length) {
-                      // صور جديدة من الجهاز
-                      final imageIndex = index - _existingThumbnailUrls.length;
-                      return Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.file(_thumbnailImageFiles[imageIndex], fit: BoxFit.cover),
-                              ),
-                            ),
-                            Positioned(
-                              top: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: () => _removeThumbnailImage(imageIndex),
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      // زر إضافة
-                      return GestureDetector(
-                        onTap: _pickThumbnailImages,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: borderColor),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add_photo_alternate_outlined, color: KTextColor, size: 24),
-                              const SizedBox(height: 4),
-                              Text('Add', style: TextStyle(color: KTextColor, fontSize: 12.sp)),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.add_photo_alternate_outlined, color: KTextColor),
+                  label: Text(s.add19Images, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 16.sp)),
+                  onPressed: _pickThumbnailImages,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: borderColor),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+                  ),
                 ),
               ),
+              const SizedBox(height: 7),
+              if (_existingThumbnailUrls.isNotEmpty || _thumbnailImageFiles.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 100,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _existingThumbnailUrls.length + _thumbnailImageFiles.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final bool isExisting = index < _existingThumbnailUrls.length;
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Stack(
+                          children: [
+                            if (isExisting)
+                              Builder(builder: (context) {
+                                final url = ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[index]);
+                                final uri = Uri.tryParse(url);
+                                if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                                  return CachedNetworkImage(
+                                    imageUrl: url,
+                                    width: 120,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                    errorWidget: (context, errorUrl, error) {
+                                      return Image.asset(
+                                        'assets/images/salesCar.jpg',
+                                        width: 120,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  );
+                                }
+                                return Image.asset(
+                                  'assets/images/salesCar.jpg',
+                                  width: 120,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                );
+                              })
+                            else
+                              Image.file(
+                                _thumbnailImageFiles[index - _existingThumbnailUrls.length],
+                                width: 120,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (isExisting) {
+                                    _removeExistingThumbnail(index);
+                                  } else {
+                                    _removeThumbnailImage(index - _existingThumbnailUrls.length);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
               const SizedBox(height: 10),
 
               // باقي الواجهة
               Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
               SizedBox(height: 4.h),
               Directionality(
-                textDirection: TextDirection.ltr,
+                textDirection: Directionality.of(context),
                 child: Row(
                   children: [
                     SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
@@ -558,7 +522,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
         child: SingleChildScrollView(
           child: Text('UI Render Error:\n\n$e\n\n$stackTrace',
             style: const TextStyle(color: Colors.red, fontSize: 16),
-            textDirection: TextDirection.ltr,
+            textDirection: Directionality.of(context),
           ),
         ),
       );
@@ -631,8 +595,8 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
                       position: adLocation,
                       infoWindow: InfoWindow(
                         title: ad?.location?.isNotEmpty == true 
-                            ? 'الموقع المحدد' 
-                            : ad?.emirate ?? 'الموقع',
+                            ? S.of(context).location 
+                            : ad?.emirate ?? S.of(context).location,
                         snippet: ad?.location?.isNotEmpty == true 
                             ? ad!.location 
                             : ad?.area ?? '',
@@ -733,7 +697,7 @@ class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
                 padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
                 child: Align(
                     alignment: Alignment.bottomRight,
-                    child: Text('${widget.controller.text.length}/${widget.maxLength}', style: const TextStyle(color: Colors.grey, fontSize: 12), textDirection: TextDirection.ltr)),
+                    child: Text('${widget.controller.text.length}/${widget.maxLength}', style: const TextStyle(color: Colors.grey, fontSize: 12), textDirection: Directionality.of(context))),
               )
             ],
           ),

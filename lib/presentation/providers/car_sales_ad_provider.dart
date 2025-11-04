@@ -857,6 +857,11 @@ class CarAdProvider with ChangeNotifier {
         'plan_expires_at': adData['plan_expires_at'] ?? adData['planExpiresAt'],
       };
 
+      // Include payment only if explicitly set by payment step
+      if (adData['payment'] != null) {
+        textData['payment'] = adData['payment'].toString();
+      }
+
       final File? mainImage = adData['mainImage'] as File?;
       final List<File>? thumbnailImages = adData['thumbnailImages'] as List<File>?;
 
@@ -948,9 +953,9 @@ class CarAdProvider with ChangeNotifier {
   }
 
   String getSearchValidationMessage(S s) {
-    if (_selectedMake == null) return "Please select make.";
+    if (_selectedMake == null) return s.please_select_make;
     if (_selectedMake!.id > 0 && _models.isNotEmpty && _selectedModel == null)
-      return "please_select_model";
+      return s.please_select_model;
     return ""; // No error
   }
 

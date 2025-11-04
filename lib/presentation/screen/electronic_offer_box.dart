@@ -3,6 +3,9 @@ import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/providers/electronics_ad_provider.dart';
 import 'package:advertising_app/presentation/providers/electronics_info_provider.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,7 +27,7 @@ class ElectronicOfferBox extends StatefulWidget {
   State<ElectronicOfferBox> createState() => _ElectronicOfferBoxState();
 }
 
-class _ElectronicOfferBoxState extends State<ElectronicOfferBox> {
+class _ElectronicOfferBoxState extends State<ElectronicOfferBox> with FavoritesHelper<ElectronicOfferBox> {
   String? _priceFrom, _priceTo;
   List<String> _selectedSections = [];
   List<String> _selectedProducts = [];
@@ -42,6 +45,7 @@ class _ElectronicOfferBoxState extends State<ElectronicOfferBox> {
           .fetchAllData(token: token, includeContactInfo: token != null);
       context.read<ElectronicsAdProvider>().fetchOfferAds();
     });
+    loadFavoriteIds();
   }
 
   // Function to apply filters and refetch data
@@ -307,8 +311,11 @@ class _ElectronicOfferBoxState extends State<ElectronicOfferBox> {
                                         Positioned(
                                             top: 8,
                                             right: 8,
-                                            child: Icon(Icons.favorite_border,
-                                                color: Colors.grey.shade300)),
+                                            child: buildFavoriteIcon(
+                                              ad,
+                                              onAddToFavorite: () {},
+                                              onRemoveFromFavorite: null,
+                                            )),
                                       ]),
                                       Expanded(
                                         child: Padding(

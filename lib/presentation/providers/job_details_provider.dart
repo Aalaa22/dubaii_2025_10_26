@@ -48,4 +48,33 @@ class JobDetailsProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> updateAdDetails(int adId, Map<String, dynamic> data) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      String? token = await _storage.read(key: 'auth_token');
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+      debugPrint('=== JobDetailsProvider.updateAdDetails ===');
+      debugPrint('Ad ID: $adId');
+      debugPrint('Token prefix: ${token.substring(0, token.length > 12 ? 12 : token.length)}...');
+      debugPrint('Update payload keys: ${data.keys.toList()}');
+      debugPrint('salary=${data['salary']}, description=${data['description']}, contact_info=${data['contact_info']}');
+      await _repository.updateJobAd(adId, data, token);
+      // After updating, you might want to refetch the ad details
+      // to ensure the UI is displaying the most up-to-date information.
+      await fetchAdDetails(adId);
+    } catch (e) {
+      _error = e.toString();
+      debugPrint('=== JobDetailsProvider.updateAdDetails ERROR ===');
+      debugPrint(_error ?? 'Unknown error');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

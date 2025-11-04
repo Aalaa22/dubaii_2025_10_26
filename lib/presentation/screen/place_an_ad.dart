@@ -33,7 +33,6 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
   void initState() {
     super.initState();
     _loadSettings();
-    
     // طباعة البيانات المستلمة في Console
     if (widget.adData != null) {
       print('=== البيانات المستلمة في صفحة اختيار الخطة ===');
@@ -82,7 +81,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
                 ),
                 SizedBox(width: 8.w),
                 Text(
-                  isArabic ? 'تنبيه' : 'Warning',
+                  S.of(context).warning,
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
@@ -92,9 +91,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
               ],
             ),
             content: Text(
-              isArabic
-                  ? 'الإعلان المجاني متاح فقط للسيارات بسعر أقل من ${maxFreePrice.toStringAsFixed(0)} درهم. يرجى اختيار خطة أخرى.'
-                  : 'Free ads are only available for cars priced under ${maxFreePrice.toStringAsFixed(0)} AED. Please choose another plan.',
+              S.of(context).freeAdNotEligibleMessage(maxFreePrice.toStringAsFixed(0)),
               style: TextStyle(
                 fontSize: 16.sp,
                 color: Colors.grey[700],
@@ -113,7 +110,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                   child: Text(
-                    isArabic ? 'حسناً' : 'OK',
+                    S.of(context).ok,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
@@ -131,7 +128,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
 
   Future<void> _submitAdWithType() async {
     if (widget.adData == null || widget.adData!['adType'] == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('بيانات الإعلان غير كاملة'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).adDataIncomplete), backgroundColor: Colors.red));
       return;
     }
 
@@ -168,25 +165,15 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
         success = await provider.submitCarServiceAd(widget.adData!);
         submissionError = provider.error;
       } else if (adType == 'car_rent') {
-        print('=== Submitting Car Rent Ad ===');
-        print('Ad Data before submission: ${widget.adData}');
-        print('Plan Type: ${widget.adData!['planType']}');
-        print('Plan Days: ${widget.adData!['planDays']}');
-        print('Plan Expires At: ${widget.adData!['planExpiresAt']}');
-        
         final provider = context.read<CarRentAdProvider>();
         success = await provider.submitCarRentAd(widget.adData!);
         submissionError = provider.createAdError;
-        
-        print('Submission result: $success');
-        print('Submission error: $submissionError');
-        print('=== Car Rent Ad Submission Complete ===');
       } else if (adType == 'restaurant') {
         final provider = context.read<RestaurantsAdProvider>();
         success = await provider.submitRestaurantAd(widget.adData!);
         submissionError = provider.error;
       } else if (adType == 'real_estate') {
-        print('=== Submitting Real Estate Ad ===');
+         print('=== Submitting Real Estate Ad ===');
         print('Ad Data before submission: ${widget.adData}');
         print('Plan Type: ${widget.adData!['planType']}');
         print('Plan Days: ${widget.adData!['planDays']}');
@@ -195,7 +182,6 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
         final provider = context.read<RealEstateAdProvider>();
         success = await provider.submitRealEstateAd(widget.adData!);
         submissionError = provider.error;
-        
         print('Submission result: $success');
         print('Submission error: $submissionError');
         print('=== Real Estate Ad Submission Complete ===');
@@ -217,25 +203,35 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
 
       if (success) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم نشر الإعلان بنجاح!'), backgroundColor: Colors.green));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).adPublishedSuccessfully), backgroundColor: Colors.green));
           context.go('/home'); // أو العودة للصفحة الرئيسية
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(submissionError ?? 'فشل في نشر الإعلان'), backgroundColor: Colors.red));
+          // عرض الرسالة للمستخدم بدون استثناء ثم التوجه لصفحة الدفع مع تفاصيل الإعلان
+          final String message = submissionError ?? S.of(context).planExpiredOrInactivePleasePay;
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(content: Text(message), backgroundColor: Colors.orange),
+          // );
+
+          context.push('/payment', extra: {
+            'adData': widget.adData!,
+            'amount': selectedAdOption.price,
+            'apiMessage': message,
+          });
         }
       }
 
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).errorOccurredWithMessage(e.toString())), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
         setState(() { _isSubmitting = false; });
       }
     }
-}
+  }
 
 
 

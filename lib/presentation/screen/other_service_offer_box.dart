@@ -6,6 +6,9 @@ import 'package:advertising_app/presentation/providers/other_services_ad_provide
 import 'package:advertising_app/presentation/providers/other_services_info_provider.dart';
 import 'package:advertising_app/data/model/other_service_ad_model.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -28,7 +31,7 @@ class OtherServiceOfferBox extends StatefulWidget {
   State<OtherServiceOfferBox> createState() => _OtherServiceOfferBoxState();
 }
 
-class _OtherServiceOfferBoxState extends State<OtherServiceOfferBox> {
+class _OtherServiceOfferBoxState extends State<OtherServiceOfferBox> with FavoritesHelper<OtherServiceOfferBox> {
   String? _priceFrom, _priceTo;
   List<String> _selectedSections = [];
   List<String> _selectedServices = [];
@@ -42,6 +45,8 @@ class _OtherServiceOfferBoxState extends State<OtherServiceOfferBox> {
       context.read<OtherServicesInfoProvider>().fetchAllData();
       context.read<OtherServicesAdProvider>().fetchOfferAds();
     });
+    // تحميل معرفات الإعلانات المفضلة لعرض حالة القلب بشكل صحيح
+    loadFavoriteIds();
   }
 
   // Function to apply filters and refetch data
@@ -172,7 +177,15 @@ class _OtherServiceOfferBoxState extends State<OtherServiceOfferBox> {
                                             errorWidget: (c, u, e) => Image.asset('assets/images/placeholder.png', fit: BoxFit.cover),
                                           ),
                                         ),
-                                        Positioned(top: 8, right: 8, child: Icon(Icons.favorite_border, color: Colors.grey.shade300)),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: buildFavoriteIcon(
+                                            ad,
+                                            onAddToFavorite: () {},
+                                            onRemoveFromFavorite: null,
+                                          ),
+                                        ),
                                       ]),
                                       Expanded(
                                         child: Padding(

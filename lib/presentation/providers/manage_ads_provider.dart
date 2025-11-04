@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:advertising_app/data/model/my_ad_model.dart';
 import 'package:advertising_app/data/repository/manage_ads_repository.dart';
+import 'package:advertising_app/data/repository/jobs_repository.dart';
+import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -13,6 +15,13 @@ class MyAdsProvider with ChangeNotifier {
 
   // التخزين الآمن مثل JobAdProvider لضمان نفس المصدر
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  // مستودع الوظائف لجلب صور فئات الوظائف
+  final JobsRepository _jobsRepository = JobsRepository(ApiService());
+
+  // خريطة صور الفئات (job_offer, job_seeker)
+  Map<String, String> _jobCategoryImages = {};
+  Map<String, String> get jobCategoryImages => _jobCategoryImages;
 
   // --- حالات Provider ---
   bool _isLoading = false;
@@ -49,6 +58,14 @@ class MyAdsProvider with ChangeNotifier {
         throw Exception('User is not authenticated.');
       }
       
+      // جلب صور فئات الوظائف مرة واحدة لاستخدامها في شاشة الإدارة
+      try {
+        _jobCategoryImages = await _jobsRepository.getJobCategoryImages(token: token);
+      } catch (e) {
+        // إذا فشل الجلب، دع الخريطة فارغة وسيتم استخدام صورة الإعلان الافتراضية
+        _jobCategoryImages = {};
+      }
+
       // Pass token to repository to avoid 401 Unauthorized
       final response = await _myAdsRepository.getMyAds(token: token);
       _allAds = response.ads;
@@ -195,10 +212,27 @@ class MyAdsProvider with ChangeNotifier {
         _activationError = 'Authentication token not found. Please login again.';
         return false;
       }
+
+      // تطبيع قيمة الـ slug لإزالة الالتباس بين الشرطات والشرطات السفلية وحالات الأحرف
+      String _normalizeCategorySlug(String slug) {
+        final s = slug.toLowerCase().trim();
+        if (s.contains('car-sales') || s.contains('car_sales')) return 'car_sales';
+        if (s.contains('car-rent') || s.contains('car_rent')) return 'car_rent';
+        // استخدم الشرطة الوسطى للفئة "خدمات السيارات" وفق ما تستخدمه واجهات العروض
+        if (s.contains('car-services') || s.contains('car_services')) return 'car_services';
+        if (s.contains('restaurant')) return 'restaurant';
+        if (s.contains('real-estate') || s.contains('real_estate')) return 'real-estate';
+        if (s.contains('electronics') || s.contains('electronic')) return 'electronics';
+        // Jobs category: backend expects singular 'job' for activation
+        if (s.contains('jobs') || s.contains('job') || s.contains('jop')) return 'Jobs';
+        if (s.contains('other-services') || s.contains('other_services')) return 'other_services';
+        return s;
+      }
+      final normalizedSlug = _normalizeCategorySlug(categorySlug);
       
       print('=== ACTIVATING OFFER DEBUG ===');
       print('Ad ID: $adId');
-      print('Category Slug: $categorySlug');
+      print('Category Slug: $normalizedSlug');
       print('Days: $days');
       print('Token: ${token.substring(0, 20)}...');
       print('=============================');
@@ -206,7 +240,7 @@ class MyAdsProvider with ChangeNotifier {
       await _myAdsRepository.activateOffer(
         token: token,
         adId: adId,
-        categorySlug: categorySlug,
+        categorySlug: normalizedSlug,
         days: days,
       );
       
@@ -221,17 +255,19 @@ class MyAdsProvider with ChangeNotifier {
     } catch (e) {
       // معالجة أفضل لرسائل الخطأ
       String errorMessage = e.toString();
+      final lower = errorMessage.toLowerCase();
       
       // إذا كان الخطأ يحتوي على معلومات عن category_slug غير صحيح
-      if (errorMessage.contains('category_slug') || errorMessage.contains('invalid')) {
+      if (lower.contains('category_slug') || lower.contains('invalid')) {
         _activationError = 'فئة الإعلان غير صحيحة. يرجى المحاولة مرة أخرى.';
-      } else if (errorMessage.contains('full') || errorMessage.contains('max')) {
+      } else if (lower.contains('full') || lower.contains('max')) {
         _activationError = 'صندوق العروض ممتلئ حالياً. يرجى المحاولة لاحقاً.';
-      } else if (errorMessage.contains('already')) {
-        _activationError = 'هذا الإعلان موجود بالفعل في صندوق العروض.';
-      } else if (errorMessage.contains('Unauthorized') || errorMessage.contains('403')) {
+      } else if (lower.contains('already')) {
+        // رسالة عربية + إنجليزية كما طلب المستخدم
+        _activationError = 'هذا الإعلان موجود بالفعل في صندوق العروض.\nThis ad is already in the Offers Box.';
+      } else if (lower.contains('unauthorized') || lower.contains('403')) {
         _activationError = 'ليس لديك صلاحية لتفعيل هذا الإعلان.';
-      } else if (errorMessage.contains('not found') || errorMessage.contains('404')) {
+      } else if (lower.contains('not found') || lower.contains('404')) {
         _activationError = 'الإعلان غير موجود.';
       } else {
         _activationError = 'حدث خطأ أثناء تفعيل الإعلان. يرجى المحاولة مرة أخرى.';
@@ -267,6 +303,49 @@ class MyAdsProvider with ChangeNotifier {
       _allAds.removeWhere((a) => a.id == ad.id);
       _filteredAds.removeWhere((a) => a.id == ad.id);
       safeNotifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      safeNotifyListeners();
+      return false;
+    }
+  }
+
+  // تنفيذ طلب "make-rank-one" لجعل إعلان المستخدم في المرتبة الأولى
+  Future<bool> makeRankOne({required MyAdModel ad}) async {
+    try {
+      final token = await _storage.read(key: 'auth_token');
+      if (token == null) {
+        _error = 'Authentication token not found. Please login again.';
+        safeNotifyListeners();
+        return false;
+      }
+
+      // تطبيع اسم الفئة ليتوافق مع قيم الباك إند المطلوبة
+      String _normalizeCategory(String category, String slug) {
+        final c = category.toLowerCase().trim();
+        final s = slug.toLowerCase().trim();
+        if (c.contains('car') && c.contains('rent')) return 'Car Rent';
+        if (c.contains('car') && (c.contains('sale') || c.contains('sales'))) return 'Cars Sales';
+        if (c.contains('car') && c.contains('service')) return 'Car Services';
+        if (c.contains('electronics') || s.contains('electronic')) return 'Electronics';
+        if (c.contains('other') && c.contains('service')) return 'Other Services';
+        if (c.contains('restaurant') || s.contains('restaurant')) return 'restaurant';
+        if (c.contains('job') || c.contains('jop') || s.contains('job')) return 'Jop';
+        if (c.contains('real') && (c.contains('estate') || c.contains('state') || s.contains('real'))) return 'Real State';
+        return category; // افتراضيًا أرسل القيمة كما هي
+      }
+
+      final normalizedCategory = _normalizeCategory(ad.category, ad.categorySlug);
+
+      await _myAdsRepository.makeRankOne(
+        token: token,
+        category: normalizedCategory,
+        adId: ad.id,
+      );
+
+      // إعادة تحميل قائمة الإعلانات لتحديث الحالة بعد النجاح
+      await fetchMyAds();
       return true;
     } catch (e) {
       _error = e.toString();

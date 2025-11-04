@@ -15,6 +15,8 @@ class CarRentAdModel {
   final String advertiserName;
   final String emirate;
   final String? location;
+  final double? latitude;
+  final double? longitude;
   final String? mainImage;
   final List<String> thumbnailImages;
   final String? planType;
@@ -57,6 +59,8 @@ class CarRentAdModel {
     required this.advertiserName,
     required this.emirate,
     this.location,
+    this.latitude,
+    this.longitude,
     this.mainImage,
     required this.thumbnailImages,
     this.planType,
@@ -104,6 +108,8 @@ class CarRentAdModel {
         advertiserName: json['advertiser_name']?.toString() ?? 'N/A',
         emirate: json['emirate']?.toString() ?? '',
         location: json['location']?.toString(),
+        latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
+        longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
         mainImage: json['main_image_url']?.toString() ?? json['main_image']?.toString(),
         thumbnailImages: thumbs,
         planType: json['plan_type']?.toString(),

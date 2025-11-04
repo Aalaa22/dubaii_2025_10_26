@@ -382,13 +382,13 @@ class _CarServiceDetailsState extends State<CarServiceDetails> with FavoritesHel
                           trimLines: 5,
                           colorClickableText: Color.fromARGB(255, 9, 37, 108),
                           trimMode: TrimMode.Line,
-                          trimCollapsedText: 'Read more',
+                          trimCollapsedText: S.of(context).read_more,
                           lessStyle: TextStyle(
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: Color.fromARGB(255, 9, 37, 108),
                           ),
-                          trimExpandedText: '  Show less',
+                          trimExpandedText: '  ${S.of(context).show_less}',
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,

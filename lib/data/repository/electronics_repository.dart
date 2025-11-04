@@ -64,7 +64,7 @@ class ElectronicsRepository {
   }
 
   // دالة لإنشاء إعلان إلكترونيات جديد
- Future<void> createElectronicsAd({required String token, required Map<String, dynamic> adData}) async {
+ Future<dynamic> createElectronicsAd({required String token, required Map<String, dynamic> adData}) async {
      final Map<String, dynamic> textData = {
         'title': adData['title'],
         'description': adData['description'],
@@ -83,13 +83,19 @@ class ElectronicsRepository {
         'plan_expires_at': adData['planExpiresAt'],
      };
 
-     await _apiService.postFormData(
+     // Include payment only when provided by payment step
+     if (adData['payment'] != null) {
+       textData['payment'] = adData['payment'].toString();
+     }
+
+     final response = await _apiService.postFormData(
        '/api/electronics',
        data: textData,
        mainImage: adData['mainImage'] as File,
        thumbnailImages: adData['thumbnailImages'] as List<File>,
        token: token,
      );
+     return response;
   }
 
   Future<ElectronicAdResponse> getElectronicAds({ Map<String, dynamic>? query}) async {

@@ -10,6 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:advertising_app/presentation/widget/custom_text_field.dart';
+import 'package:advertising_app/presentation/widget/legal_text_view.dart';
+import 'package:advertising_app/utils/phone_number_formatter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreen extends StatefulWidget {
   final LocaleChangeNotifier notifier;
@@ -108,6 +111,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: iconSize * 0.6,
                         ),
                         title: S.of(context).createAgentCode,
+                        ontap: _showUserIdDialog,
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       _buildNotificationSwitch(
@@ -172,6 +176,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: iconSize,
                         ),
                         title: S.of(context).termsAndConditions,
+                        ontap: () => LegalTextView.show(context, LegalContentType.terms),
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       _buildTile(
@@ -181,6 +186,7 @@ class _SettingScreenState extends State<SettingScreen> {
                         iconSize: iconSize,
                         icon: Icons.lock_outline,
                         title: S.of(context).privacySecurity,
+                        ontap: () => LegalTextView.show(context, LegalContentType.privacy),
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       _buildTile(
@@ -194,6 +200,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           height: iconSize,
                         ),
                         title: S.of(context).contactUs,
+                        ontap: _openWhatsAppSupport,
                       ),
                       SizedBox(height: 7 * scaleFactor),
                       Container(
@@ -262,6 +269,99 @@ class _SettingScreenState extends State<SettingScreen> {
         );
       },
     );
+  }
+
+  Future<void> _showUserIdDialog() async {
+    int? userId;
+    try {
+      final authProvider = context.read<AuthProvider>();
+      userId = authProvider.user?.id ?? authProvider.userId;
+      if (userId == null) {
+        final idStr = await _storage.read(key: 'user_id');
+        userId = int.tryParse(idStr ?? '');
+      }
+    } catch (_) {
+      // ignore and show dialog with placeholder
+    }
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 0, maxHeight: 80, maxWidth: 260),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Center(
+                    child: Text(
+                      userId != null ? '$userId' : '—',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF001E5B),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openWhatsAppSupport() async {
+    // 1) جلب رقم الدعم من الـ API
+    String? supportNumber;
+    try {
+      final response = await _apiService.get('/api/support/number');
+      if (response is Map<String, dynamic> && response['success'] == true) {
+        final String? apiNumber = response['support_number'] as String?;
+        if (apiNumber != null && apiNumber.isNotEmpty) {
+          supportNumber = apiNumber;
+        }
+      }
+    } catch (e) {
+      // تجاهل الخطأ وسيتم استخدام رقم افتراضي أدناه
+    }
+
+    // 2) رقم افتراضي في حال فشل الجلب
+    supportNumber ??= '+971508236561';
+
+    // 3) إنشاء رابط واتساب وفتحه
+    try {
+      final url = PhoneNumberFormatter.getWhatsAppUrl(supportNumber);
+      final uri = Uri.parse(url);
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).couldNotLaunch(url))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.of(context).couldNotLaunch('WhatsApp'))),
+        );
+      }
+    }
   }
 
   Widget _buildInvisibleSwitch(BuildContext context, double screenWidth,
@@ -482,8 +582,8 @@ class _SettingScreenState extends State<SettingScreen> {
   Future<void> _setPassword() async {
     if (_passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى ملء جميع الحقول'),
+         SnackBar(
+          content: Text(S.of(context).please_select_all_fields),
           backgroundColor: Colors.red,
         ),
       );
@@ -492,8 +592,8 @@ class _SettingScreenState extends State<SettingScreen> {
 
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('كلمات المرور غير متطابقة'),
+        SnackBar(
+          content: Text(S.of(context).passwordsDoNotMatch),
           backgroundColor: Colors.red,
         ),
       );
@@ -532,11 +632,13 @@ class _SettingScreenState extends State<SettingScreen> {
 
       // Success - Update user_type in cache to advertiser
       await _storage.write(key: 'user_type', value: 'advertiser');
+      // Ensure global auth state reflects the new advertiser role immediately
+      await context.read<AuthProvider>().checkStoredSession();
       
       Navigator.of(context).pop(); // Close dialog
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم تعيين كلمة المرور بنجاح وتم ترقية حسابك إلى معلن'),
+         SnackBar(
+          content: Text(S.of(context).passwordSetSuccessUpgraded),
           backgroundColor: Colors.green,
         ),
       );
@@ -553,7 +655,7 @@ class _SettingScreenState extends State<SettingScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تعيين كلمة المرور: ${e.toString()}'),
+          content: Text(S.of(context).errorSettingPassword +'${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -574,8 +676,8 @@ class _SettingScreenState extends State<SettingScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              title: const Text(
-                'Secure Your Account',
+              title: Text(
+                S.of(context).searchCountry,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -587,9 +689,8 @@ class _SettingScreenState extends State<SettingScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Before accessing your profile, please set a password to upgrade to an Advertiser account.',
-                      style: TextStyle(
+                     Text(
+                      S.of(context).setPasswordToUpgradeDescription, style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF666666),
                         height: 1.4,
@@ -601,7 +702,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     // Password field
                     CustomTextField(
                       controller: _passwordController,
-                      hintText: 'Enter Password',
+                      hintText:  S.of(context).enterpassword,
                       isPassword: true,
                       prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1B365D)),
                     ),
@@ -610,7 +711,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     // Confirm Password field
                     CustomTextField(
                       controller: _confirmPasswordController,
-                      hintText: 'Confirm Password',
+                      hintText:  S.of(context).confirmpass,
                       isPassword: true,
                       prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1B365D)),
                     ),
@@ -636,8 +737,8 @@ class _SettingScreenState extends State<SettingScreen> {
                             //side: const BorderSide(color: Color(0xFF1B365D)),
                           ),
                         ),
-                        child: const Text(
-                          'Cancel',
+                        child:  Text(
+                           S.of(context).cancel,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -666,8 +767,8 @@ class _SettingScreenState extends State<SettingScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text(
-                                'Set Password',
+                            : Text(
+                                 S.of(context).setPassword,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,

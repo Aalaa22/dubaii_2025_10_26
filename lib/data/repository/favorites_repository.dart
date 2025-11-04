@@ -204,31 +204,120 @@ class FavoritesRepository {
     required int userId,
   }) async {
     try {
-      // Normalize category slug to API format
+      // Normalize category slug to API format (underscored by default)
       final normalizedCategorySlug = CategoryMapper.toApiFormat(categorySlug);
-      
-      final data = {
-        'ad_id': adId,
-        'category_slug': categorySlug, // Keep original category slug
-        'user_id': userId,
-      };
-      
-      print('🔵 Adding to favorites with data: $data');
-      print('🔵 Original category slug: "$categorySlug"');
-      print('🔵 Normalized category slug being sent: "$normalizedCategorySlug"');
-      
-      final response = await _apiService.post(
-        '/api/favorites',
-        data: data,
+
+      // Build a list of candidate slugs to maximize server compatibility
+      final candidates = _buildFavoriteSlugCandidates(
+        normalizedCategorySlug,
+        original: categorySlug,
       );
-      
-      print('🟢 Add to favorites response: $response');
-      
-      return response as Map<String, dynamic>;
+
+      print('🔵 Original category slug: "$categorySlug"');
+      print('🔵 Normalized category slug: "$normalizedCategorySlug"');
+      print('🔵 Candidate slugs to try: $candidates');
+
+      dynamic lastError;
+      for (final candidate in candidates) {
+        final data = {
+          'ad_id': adId,
+          'category_slug': candidate,
+          'user_id': userId,
+        };
+
+        try {
+          print('🔵 Attempting to add favorite with slug: "$candidate" and data: $data');
+          final response = await _apiService.post(
+            '/api/favorites',
+            data: data,
+          );
+          print('🟢 Add to favorites succeeded with slug "$candidate": $response');
+          return response as Map<String, dynamic>;
+        } catch (e) {
+          // Keep trying with next candidate on known slug errors
+          print('🟠 Attempt with slug "$candidate" failed: $e');
+          lastError = e;
+          continue;
+        }
+      }
+
+      // If all attempts failed, surface the last error
+      print('🔴 All attempts to add favorite failed. Last error: $lastError');
+      throw Exception('Failed to add to favorites: $lastError');
     } catch (e) {
       print('🔴 Error adding to favorites: $e');
       throw Exception('Failed to add to favorites: $e');
     }
+  }
+
+  /// Build robust candidate slugs covering underscore, hyphen, and common synonyms
+  List<String> _buildFavoriteSlugCandidates(String normalized, {required String original}) {
+    final slug = (normalized).trim().toLowerCase();
+    final orig = (original).trim().toLowerCase();
+
+    final set = <String>{};
+    // Start with normalized value first
+    if (slug.isNotEmpty) set.add(slug);
+    // Add original if different
+    if (orig.isNotEmpty) set.add(orig);
+
+    // Hyphenated variant
+    final hyphen = slug.replaceAll('_', '-');
+    if (hyphen.isNotEmpty) set.add(hyphen);
+
+    // Display-format variant (API sometimes uses display names like "Cars Sales")
+    final display = CategoryMapper.toDisplayFormat(slug);
+    if (display.isNotEmpty) {
+      set.add(display);
+      set.add(display.toLowerCase());
+    }
+    // Space-separated lowercase as another variant (e.g., "car sales")
+    final spacedLower = slug.replaceAll('_', ' ');
+    if (spacedLower.isNotEmpty) set.add(spacedLower);
+
+    switch (slug) {
+      case 'car_sales':
+      case 'carsales':
+        set.addAll({'cars', 'car-sales', 'carsales', 'car_sales', 'Cars Sales', 'car sales'});
+        break;
+      case 'jobs':
+      case 'jop':
+        set.addAll({'job', 'jobs', 'Jobs', 'Jop'});
+        break;
+      case 'car_services':
+        set.addAll({'car-services', 'car_services', 'Car Services', 'car services'});
+        break;
+      case 'real_estate':
+        set.addAll({'real-estate', 'real_estate', 'Real State', 'real state'});
+        break;
+      case 'car_rent':
+        set.addAll({'car-rent', 'car_rent', 'Car Rent', 'car rent'});
+        break;
+      case 'other_services':
+        set.addAll({'other-services', 'other_services', 'Other Services', 'other services'});
+        break;
+      case 'restaurant':
+        set.addAll({'restaurant', 'Restaurant'});
+        break;
+      default:
+        // Also try original hyphen variant
+        set.add(orig.replaceAll('_', '-'));
+        break;
+    }
+
+    // Preserve order: normalized -> original -> hyphen -> extras
+    final ordered = <String>[];
+    void addOrdered(String s) {
+      if (s.isEmpty) return;
+      if (!ordered.contains(s)) ordered.add(s);
+    }
+    addOrdered(slug);
+    addOrdered(orig);
+    addOrdered(hyphen);
+    for (final s in set) {
+      addOrdered(s);
+    }
+    return ordered;
   }
 
   /// Remove an item from favorites
@@ -246,6 +335,31 @@ class FavoritesRepository {
       return response as Map<String, dynamic>;
     } catch (e) {
       throw Exception('Failed to remove from favorites: $e');
+    }
+  }
+
+  /// Remove a favorite using DELETE /api/favorites/{userId} with ad_id and category_slug in body
+  Future<Map<String, dynamic>> removeFromFavoritesByUser({
+    required int userId,
+    required int adId,
+    required String categorySlug,
+    String? token,
+  }) async {
+    try {
+      final payload = {
+        'ad_id': adId,
+        'category_slug': categorySlug,
+      };
+      final response = await _apiService.delete(
+        '/api/favorites/$userId',
+        data: payload,
+        token: token,
+      );
+      return (response is Map<String, dynamic>)
+          ? response
+          : {'success': true, 'data': response};
+    } catch (e) {
+      throw Exception('Failed to remove favorite via user endpoint: $e');
     }
   }
 }

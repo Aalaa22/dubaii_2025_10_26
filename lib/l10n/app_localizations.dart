@@ -488,6 +488,18 @@ abstract class AppLocalizations {
   /// **'Favorites'**
   String get favorites;
 
+  /// No description provided for @incompleteProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete profile'**
+  String get incompleteProfile;
+
+  /// No description provided for @profileWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You must complete the following fields in your profile before adding the advertisement:'**
+  String get profileWarning;
+
   /// No description provided for @carsales.
   ///
   /// In en, this message translates to:
@@ -535,6 +547,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other Services'**
   String get otherservices;
+
+  /// No description provided for @enjoyFreeAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy Free Ads'**
+  String get enjoyFreeAds;
+
+  /// No description provided for @enterpassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Your Password'**
+  String get enterpassword;
+
+  /// No description provided for @pleaseEnterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get pleaseEnterPassword;
+
+  /// No description provided for @passwordRequiredToCompleteLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter password to complete login'**
+  String get passwordRequiredToCompleteLogin;
+
+  /// No description provided for @loginError.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during login'**
+  String get loginError;
+
+  /// No description provided for @unexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error: {error}'**
+  String unexpectedError(Object error);
+
+  /// No description provided for @loggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in...'**
+  String get loggingIn;
+
+  /// No description provided for @byContinueIAgreeTo.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing I agree to the'**
+  String get byContinueIAgreeTo;
+
+  /// No description provided for @and.
+  ///
+  /// In en, this message translates to:
+  /// **'and'**
+  String get and;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @passwordResetComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset will be available soon'**
+  String get passwordResetComingSoon;
 
   /// No description provided for @home.
   ///
@@ -769,6 +847,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contact us To Use This Space For Your Ads'**
   String get use_this_space_for_ads;
+
+  /// No description provided for @adNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad not found.'**
+  String get adNotFound;
+
+  /// No description provided for @errorFetchingData.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while fetching data: {error}'**
+  String errorFetchingData(Object error);
+
+  /// No description provided for @newMainImageSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'New main image selected'**
+  String get newMainImageSelected;
+
+  /// No description provided for @currentMainImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Current main image'**
+  String get currentMainImage;
+
+  /// No description provided for @saveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved successfully'**
+  String get saveSuccess;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String saveFailed(Object error);
+
+  /// No description provided for @noAdIdForUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'No ad ID to update'**
+  String get noAdIdForUpdate;
+
+  /// No description provided for @noChangesToSave.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes to save'**
+  String get noChangesToSave;
+
+  /// No description provided for @cannotAddMoreImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot add more images. Maximum is {max} images'**
+  String cannotAddMoreImages(Object max);
+
+  /// No description provided for @limitedImagesSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {count} images selected. Maximum {max} images total'**
+  String limitedImagesSelected(Object count, Object max);
+
+  /// No description provided for @rankAdInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranking the ad...'**
+  String get rankAdInProgress;
+
+  /// No description provided for @rankAdSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad ranked successfully'**
+  String get rankAdSuccess;
+
+  /// No description provided for @rankAdFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to rank the ad'**
+  String get rankAdFailed;
+
+  /// No description provided for @userId.
+  ///
+  /// In en, this message translates to:
+  /// **'User Id'**
+  String get userId;
 
   /// No description provided for @priority_first_premium.
   ///
@@ -1238,11 +1400,11 @@ abstract class AppLocalizations {
   /// **'Add Main Image'**
   String get addMainImage;
 
-  /// No description provided for @add14Images.
+  /// No description provided for @add19Images.
   ///
   /// In en, this message translates to:
   /// **'Add 19 Images'**
-  String get add14Images;
+  String get add19Images;
 
   /// No description provided for @next.
   ///
@@ -1709,8 +1871,14 @@ abstract class AppLocalizations {
   /// No description provided for @please_select_make.
   ///
   /// In en, this message translates to:
-  /// **'please_select_make'**
+  /// **'Please select make'**
   String get please_select_make;
+
+  /// No description provided for @please_select_model.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select model'**
+  String get please_select_model;
 
   /// No description provided for @please_fill_required_fields.
   ///
@@ -1729,6 +1897,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm Location'**
   String get confirmLocation;
+
+  /// No description provided for @pickLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick Location'**
+  String get pickLocation;
+
+  /// No description provided for @enterArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Area'**
+  String get enterArea;
+
+  /// No description provided for @areaName.
+  ///
+  /// In en, this message translates to:
+  /// **'Area Name'**
+  String get areaName;
+
+  /// No description provided for @enterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter name'**
+  String get enterName;
+
+  /// No description provided for @enterServiceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter service name'**
+  String get enterServiceName;
+
+  /// No description provided for @enterProductName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter product name'**
+  String get enterProductName;
+
+  /// No description provided for @enterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your title'**
+  String get enterTitle;
+
+  /// No description provided for @enterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your description'**
+  String get enterDescription;
+
+  /// No description provided for @totalPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Total price'**
+  String get totalPrice;
+
+  /// No description provided for @enterContactInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone or WhatsApp or email'**
+  String get enterContactInfo;
+
+  /// No description provided for @please_select_all_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select all fields'**
+  String get please_select_all_fields;
+
+  /// No description provided for @please_select_emirate_and_section_type_first.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select emirate and section type first'**
+  String get please_select_emirate_and_section_type_first;
+
+  /// No description provided for @please_select_emirate_and_category_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select emirate and category type'**
+  String get please_select_emirate_and_category_type;
+
+  /// No description provided for @please_select_service_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a service type'**
+  String get please_select_service_type;
+
+  /// No description provided for @please_select_section_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select section type'**
+  String get please_select_section_type;
+
+  /// No description provided for @secureYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Your Account'**
+  String get secureYourAccount;
+
+  /// No description provided for @setPasswordToUpgradeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Before upgrading to an Advertiser account, please set a password to safeguard your account and confirm the update.'**
+  String get setPasswordToUpgradeDescription;
+
+  /// No description provided for @setPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Password'**
+  String get setPassword;
+
+  /// No description provided for @passwordSetSuccessUpgraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Password set successfully and your account upgraded to advertiser'**
+  String get passwordSetSuccessUpgraded;
+
+  /// No description provided for @errorSettingPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Error setting password'**
+  String get errorSettingPassword;
+
+  /// No description provided for @warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
+  /// No description provided for @freeAdNotEligibleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Free ads are only available for cars priced under {price} AED. Please choose another plan.'**
+  String freeAdNotEligibleMessage(Object price);
+
+  /// No description provided for @adDataIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad data is incomplete'**
+  String get adDataIncomplete;
+
+  /// No description provided for @adPublishedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad posted successfully!'**
+  String get adPublishedSuccessfully;
+
+  /// No description provided for @planExpiredOrInactivePleasePay.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan expired or no active plan. Please pay to complete posting'**
+  String get planExpiredOrInactivePleasePay;
+
+  /// No description provided for @errorOccurredWithMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred: {message}'**
+  String errorOccurredWithMessage(Object message);
+
+  /// No description provided for @favoritesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load favorites: {error}'**
+  String favoritesLoadFailed(Object error);
+
+  /// No description provided for @favoriteRemovedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad removed from favorites'**
+  String get favoriteRemovedSuccess;
+
+  /// No description provided for @favoriteRemoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove ad: {error}'**
+  String favoriteRemoveFailed(Object error);
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @loginRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login required'**
+  String get loginRequiredTitle;
+
+  /// No description provided for @loginRequiredDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You must log in first to view your favorites'**
+  String get loginRequiredDescription;
+
+  /// No description provided for @loginAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get loginAction;
+
+  /// No description provided for @favoritesEmptySection.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorite items in this section'**
+  String get favoritesEmptySection;
+
+  /// No description provided for @removeFromFavoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Favorites'**
+  String get removeFromFavoritesTitle;
+
+  /// No description provided for @removeFromFavoritesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove this ad from favorites?'**
+  String get removeFromFavoritesMessage;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @pleaseLoginFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please log in first'**
+  String get pleaseLoginFirst;
+
+  /// No description provided for @adIdNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad ID not available'**
+  String get adIdNotAvailable;
+
+  /// No description provided for @contactLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact: {info}'**
+  String contactLabel(Object info);
+
+  /// No description provided for @couldNotLaunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not launch {url}'**
+  String couldNotLaunch(Object url);
+
+  /// No description provided for @whatsappInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid WhatsApp number format'**
+  String get whatsappInvalid;
+
+  /// No description provided for @whatsappNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp number not available'**
+  String get whatsappNotAvailable;
+
+  /// No description provided for @phoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number format'**
+  String get phoneInvalid;
+
+  /// No description provided for @phoneNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number not available'**
+  String get phoneNotAvailable;
+
+  /// No description provided for @whatsappLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'WhatsApp: {number}'**
+  String whatsappLabel(Object number);
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone: {number}'**
+  String phoneLabel(Object number);
+
+  /// No description provided for @offerBoxActivating.
+  ///
+  /// In en, this message translates to:
+  /// **'Activating {boxName}...'**
+  String offerBoxActivating(Object boxName);
+
+  /// No description provided for @offerBoxActivatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer box activated for this ad'**
+  String get offerBoxActivatedSuccess;
+
+  /// No description provided for @offerBoxActivationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer box activation failed'**
+  String get offerBoxActivationFailed;
+
+  /// No description provided for @deleteAdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Ad'**
+  String get deleteAdTitle;
+
+  /// No description provided for @deleteAdConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this ad?'**
+  String get deleteAdConfirmation;
+
+  /// No description provided for @yesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, Delete'**
+  String get yesDelete;
+
+  /// No description provided for @adDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad deleted'**
+  String get adDeletedSuccess;
+
+  /// No description provided for @adDeletedFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete ad'**
+  String get adDeletedFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -210,6 +210,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favorites => 'Favorites';
 
   @override
+  String get incompleteProfile => 'Incomplete profile';
+
+  @override
+  String get profileWarning =>
+      'You must complete the following fields in your profile before adding the advertisement:';
+
+  @override
   String get carsales => 'Car Sales';
 
   @override
@@ -232,6 +239,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get otherservices => 'Other Services';
+
+  @override
+  String get enjoyFreeAds => 'Enjoy Free Ads';
+
+  @override
+  String get enterpassword => 'Enter Your Password';
+
+  @override
+  String get pleaseEnterPassword => 'Please enter your password';
+
+  @override
+  String get passwordRequiredToCompleteLogin =>
+      'Please enter password to complete login';
+
+  @override
+  String get loginError => 'An error occurred during login';
+
+  @override
+  String unexpectedError(Object error) {
+    return 'Unexpected error: $error';
+  }
+
+  @override
+  String get loggingIn => 'Logging in...';
+
+  @override
+  String get byContinueIAgreeTo => 'By continuing I agree to the';
+
+  @override
+  String get and => 'and';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get passwordResetComingSoon => 'Password reset will be available soon';
 
   @override
   String get home => 'Home';
@@ -351,6 +394,56 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get use_this_space_for_ads =>
       'Contact us To Use This Space For Your Ads';
+
+  @override
+  String get adNotFound => 'Ad not found.';
+
+  @override
+  String errorFetchingData(Object error) {
+    return 'An error occurred while fetching data: $error';
+  }
+
+  @override
+  String get newMainImageSelected => 'New main image selected';
+
+  @override
+  String get currentMainImage => 'Current main image';
+
+  @override
+  String get saveSuccess => 'Saved successfully';
+
+  @override
+  String saveFailed(Object error) {
+    return 'Save failed: $error';
+  }
+
+  @override
+  String get noAdIdForUpdate => 'No ad ID to update';
+
+  @override
+  String get noChangesToSave => 'No changes to save';
+
+  @override
+  String cannotAddMoreImages(Object max) {
+    return 'Cannot add more images. Maximum is $max images';
+  }
+
+  @override
+  String limitedImagesSelected(Object count, Object max) {
+    return 'Only $count images selected. Maximum $max images total';
+  }
+
+  @override
+  String get rankAdInProgress => 'Ranking the ad...';
+
+  @override
+  String get rankAdSuccess => 'Ad ranked successfully';
+
+  @override
+  String get rankAdFailed => 'Failed to rank the ad';
+
+  @override
+  String get userId => 'User Id';
 
   @override
   String get priority_first_premium => '🌟 Top Premium Ads';
@@ -594,7 +687,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addMainImage => 'Add Main Image';
 
   @override
-  String get add14Images => 'Add 19 Images';
+  String get add19Images => 'Add 19 Images';
 
   @override
   String get next => 'Next';
@@ -829,7 +922,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'delete';
 
   @override
-  String get please_select_make => 'please_select_make';
+  String get please_select_make => 'Please select make';
+
+  @override
+  String get please_select_model => 'Please select model';
 
   @override
   String get please_fill_required_fields => 'please_fill_required_fields';
@@ -839,4 +935,194 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmLocation => 'Confirm Location';
+
+  @override
+  String get pickLocation => 'Pick Location';
+
+  @override
+  String get enterArea => 'Enter Area';
+
+  @override
+  String get areaName => 'Area Name';
+
+  @override
+  String get enterName => 'Enter name';
+
+  @override
+  String get enterServiceName => 'Enter service name';
+
+  @override
+  String get enterProductName => 'Enter product name';
+
+  @override
+  String get enterTitle => 'Enter your title';
+
+  @override
+  String get enterDescription => 'Enter your description';
+
+  @override
+  String get totalPrice => 'Total price';
+
+  @override
+  String get enterContactInfo => 'Enter phone or WhatsApp or email';
+
+  @override
+  String get please_select_all_fields => 'Please select all fields';
+
+  @override
+  String get please_select_emirate_and_section_type_first =>
+      'Please select emirate and section type first';
+
+  @override
+  String get please_select_emirate_and_category_type =>
+      'Please select emirate and category type';
+
+  @override
+  String get please_select_service_type => 'Please select a service type';
+
+  @override
+  String get please_select_section_type => 'Please select section type';
+
+  @override
+  String get secureYourAccount => 'Secure Your Account';
+
+  @override
+  String get setPasswordToUpgradeDescription =>
+      'Before upgrading to an Advertiser account, please set a password to safeguard your account and confirm the update.';
+
+  @override
+  String get setPassword => 'Set Password';
+
+  @override
+  String get passwordSetSuccessUpgraded =>
+      'Password set successfully and your account upgraded to advertiser';
+
+  @override
+  String get errorSettingPassword => 'Error setting password';
+
+  @override
+  String get warning => 'Warning';
+
+  @override
+  String freeAdNotEligibleMessage(Object price) {
+    return 'Free ads are only available for cars priced under $price AED. Please choose another plan.';
+  }
+
+  @override
+  String get adDataIncomplete => 'Ad data is incomplete';
+
+  @override
+  String get adPublishedSuccessfully => 'Ad posted successfully!';
+
+  @override
+  String get planExpiredOrInactivePleasePay =>
+      'Plan expired or no active plan. Please pay to complete posting';
+
+  @override
+  String errorOccurredWithMessage(Object message) {
+    return 'An error occurred: $message';
+  }
+
+  @override
+  String favoritesLoadFailed(Object error) {
+    return 'Failed to load favorites: $error';
+  }
+
+  @override
+  String get favoriteRemovedSuccess => 'Ad removed from favorites';
+
+  @override
+  String favoriteRemoveFailed(Object error) {
+    return 'Failed to remove ad: $error';
+  }
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get loginRequiredTitle => 'Login required';
+
+  @override
+  String get loginRequiredDescription =>
+      'You must log in first to view your favorites';
+
+  @override
+  String get loginAction => 'Login';
+
+  @override
+  String get favoritesEmptySection => 'No favorite items in this section';
+
+  @override
+  String get removeFromFavoritesTitle => 'Remove from Favorites';
+
+  @override
+  String get removeFromFavoritesMessage =>
+      'Are you sure you want to remove this ad from favorites?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get pleaseLoginFirst => 'Please log in first';
+
+  @override
+  String get adIdNotAvailable => 'Ad ID not available';
+
+  @override
+  String contactLabel(Object info) {
+    return 'Contact: $info';
+  }
+
+  @override
+  String couldNotLaunch(Object url) {
+    return 'Could not launch $url';
+  }
+
+  @override
+  String get whatsappInvalid => 'Invalid WhatsApp number format';
+
+  @override
+  String get whatsappNotAvailable => 'WhatsApp number not available';
+
+  @override
+  String get phoneInvalid => 'Invalid phone number format';
+
+  @override
+  String get phoneNotAvailable => 'Phone number not available';
+
+  @override
+  String whatsappLabel(Object number) {
+    return 'WhatsApp: $number';
+  }
+
+  @override
+  String phoneLabel(Object number) {
+    return 'Phone: $number';
+  }
+
+  @override
+  String offerBoxActivating(Object boxName) {
+    return 'Activating $boxName...';
+  }
+
+  @override
+  String get offerBoxActivatedSuccess => 'Offer box activated for this ad';
+
+  @override
+  String get offerBoxActivationFailed => 'Offer box activation failed';
+
+  @override
+  String get deleteAdTitle => 'Delete Ad';
+
+  @override
+  String get deleteAdConfirmation => 'Are you sure you want to delete this ad?';
+
+  @override
+  String get yesDelete => 'Yes, Delete';
+
+  @override
+  String get adDeletedSuccess => 'Ad deleted';
+
+  @override
+  String get adDeletedFailed => 'Failed to delete ad';
 }

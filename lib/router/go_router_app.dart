@@ -88,6 +88,8 @@ import 'package:advertising_app/presentation/screen/restaurants_screen.dart';
 import 'package:advertising_app/presentation/screen/setting_screen.dart';
 import 'package:advertising_app/presentation/screen/sinup_screen.dart';
 import 'package:advertising_app/presentation/screen/splash_screen.dart';
+import 'package:advertising_app/presentation/screen/smart_search_results_screen.dart';
+import 'package:advertising_app/data/model/smart_search_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -117,6 +119,34 @@ GoRouter createRouter({
   // دالة مساعدة لتغيير اللغة بالطريقة الجديدة
   void changeLocale(BuildContext context, Locale locale) {
     Provider.of<LocaleChangeNotifier>(context, listen: false).changeLocale(locale);
+  }
+
+  // Helper: sanitize extras into Map<String, String> (drops null/empty values)
+  Map<String, String>? _sanitizeStringFilters(Object? extra) {
+    if (extra is Map) {
+      final result = <String, String>{};
+      extra.forEach((key, value) {
+        if (value == null) return;
+        String v = value.toString().trim();
+        if (v.isEmpty) return;
+
+        // أسقط القيم العامة أو غير الصالحة
+        final lv = v.toLowerCase();
+        if (lv == 'all' || lv == 'null' || lv == 'nullnow' || lv == 'undefined') {
+          return; // لا ترسل هذه القيم للـ API
+        }
+
+        // طَبِّع أسماء المفاتيح لِتتوافق مع الـ API
+        String k = key.toString();
+        if (k == 'sectionType') k = 'section_type';
+        if (k == 'serviceName') k = 'service_name';
+        if (k == 'emirateName') k = 'emirate';
+
+        result[k] = v;
+      });
+      return result.isEmpty ? null : result;
+    }
+    return null;
   }
 
   return GoRouter(
@@ -164,10 +194,10 @@ GoRouter createRouter({
       GoRoute(path: '/editprofile', builder: (context, state) => EditProfile()),
        GoRoute(
         // استخدمنا هنا المسار الرئيسي الصحيح
-        path: '/cars-sales',
-        builder: (context, state) {
-          // نقرأ الفلاتر القادمة من HomeScreen كـ 'extra'
-          final filters = state.extra as Map<String, String>?;
+       path: '/cars-sales',
+       builder: (context, state) {
+          // نقرأ الفلاتر القادمة من HomeScreen كـ 'extra' مع تنقية القيم
+          final filters = _sanitizeStringFilters(state.extra);
           
           // نمرر هذه الفلاتر إلى CarSalesScreen
           return CarSalesScreen(initialFilters: filters);
@@ -242,13 +272,13 @@ GoRouter createRouter({
        GoRoute(path: '/restaurant_offerbox', builder: (context, state) => RestaurantOfferBox()),
        GoRoute(path: '/other_service_offer_box', builder: (context, state) => OtherServiceOfferBox()),
        GoRoute(path: '/real_estate_search', builder: (context, state) {
-         final filters = state.extra as Map<String, String>?;
+         final filters = _sanitizeStringFilters(state.extra);
          return RealEstateSearchScreen(filters: filters);
        }),
        GoRoute(
          path: '/electronic_search',
          builder: (context, state) {
-           final filters = state.extra as Map<String, String>?;
+           final filters = _sanitizeStringFilters(state.extra);
            return ElectronicSearchScreen(initialFilters: filters);
          },
        ),
@@ -257,15 +287,28 @@ GoRouter createRouter({
          return CarRentSearchScreen(filters: filters);
        }),
        GoRoute(path: '/car_service_search', builder: (context, state) {
-         final filters = state.extra as Map<String, String>?;
+         final filters = _sanitizeStringFilters(state.extra);
          return CarServiceSearchScreen(initialFilters: filters);
        }),
        GoRoute(path: '/restaurant_search', builder: (context, state) {
          final filters = state.extra as Map<String, dynamic>?;
          return RestaurantSearchScreen(filters: filters);
        }),
-       GoRoute(path: '/other_service_search', builder: (context, state) => OtherServiceSearchScreen()),
-       GoRoute(path: '/job_search', builder: (context, state) => JobSearchScreen()),
+       GoRoute(path: '/other_service_search', builder: (context, state) {
+         final filters = _sanitizeStringFilters(state.extra);
+         return OtherServiceSearchScreen(initialFilters: filters);
+       }),
+       GoRoute(
+         path: '/smart_search',
+         builder: (context, state) {
+           final resp = state.extra as SmartSearchResponse?;
+           return SmartSearchResultsScreen(response: resp ?? SmartSearchResponse(keyword: '', results: const []));
+         },
+       ),
+       GoRoute(path: '/job_search', builder: (context, state) {
+         final filters = _sanitizeStringFilters(state.extra);
+         return JobSearchScreen(filters: filters);
+       }),
        GoRoute(path: '/real_estate_details_screen', builder: (context, state) {
          final ad = state.extra;
          // Extract adId from the ad object
@@ -379,6 +422,16 @@ GoRouter createRouter({
         builder: (context, state) => CarServicesSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
       GoRoute(
+        path: '/car_services_save_ads/:adId',
+        builder: (context, state) {
+          final adId = int.tryParse(state.pathParameters['adId'] ?? '') ?? 0;
+          return CarServicesSaveAdScreen(
+            onLanguageChange: (locale) => changeLocale(context, locale),
+            adId: adId,
+          );
+        },
+      ),
+      GoRoute(
         path: '/real_estate_ads',
         builder: (context, state) => RealEstateAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
@@ -433,12 +486,23 @@ GoRouter createRouter({
         builder: (context, state) => RestaurantsSaveAdScreen(adId: state.pathParameters['adId'] ?? '0'),
       ),
        GoRoute(
-        path: '/other_servics_ads',
+       path: '/other_servics_ads',
         builder: (context, state) => OtherServicesAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
        GoRoute(
         path: '/other_service_save_ads',
         builder: (context, state) => OtherServicesSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
+      ),
+      GoRoute(
+        path: '/other_service_save_ads/:adId',
+        builder: (context, state) {
+          final adIdParam = state.pathParameters['adId'];
+          final int? adId = int.tryParse(adIdParam ?? '');
+          return OtherServicesSaveAdScreen(
+            adId: adId,
+            onLanguageChange: (locale) => changeLocale(context, locale),
+          );
+        },
       ),
       GoRoute(
         path: '/job_ads',
@@ -449,8 +513,34 @@ GoRouter createRouter({
         builder: (context, state) => JobsSaveAdScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
       ),
       GoRoute(
+        path: '/job_save_ads/:adId',
+        builder: (context, state) {
+          final adId = int.tryParse(state.pathParameters['adId'] ?? '');
+          return JobsSaveAdScreen(
+            adId: adId,
+            onLanguageChange: (locale) => changeLocale(context, locale),
+          );
+        },
+      ),
+      GoRoute(
         path: '/payment',
-        builder: (context, state) => PaymentScreen(onLanguageChange: (locale) => changeLocale(context, locale)),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final dynamic amountExtra = extra?['amount'];
+          num? amount;
+          if (amountExtra is String) {
+            amount = num.tryParse(amountExtra);
+          } else if (amountExtra is num) {
+            amount = amountExtra;
+          }
+
+          return PaymentScreen(
+            onLanguageChange: (locale) => changeLocale(context, locale),
+            adData: extra?['adData'] as Map<String, dynamic>?,
+            amount: amount,
+            apiMessage: extra?['apiMessage'] as String?,
+          );
+        },
       ),
     ],
   );

@@ -129,7 +129,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get save => 'حفظ';
 
   @override
-  String get cancel => 'الغاء';
+  String get cancel => 'إلغاء';
 
   @override
   String get optional => 'اختياري';
@@ -210,6 +210,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get favorites => 'المفضلة';
 
   @override
+  String get incompleteProfile => 'ملفك الشخصي غير مكتمل';
+
+  @override
+  String get profileWarning =>
+      'يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:';
+
+  @override
   String get carsales => 'بيع السيارات';
 
   @override
@@ -232,6 +239,43 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get otherservices => 'خدمات أخرى';
+
+  @override
+  String get enjoyFreeAds => 'استمتع بالإعلانات المجانية';
+
+  @override
+  String get enterpassword => 'أدخل كلمة المرور';
+
+  @override
+  String get pleaseEnterPassword => 'يرجى إدخال كلمة المرور';
+
+  @override
+  String get passwordRequiredToCompleteLogin =>
+      'يرجى إدخال كلمة المرور لإكمال تسجيل الدخول';
+
+  @override
+  String get loginError => 'حدث خطأ في تسجيل الدخول';
+
+  @override
+  String unexpectedError(Object error) {
+    return 'حدث خطأ غير متوقع: $error';
+  }
+
+  @override
+  String get loggingIn => 'جاري تسجيل الدخول...';
+
+  @override
+  String get byContinueIAgreeTo => 'بالمتابعة أوافق على';
+
+  @override
+  String get and => 'و';
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get passwordResetComingSoon =>
+      'ميزة استعادة كلمة المرور ستكون متاحة قريباً';
 
   @override
   String get home => 'الرئيسية';
@@ -351,6 +395,56 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get use_this_space_for_ads =>
       'تواصل معنا لاستخدام هذه المساحة لإعلاناتك';
+
+  @override
+  String get adNotFound => 'لم يتم العثور على الإعلان.';
+
+  @override
+  String errorFetchingData(Object error) {
+    return 'حدث خطأ أثناء جلب البيانات: $error';
+  }
+
+  @override
+  String get newMainImageSelected => 'تم اختيار صورة رئيسية جديدة';
+
+  @override
+  String get currentMainImage => 'الصورة الرئيسية الحالية';
+
+  @override
+  String get saveSuccess => 'تم الحفظ بنجاح';
+
+  @override
+  String saveFailed(Object error) {
+    return 'فشل الحفظ: $error';
+  }
+
+  @override
+  String get noAdIdForUpdate => 'لا يوجد معرّف للإعلان للتحديث';
+
+  @override
+  String get noChangesToSave => 'لا توجد تغييرات للحفظ';
+
+  @override
+  String cannotAddMoreImages(Object max) {
+    return 'لا يمكن إضافة المزيد من الصور. الحد الأقصى $max صور';
+  }
+
+  @override
+  String limitedImagesSelected(Object count, Object max) {
+    return 'تم اختيار $count صورة فقط. الحد الأقصى $max صورة إجمالية';
+  }
+
+  @override
+  String get rankAdInProgress => 'جاري ترقية الإعلان...';
+
+  @override
+  String get rankAdSuccess => 'تم ترقية الإعلان بنجاح';
+
+  @override
+  String get rankAdFailed => 'فشل في ترقية الإعلان';
+
+  @override
+  String get userId => 'رقم تعريف المستخدم';
 
   @override
   String get priority_first_premium => '🌟 إعلانات مميزة جدًا';
@@ -592,7 +686,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addMainImage => 'إضافة الصورة الرئيسية';
 
   @override
-  String get add14Images => 'إضافة 19 صورة';
+  String get add19Images => 'إضافة 19 صورة';
 
   @override
   String get next => 'التالي';
@@ -830,6 +924,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get please_select_make => 'الرجاء اختيار الماركة';
 
   @override
+  String get please_select_model => 'الرجاء اختيار الطراز';
+
+  @override
   String get please_fill_required_fields => 'الرجاء ملء الحقول المطلوبة';
 
   @override
@@ -837,4 +934,194 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmLocation => 'تأكيد الموقع';
+
+  @override
+  String get pickLocation => 'اختر الموقع';
+
+  @override
+  String get enterArea => 'ادخل المنطقة';
+
+  @override
+  String get areaName => 'اسم المنطقة';
+
+  @override
+  String get enterName => 'ادخل الاسم';
+
+  @override
+  String get enterServiceName => 'ادخل اسم الخدمة';
+
+  @override
+  String get enterProductName => 'ادخل اسم المنتج';
+
+  @override
+  String get enterTitle => 'ادخل العنوان';
+
+  @override
+  String get enterDescription => 'ادخل الوصف';
+
+  @override
+  String get totalPrice => 'السعر الإجمالي';
+
+  @override
+  String get enterContactInfo =>
+      'ادخل رقم الهاتف أو الواتساب أو البريد الإلكتروني';
+
+  @override
+  String get please_select_all_fields => 'يرجى اختيار جميع الحقول';
+
+  @override
+  String get please_select_emirate_and_section_type_first =>
+      'يرجى اختيار الإمارة ونوع القسم أولاً';
+
+  @override
+  String get please_select_emirate_and_category_type =>
+      'يرجى اختيار الإمارة ونوع الفئة';
+
+  @override
+  String get please_select_service_type => 'يرجى اختيار نوع الخدمة';
+
+  @override
+  String get please_select_section_type => 'يرجى اختيار نوع القسم';
+
+  @override
+  String get secureYourAccount => 'أمّن حسابك';
+
+  @override
+  String get setPasswordToUpgradeDescription =>
+      'قبل الترقية إلى حساب معلن، يرجى تعيين كلمة مرور لحماية حسابك وتأكيد التحديث.';
+
+  @override
+  String get setPassword => 'تعيين كلمة المرور';
+
+  @override
+  String get passwordSetSuccessUpgraded =>
+      'تم تعيين كلمة المرور بنجاح وتم ترقية حسابك إلى معلن';
+
+  @override
+  String get errorSettingPassword => 'خطأ في تعيين كلمة المرور';
+
+  @override
+  String get warning => 'تنبيه';
+
+  @override
+  String freeAdNotEligibleMessage(Object price) {
+    return 'الإعلان المجاني متاح فقط للسيارات بسعر أقل من $price درهم. يرجى اختيار خطة أخرى.';
+  }
+
+  @override
+  String get adDataIncomplete => 'بيانات الإعلان غير كاملة';
+
+  @override
+  String get adPublishedSuccessfully => 'تم نشر الإعلان بنجاح!';
+
+  @override
+  String get planExpiredOrInactivePleasePay =>
+      'انتهت الباقة أو لا توجد باقة نشطة. يرجى الدفع لإكمال النشر';
+
+  @override
+  String errorOccurredWithMessage(Object message) {
+    return 'حدث خطأ: $message';
+  }
+
+  @override
+  String favoritesLoadFailed(Object error) {
+    return 'فشل تحميل المفضلة: $error';
+  }
+
+  @override
+  String get favoriteRemovedSuccess => 'تم إزالة الإعلان من المفضلة';
+
+  @override
+  String favoriteRemoveFailed(Object error) {
+    return 'فشل إزالة الإعلان: $error';
+  }
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get loginRequiredTitle => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get loginRequiredDescription => 'يجب تسجيل الدخول أولاً لعرض المفضلة';
+
+  @override
+  String get loginAction => 'تسجيل الدخول';
+
+  @override
+  String get favoritesEmptySection => 'لا توجد عناصر مفضلة في هذا القسم';
+
+  @override
+  String get removeFromFavoritesTitle => 'إزالة من المفضلة';
+
+  @override
+  String get removeFromFavoritesMessage =>
+      'هل أنت متأكد من إزالة هذا الإعلان من المفضلة؟';
+
+  @override
+  String get remove => 'إزالة';
+
+  @override
+  String get pleaseLoginFirst => 'يرجى تسجيل الدخول أولاً';
+
+  @override
+  String get adIdNotAvailable => 'معرّف الإعلان غير متوفر';
+
+  @override
+  String contactLabel(Object info) {
+    return 'تواصل: $info';
+  }
+
+  @override
+  String couldNotLaunch(Object url) {
+    return 'تعذر فتح $url';
+  }
+
+  @override
+  String get whatsappInvalid => 'صيغة رقم واتساب غير صحيحة';
+
+  @override
+  String get whatsappNotAvailable => 'رقم واتساب غير متوفر';
+
+  @override
+  String get phoneInvalid => 'صيغة رقم الهاتف غير صحيحة';
+
+  @override
+  String get phoneNotAvailable => 'رقم الهاتف غير متوفر';
+
+  @override
+  String whatsappLabel(Object number) {
+    return 'واتساب: $number';
+  }
+
+  @override
+  String phoneLabel(Object number) {
+    return 'هاتف: $number';
+  }
+
+  @override
+  String offerBoxActivating(Object boxName) {
+    return 'Activating $boxName...';
+  }
+
+  @override
+  String get offerBoxActivatedSuccess => 'Offer box activated for this ad';
+
+  @override
+  String get offerBoxActivationFailed => 'Offer box activation failed';
+
+  @override
+  String get deleteAdTitle => 'Delete Ad';
+
+  @override
+  String get deleteAdConfirmation => 'Are you sure you want to delete this ad?';
+
+  @override
+  String get yesDelete => 'Yes, Delete';
+
+  @override
+  String get adDeletedSuccess => 'Ad deleted';
+
+  @override
+  String get adDeletedFailed => 'Failed to delete ad';
 }

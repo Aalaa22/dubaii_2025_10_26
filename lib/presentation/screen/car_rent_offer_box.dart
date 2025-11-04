@@ -3,6 +3,9 @@ import 'package:advertising_app/presentation/providers/car_rent_offers_provider.
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
+import 'package:advertising_app/utils/favorites_helper.dart';
+import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
+import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,7 +25,64 @@ class CarRentOfferBox extends StatefulWidget {
   State<CarRentOfferBox> createState() => _CarRentOfferBoxState();
 }
 
-class _CarRentOfferBoxState extends State<CarRentOfferBox> {
+// Adapter class to make CarRentAdModel compatible with FavoriteItemInterface for Offers Box
+class CarRentOfferItemAdapter implements FavoriteItemInterface {
+  final CarRentAdModel _ad;
+  CarRentOfferItemAdapter(this._ad);
+
+  @override
+  String get id => _ad.id.toString();
+
+  @override
+  String get contact => _ad.advertiserName;
+
+  @override
+  String get details => _ad.title;
+
+  @override
+  String get category => 'Cars Rent';
+
+  @override
+  String get addCategory => _ad.addCategory ?? 'Cars Rent';
+
+  @override
+  List<String> get images => [
+        ImageUrlHelper.getMainImageUrl(_ad.mainImage),
+        ...ImageUrlHelper.getThumbnailImageUrls(_ad.thumbnailImages)
+      ].where((img) => img.isNotEmpty).toList();
+
+  @override
+  String get line1 =>
+      "Day: ${_ad.dayRent}  Month: ${_ad.monthRent}   Trans: ${_ad.transType ?? ''}";
+
+  @override
+  String get location => "${_ad.emirate}  ${_ad.area ?? ''}".trim();
+
+  @override
+  String get price => _ad.price;
+
+  @override
+  String get title => "${_ad.make ?? ''} ${_ad.model ?? ''} ${_ad.trim ?? ''} ${_ad.year ?? ''}".trim();
+
+  @override
+  String get date => _ad.createdAt?.split('T').first ?? '';
+
+  @override
+  bool get isPremium {
+    if (_ad.planType == null) return false;
+    return _ad.planType!.toLowerCase() != 'free';
+  }
+
+  @override
+  AdPriority get priority {
+    if (_ad.planType == null || _ad.planType!.toLowerCase() == 'free') {
+      return AdPriority.free;
+    }
+    return AdPriority.premium;
+  }
+}
+
+class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<CarRentOfferBox> {
   String? _yearFrom;
   String? _yearTo;
   String? _priceFrom;
@@ -33,6 +93,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> {
   void initState() {
     super.initState();
     _refreshData();
+    loadFavoriteIds();
   }
 
   Future<void> _refreshData() async {
@@ -374,9 +435,12 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> {
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: Icon(Icons.favorite_border,
-                          color: Colors.grey.shade300),
+                    child: buildFavoriteIcon(
+                      CarRentOfferItemAdapter(car),
+                      onAddToFavorite: () {},
+                      onRemoveFromFavorite: null,
                     ),
+                  ),
                   ]),
                   Expanded(
                     child: Padding(
