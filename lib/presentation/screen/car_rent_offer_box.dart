@@ -62,7 +62,9 @@ class CarRentOfferItemAdapter implements FavoriteItemInterface {
   String get price => _ad.price;
 
   @override
-  String get title => "${_ad.make ?? ''} ${_ad.model ?? ''} ${_ad.trim ?? ''} ${_ad.year ?? ''}".trim();
+  String get title =>
+      "${_ad.make ?? ''} ${_ad.model ?? ''} ${_ad.trim ?? ''} ${_ad.year ?? ''}"
+          .trim();
 
   @override
   String get date => _ad.createdAt?.split('T').first ?? '';
@@ -82,7 +84,8 @@ class CarRentOfferItemAdapter implements FavoriteItemInterface {
   }
 }
 
-class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<CarRentOfferBox> {
+class _CarRentOfferBoxState extends State<CarRentOfferBox>
+    with FavoritesHelper<CarRentOfferBox> {
   String? _yearFrom;
   String? _yearTo;
   String? _priceFrom;
@@ -163,7 +166,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
                                 Transform.translate(
                                   offset: Offset(-3.w, 0),
                                   child: Text(
-                                    S.of(context).back,
+                                    S.of(context)!.back,
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w500,
@@ -208,7 +211,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
                                 return Row(
                                   children: [
                                     Text(
-                                      '${S.of(context).ad} ${provider.offerAds.length}',
+                                      '${S.of(context)!.ad} ${provider.offerAds.length}',
                                       style: TextStyle(
                                         fontSize: 12.sp,
                                         color: KTextColor,
@@ -239,7 +242,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
                                             SizedBox(width: 12.w),
                                             Expanded(
                                               child: Text(
-                                                S.of(context).sort,
+                                                S.of(context)!.sort,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w600,
@@ -326,7 +329,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
                   Expanded(
                     child: _buildRangePickerField(
                       context,
-                      title: S.of(context).year,
+                      title: S.of(context)!.year,
                       fromValue: provider.offerYearFrom?.toString(),
                       toValue: provider.offerYearTo?.toString(),
                       unit: "",
@@ -338,7 +341,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
                   Expanded(
                     child: _buildRangePickerField(
                       context,
-                      title: S.of(context).price,
+                      title: S.of(context)!.price,
                       fromValue: provider.offerPriceFrom?.toString(),
                       toValue: provider.offerPriceTo?.toString(),
                       unit: "AED",
@@ -358,7 +361,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
   void _showYearRangePicker(CarRentOffersProvider provider) async {
     final result = await _showRangePicker(
       context,
-      title: S.of(context).year,
+      title: S.of(context)!.year,
       initialFrom: provider.offerYearFrom?.toString(),
       initialTo: provider.offerYearTo?.toString(),
       unit: "",
@@ -389,121 +392,122 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
         itemBuilder: (context, index) {
           final car = offers[index];
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 3),
-            child: GestureDetector(
-              onTap: () {
-                context.push('/car-rent-details', extra: car);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
-                  border: Border.all(color: Colors.grey.shade300),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.15),
-                      blurRadius: 5.r,
-                      offset: Offset(0, 2.h),
-                    ),
-                  ],
-                ),
-                child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Stack(children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4.r),
-                      child: CachedNetworkImage(
-                        imageUrl:
-                            ImageUrlHelper.getMainImageUrl(car.mainImage ?? ''),
-                        height: (cardSize.height * 0.6).h,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.directions_car,
-                              size: 50, color: Colors.grey),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.directions_car,
-                              size: 50, color: Colors.grey),
-                        ),
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: GestureDetector(
+                onTap: () {
+                  context.push('/car-rent-details/${car.id}');
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4.r),
+                    border: Border.all(color: Colors.grey.shade300),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        blurRadius: 5.r,
+                        offset: Offset(0, 2.h),
                       ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                    child: buildFavoriteIcon(
-                      CarRentOfferItemAdapter(car),
-                      onAddToFavorite: () {},
-                      onRemoveFromFavorite: null,
-                    ),
+                    ],
                   ),
-                  ]),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            '${NumberFormatter.formatPrice(car.price)}',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12.sp,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Stack(children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4.r),
+                          child: CachedNetworkImage(
+                            imageUrl: ImageUrlHelper.getMainImageUrl(
+                                car.mainImage ?? ''),
+                            height: (cardSize.height * 0.6).h,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.directions_car,
+                                  size: 50, color: Colors.grey),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.directions_car,
+                                  size: 50, color: Colors.grey),
                             ),
                           ),
-                          Text(
-                            '${car.make} ${car.model} ${car.trim} ${car.year}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12.sp,
-                              color: KTextColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: buildFavoriteIcon(
+                            CarRentOfferItemAdapter(car),
+                            onAddToFavorite: () {},
+                            onRemoveFromFavorite: null,
                           ),
-                          Text(
-                            car.advertiserName ?? '',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12.sp,
-                              color: KTextColor,
-                            ),
-                          ),
-                          Row(
+                        ),
+                      ]),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 6.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              SvgPicture.asset(
-                                'assets/icons/Vector.svg',
-                                width: 10.5.w,
-                                height: 13.5.h,
-                              ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                child: Text(
-                                  '${car.emirate} ${car.area}' ?? '',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    color: const Color.fromRGBO(0, 30, 91, .75),
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                              Text(
+                                '${NumberFormatter.formatPrice(car.price)}',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.sp,
                                 ),
+                              ),
+                              Text(
+                                '${car.make} ${car.model} ${car.trim} ${car.year}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.sp,
+                                  color: KTextColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                car.advertiserName ?? '',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12.sp,
+                                  color: KTextColor,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/Vector.svg',
+                                    width: 10.5.w,
+                                    height: 13.5.h,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: Text(
+                                      '${car.emirate} ${car.area}' ?? '',
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: const Color.fromRGBO(
+                                            0, 30, 91, .75),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ));
+                ),
+              ));
         },
       ),
     );
@@ -560,7 +564,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
   //  void _showYearRangePicker(CarRentOffersProvider provider) async {
   //    final result = await _showRangePicker(
   //      context,
-  //      title: S.of(context).year,
+  //      title: S.of(context)!.year,
   //      initialFrom: provider.offerYearFrom?.toString(),
   //     initialTo: provider.offerYearTo?.toString(),
   //      unit: "",
@@ -575,7 +579,7 @@ class _CarRentOfferBoxState extends State<CarRentOfferBox> with FavoritesHelper<
   void _showPriceRangePicker(CarRentOffersProvider provider) async {
     final result = await _showRangePicker(
       context,
-      title: S.of(context).price,
+      title: S.of(context)!.price,
       initialFrom: provider.offerPriceFrom?.toString(),
       initialTo: provider.offerPriceTo?.toString(),
       unit: "AED",
@@ -616,7 +620,7 @@ Widget _buildRangePickerField(BuildContext context,
   displayText = (fromValue == null || fromValue.isEmpty) &&
           (toValue == null || toValue.isEmpty)
       ? title
-      : '${fromValue ?? s.from} - ${toValue ?? s.to} ${unit}'.trim();
+      : '${fromValue ?? s!.from} - ${toValue ?? s!.to} ${unit}'.trim();
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -784,7 +788,7 @@ class __RangeSelectionBottomSheetState
                   _toController.clear();
                   setState(() {});
                 },
-                child: Text(s.reset,
+                child: Text(s!.reset,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -808,7 +812,7 @@ class __RangeSelectionBottomSheetState
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context,
                   {'from': _fromController.text, 'to': _toController.text}),
-              child: Text(s.apply,
+              child: Text(s!.apply,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

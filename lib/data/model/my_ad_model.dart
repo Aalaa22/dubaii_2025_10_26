@@ -23,6 +23,8 @@ class MyAdModel {
   final String? serviceType;
   final String? serviceName;
   final String categorySlug;
+  final int views;
+  final String? expiresAt;
   MyAdModel({
     required this.id,
     required this.title,
@@ -45,6 +47,8 @@ class MyAdModel {
     this.priceRange,
     this.serviceType,
     this.serviceName,
+    this.views = 0,
+    this.expiresAt,
   });
 
   factory MyAdModel.fromJson(Map<String, dynamic> json) {
@@ -57,7 +61,8 @@ class MyAdModel {
       if (raw == null && j['plan'] != null) {
         final planVal = j['plan'];
         if (planVal is String) raw = planVal;
-        if (planVal is Map) raw = planVal['type'] ?? planVal['plan_type'] ?? planVal['name'];
+        if (planVal is Map)
+          raw = planVal['type'] ?? planVal['plan_type'] ?? planVal['name'];
       }
 
       // Fallback to priority field used by several models
@@ -71,8 +76,10 @@ class MyAdModel {
       // Fallback to boolean flags indicating premium/featured status
       if (raw == null) {
         final offersActive = (j['active_offers_box_status'] == true);
-        final isFeatured = (j['is_featured'] == true) || (j['featured'] == true);
-        if (isFeatured) raw = 'featured';
+        final isFeatured =
+            (j['is_featured'] == true) || (j['featured'] == true);
+        if (isFeatured)
+          raw = 'featured';
         else if (offersActive) raw = 'premium';
       }
 
@@ -81,7 +88,8 @@ class MyAdModel {
     }
 
     return MyAdModel(
-      id: int.tryParse(json['id']?.toString() ?? '') ?? (json['id'] is int ? json['id'] as int : 0),
+      id: int.tryParse(json['id']?.toString() ?? '') ??
+          (json['id'] is int ? json['id'] as int : 0),
       title: json['title']?.toString() ?? '',
       // Support multiple shapes for plan type to ensure visibility across categories
       planType: _extractPlanType(json),
@@ -91,7 +99,8 @@ class MyAdModel {
       category: json['category']?.toString() ?? '',
       createdAt: json['created_at']?.toString() ?? '',
       // في إعلانات الوظائف قد يأتي الحقل باسم category_type أو contract_type
-      categoryType: json['category_type']?.toString() ?? json['contract_type']?.toString(),
+      categoryType: json['category_type']?.toString() ??
+          json['contract_type']?.toString(),
       make: json['make']?.toString(),
       model: json['model']?.toString(),
       trim: json['trim']?.toString(),
@@ -104,6 +113,10 @@ class MyAdModel {
       serviceType: json['service_type']?.toString(),
       serviceName: json['service_name']?.toString(),
       categorySlug: json['category_slug']?.toString() ?? '',
+      views: json['views'] is int
+          ? json['views']
+          : int.tryParse(json['views']?.toString() ?? '0') ?? 0,
+      expiresAt: json['expires_at']?.toString(),
     );
   }
 }
@@ -137,15 +150,21 @@ class MyAdsResponse {
         .map((ad) => MyAdModel.fromJson(ad))
         .toList();
 
-    final total = json['total'] ?? json['total_ads'] ?? json['count'] ?? parsedAds.length;
+    final total =
+        json['total'] ?? json['total_ads'] ?? json['count'] ?? parsedAds.length;
     final currentPage = json['current_page'] ?? json['currentPage'] ?? 1;
     final lastPage = json['last_page'] ?? json['lastPage'] ?? 1;
 
     return MyAdsResponse(
       ads: parsedAds,
-      total: total is int ? total : int.tryParse(total.toString()) ?? parsedAds.length,
-      currentPage: currentPage is int ? currentPage : int.tryParse(currentPage.toString()) ?? 1,
-      lastPage: lastPage is int ? lastPage : int.tryParse(lastPage.toString()) ?? 1,
+      total: total is int
+          ? total
+          : int.tryParse(total.toString()) ?? parsedAds.length,
+      currentPage: currentPage is int
+          ? currentPage
+          : int.tryParse(currentPage.toString()) ?? 1,
+      lastPage:
+          lastPage is int ? lastPage : int.tryParse(lastPage.toString()) ?? 1,
     );
   }
 }

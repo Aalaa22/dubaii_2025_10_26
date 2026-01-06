@@ -91,11 +91,11 @@ class _OffersBoxScreenState extends State<OffersBoxScreen> with FavoritesHelper<
                     padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
                     child: Column(
                       children: [
-                        _buildHeader(s),
+                        _buildHeader(s!),
                         SizedBox(height: 10.h),
-                        _buildFiltersRow(s, provider),
+                        _buildFiltersRow(s!, provider),
                         SizedBox(height: 6.h),
-                        _buildSortBar(s, provider.offerAds.length),
+                        _buildSortBar(s!, provider.offerAds.length),
                       ],
                     ),
                   ),
@@ -443,7 +443,7 @@ Widget _buildRangePickerField(BuildContext context,
   String displayText = (fromValue == null || fromValue.isEmpty) &&
           (toValue == null || toValue.isEmpty)
       ? title
-      : '${fromValue ?? s.from} - ${toValue ?? s.to} ${unit}'.trim();
+      : '${fromValue ?? s!.from} - ${toValue ?? s!.to} ${unit}'.trim();
   return GestureDetector(
     onTap: onTap,
     child: Container(
@@ -583,7 +583,7 @@ class __RangeSelectionBottomSheetState
                   _toController.clear();
                   setState(() {});
                 },
-                child: Text(s.reset,
+                child: Text(s!.reset,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,

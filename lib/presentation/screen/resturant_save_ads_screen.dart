@@ -10,7 +10,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:advertising_app/presentation/widget/titled_select_or_add_field.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
+
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -27,22 +29,24 @@ final Color borderColor = Color.fromRGBO(8, 194, 201, 1);
 
 class RestaurantsSaveAdScreen extends StatefulWidget {
   final String adId;
-  
-  const RestaurantsSaveAdScreen({Key? key, required this.adId}) : super(key: key);
+
+  const RestaurantsSaveAdScreen({Key? key, required this.adId})
+      : super(key: key);
 
   @override
-  State<RestaurantsSaveAdScreen> createState() => _RestaurantsSaveAdScreenState();
+  State<RestaurantsSaveAdScreen> createState() =>
+      _RestaurantsSaveAdScreenState();
 }
 
 class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
   // Controllers for editable fields
   final TextEditingController _priceRangeController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  
+
   // Contact info
   String? selectedPhoneNumber;
   String? selectedWhatsAppNumber;
-  
+
   // Images
   File? _mainImage;
   List<File> _thumbnailImages = [];
@@ -50,11 +54,11 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
   // Existing thumbnails (URLs) and removed ones
   List<String> _existingThumbnailUrls = [];
   final List<String> _removedExistingThumbnailUrls = [];
-  
+
   // Loading states
   bool _isLoading = false;
   bool _isUpdating = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -70,20 +74,20 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
 
   Future<void> _loadRestaurantData() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final detailsProvider = context.read<RestaurantDetailsProvider>();
       final infoProvider = context.read<RestaurantsInfoProvider>();
-      
+
       // Load restaurant details
       await detailsProvider.fetchAdDetails(int.parse(widget.adId));
-      
+
       // Load contact info
       final token = await const FlutterSecureStorage().read(key: 'auth_token');
       if (token != null) {
         await infoProvider.fetchContactInfo(token: token);
       }
-      
+
       // Populate editable fields with current data
       final ad = detailsProvider.adDetails;
       if (ad != null) {
@@ -137,26 +141,33 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
         maxHeight: 1080,
         imageQuality: 85,
       );
-      
+
       if (images.isNotEmpty) {
-        final int currentTotal = _existingThumbnailUrls.length + _thumbnailImages.length;
+        final int currentTotal =
+            _existingThumbnailUrls.length + _thumbnailImages.length;
         final int maxAllowed = 3;
         int availableSlots = maxAllowed - currentTotal;
 
         if (availableSlots <= 0) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('لا يمكنك إضافة أكثر من 3 صور فرعية.')),
+              const SnackBar(
+                  content: Text('لا يمكنك إضافة أكثر من 3 صور فرعية.')),
             );
           }
         } else {
-          final filesToAdd = images.take(availableSlots).map((image) => File(image.path)).toList();
+          final filesToAdd = images
+              .take(availableSlots)
+              .map((image) => File(image.path))
+              .toList();
           setState(() {
             _thumbnailImages.addAll(filesToAdd);
           });
           if (images.length > availableSlots && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تم تجاوز الحد الأقصى، تمت إضافة أول 3 صور فقط.')),
+              const SnackBar(
+                  content:
+                      Text('تم تجاوز الحد الأقصى، تمت إضافة أول 3 صور فقط.')),
             );
           }
         }
@@ -185,7 +196,8 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
   Future<File> _downloadImageToTempFile(String url) async {
     final dio = Dio();
     final dir = await getTemporaryDirectory();
-    final fileName = 'restaurant_thumb_${DateTime.now().millisecondsSinceEpoch}${p.extension(url)}';
+    final fileName =
+        'restaurant_thumb_${DateTime.now().millisecondsSinceEpoch}${p.extension(url)}';
     final filePath = p.join(dir.path, fileName);
     await dio.download(url, filePath);
     return File(filePath);
@@ -193,9 +205,9 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
 
   Future<void> _saveChanges() async {
     if (_isUpdating) return;
-    
+
     setState(() => _isUpdating = true);
-    
+
     try {
       final token = await const FlutterSecureStorage().read(key: 'auth_token');
       if (token == null) {
@@ -203,17 +215,18 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       }
 
       final detailsProvider = context.read<RestaurantDetailsProvider>();
-      
+
       // Prepare update data
       final updateData = <String, dynamic>{};
-      
+
       // Add changed fields
       final currentAd = detailsProvider.adDetails;
       if (currentAd != null) {
         if (_priceRangeController.text.trim() != (currentAd.priceRange ?? '')) {
           updateData['price_range'] = _priceRangeController.text.trim();
         }
-        if (_descriptionController.text.trim() != (currentAd.description ?? '')) {
+        if (_descriptionController.text.trim() !=
+            (currentAd.description ?? '')) {
           updateData['description'] = _descriptionController.text.trim();
         }
         if (selectedPhoneNumber != currentAd.phoneNumber) {
@@ -222,18 +235,21 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
               : null;
         }
         if (selectedWhatsAppNumber != currentAd.whatsappNumber) {
-          updateData['whatsapp_number'] = (selectedWhatsAppNumber != null && selectedWhatsAppNumber!.trim().isNotEmpty)
+          updateData['whatsapp_number'] = (selectedWhatsAppNumber != null &&
+                  selectedWhatsAppNumber!.trim().isNotEmpty)
               ? PhoneNumberFormatter.formatForApi(selectedWhatsAppNumber!)
               : null;
         }
       }
-      
+
       // Add images if selected
       if (_mainImage != null) {
         updateData['main_image'] = _mainImage;
       }
       // Merge kept existing thumbnails with new ones by downloading existing URLs to files
-      final keptExistingUrls = _existingThumbnailUrls.where((url) => !_removedExistingThumbnailUrls.contains(url)).toList();
+      final keptExistingUrls = _existingThumbnailUrls
+          .where((url) => !_removedExistingThumbnailUrls.contains(url))
+          .toList();
       final existingFiles = <File>[];
       for (final url in keptExistingUrls) {
         final fullUrl = ImageUrlHelper.getFullImageUrl(url);
@@ -251,19 +267,19 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
       if (mergedThumbnails.isNotEmpty) {
         updateData['thumbnail_images'] = mergedThumbnails;
       }
-      
+
       if (updateData.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).noChangesToSave,
+              S.of(context)!.noChangesToSave,
               textDirection: Directionality.of(context),
             ),
           ),
         );
         return;
       }
-      
+
       // Update the restaurant ad
       await detailsProvider.updateRestaurantAd(
         adId: int.parse(widget.adId),
@@ -274,12 +290,12 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
         mainImage: updateData['main_image'],
         thumbnailImages: updateData['thumbnail_images'],
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).saveSuccess,
+              S.of(context)!.saveSuccess,
               textDirection: Directionality.of(context),
             ),
           ),
@@ -292,7 +308,7 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              S.of(context).saveFailed(e.toString()),
+              S.of(context)!.saveFailed(e.toString()),
               textDirection: Directionality.of(context),
             ),
           ),
@@ -309,7 +325,7 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final borderColor = const Color.fromRGBO(8, 194, 201, 1);
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: _isLoading
@@ -317,13 +333,14 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
           : Consumer2<RestaurantDetailsProvider, RestaurantsInfoProvider>(
               builder: (context, detailsProvider, infoProvider, child) {
                 final ad = detailsProvider.adDetails;
-                
+
                 if (ad == null) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, size: 64, color: Colors.grey),
+                        const Icon(Icons.error_outline,
+                            size: 64, color: Colors.grey),
                         const SizedBox(height: 16),
                         Text(
                           'لم يتم العثور على الإعلان',
@@ -333,7 +350,7 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                     ),
                   );
                 }
-                
+
                 return SingleChildScrollView(
                   padding: EdgeInsets.all(16.w),
                   child: Column(
@@ -344,7 +361,8 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                         onTap: () => Navigator.of(context).pop(),
                         child: Row(children: [
                           SizedBox(width: 5.w),
-                          Icon(Icons.arrow_back_ios, color: KTextColor, size: 20.sp),
+                          Icon(Icons.arrow_back_ios,
+                              color: KTextColor, size: 20.sp),
                           Transform.translate(
                             offset: Offset(-3.w, 0),
                             child: Text(
@@ -376,13 +394,13 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                         _buildDetailBox(s.district, ad.district ?? ''),
                       ]),
                       const SizedBox(height: 7),
-                      
+
                       _buildFormRow([
                         _buildDetailBox(s.category, ad.category ?? ''),
                         _buildDetailBox(s.area, ad.area ?? ''),
                       ]),
                       const SizedBox(height: 7),
-                      
+
                       // Editable price range field
                       _buildTitledTextFormField(
                         s.price,
@@ -392,27 +410,32 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                         isRequired: true,
                       ),
                       const SizedBox(height: 7),
-                      
+
                       // Read-only title field
                       _buildDetailBox(s.title, ad.title ?? ''),
                       const SizedBox(height: 7),
-                      
+
                       // Read-only advertiser name
-                      _buildDetailBox(s.advertiserName, ad.advertiserName ?? ''),
+                      _buildDetailBox(
+                          s.advertiserName, ad.advertiserName ?? ''),
                       const SizedBox(height: 7),
-                      
+
                       // Editable contact fields
                       _buildFormRow([
                         TitledSelectOrAddField(
                           title: s.phoneNumber,
                           value: selectedPhoneNumber,
                           items: infoProvider.phoneNumbers,
-                          onChanged: (newValue) => setState(() => selectedPhoneNumber = newValue),
+                          onChanged: (newValue) =>
+                              setState(() => selectedPhoneNumber = newValue),
                           isNumeric: true,
                           onAddNew: (value) async {
-                            final token = await const FlutterSecureStorage().read(key: 'auth_token');
+                            final token = await const FlutterSecureStorage()
+                                .read(key: 'auth_token');
                             if (token != null) {
-                              final success = await infoProvider.addContactItem('phone_numbers', value, token: token);
+                              final success = await infoProvider.addContactItem(
+                                  'phone_numbers', value,
+                                  token: token);
                               if (success && mounted) {
                                 setState(() => selectedPhoneNumber = value);
                               }
@@ -423,12 +446,16 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                           title: s.whatsApp,
                           value: selectedWhatsAppNumber,
                           items: infoProvider.whatsappNumbers,
-                          onChanged: (newValue) => setState(() => selectedWhatsAppNumber = newValue),
+                          onChanged: (newValue) =>
+                              setState(() => selectedWhatsAppNumber = newValue),
                           isNumeric: true,
                           onAddNew: (value) async {
-                            final token = await const FlutterSecureStorage().read(key: 'auth_token');
+                            final token = await const FlutterSecureStorage()
+                                .read(key: 'auth_token');
                             if (token != null) {
-                              final success = await infoProvider.addContactItem('whatsapp_numbers', value, token: token);
+                              final success = await infoProvider.addContactItem(
+                                  'whatsapp_numbers', value,
+                                  token: token);
                               if (success && mounted) {
                                 setState(() => selectedWhatsAppNumber = value);
                               }
@@ -437,15 +464,16 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                         ),
                       ]),
                       const SizedBox(height: 7),
-                      
+
                       // Editable description field
                       TitledDescriptionBox(
-                        title: s.description,
-                        controller: _descriptionController,
-                        borderColor: borderColor,
-                      ),
+                          title: s.description,
+                          controller: _descriptionController,
+                          borderColor: borderColor,
+                          minLines: 3,
+                          maxLength: 5000),
                       const SizedBox(height: 10),
-                      
+
                       // Image upload sections
                       _buildImageButton(
                         s.addMainImage,
@@ -456,16 +484,20 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                       if (_mainImage != null) ...[
                         const SizedBox(height: 8),
                         _buildSelectedImage(_mainImage!, isMain: true),
-                      ] else if (ad?.mainImage != null && ad!.mainImage!.isNotEmpty) ...[
+                      ] else if (ad?.mainImage != null &&
+                          ad!.mainImage!.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.r),
                           child: Builder(
                             builder: (context) {
-                              final mainUrl = ImageUrlHelper.getMainImageUrl(ad!.mainImage!);
+                              final mainUrl = ImageUrlHelper.getMainImageUrl(
+                                  ad!.mainImage!);
                               if (mainUrl.isNotEmpty) {
                                 final uri = Uri.tryParse(mainUrl);
-                                if (uri != null && uri.hasScheme && uri.host.isNotEmpty) {
+                                if (uri != null &&
+                                    uri.hasScheme &&
+                                    uri.host.isNotEmpty) {
                                   return Image.network(
                                     mainUrl,
                                     height: 200.h,
@@ -493,23 +525,24 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                         ),
                       ],
                       const SizedBox(height: 10),
-                      
+
                       _buildImageButton(
                         s.add3Images,
                         Icons.add_photo_alternate_outlined,
                         borderColor,
                         onPressed: _pickThumbnailImages,
                       ),
-                      if (_existingThumbnailUrls.isNotEmpty || _thumbnailImages.isNotEmpty) ...[
+                      if (_existingThumbnailUrls.isNotEmpty ||
+                          _thumbnailImages.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         _buildThumbnailImagesGrid(),
                       ],
                       const SizedBox(height: 10),
-                      
+
                       // Map section
                       _buildMapSection(context, ad),
                       const SizedBox(height: 20),
-                      
+
                       // Save button
                       SizedBox(
                         width: double.infinity,
@@ -528,7 +561,8 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                   ),
                                 )
                               : Text(
@@ -653,7 +687,8 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
               borderRadius: BorderRadius.circular(8.r),
               borderSide: BorderSide(color: KTextColor, width: 2),
             ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             fillColor: Colors.white,
             filled: true,
           ),
@@ -669,27 +704,27 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        icon: Icon(icon, color: KTextColor),
-        label: Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: KTextColor,
-            fontSize: 16.sp,
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          icon: Icon(icon, color: KTextColor),
+          label: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: KTextColor,
+              fontSize: 16.sp,
+            ),
           ),
-        ),
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 16.h),
-          side: BorderSide(color: borderColor),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.r),
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            side: BorderSide(color: borderColor),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.r),
+            ),
           ),
-        ),
-      ));
-    }
+        ));
+  }
 
   Widget _buildSelectedImage(File image, {bool isMain = false}) {
     return Container(
@@ -767,12 +802,15 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                 borderRadius: BorderRadius.circular(8.r),
                 child: isExisting
                     ? CachedNetworkImage(
-                        imageUrl: ImageUrlHelper.getFullImageUrl(_existingThumbnailUrls[existingIndex]),
+                        imageUrl: ImageUrlHelper.getFullImageUrl(
+                            _existingThumbnailUrls[existingIndex]),
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
-                        placeholder: (ctx, _) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                        errorWidget: (ctx, _, __) => const Center(child: Icon(Icons.broken_image)),
+                        placeholder: (ctx, _) => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2)),
+                        errorWidget: (ctx, _, __) =>
+                            const Center(child: Icon(Icons.broken_image)),
                       )
                     : Image.file(
                         _thumbnailImages[newIndex],
@@ -819,14 +857,24 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(s.location, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp, color: KTextColor)),
+        Text(s.location,
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16.sp,
+                color: KTextColor)),
         SizedBox(height: 4.h),
         Directionality(
           textDirection: TextDirection.ltr,
           child: Row(children: [
-            SvgPicture.asset('assets/icons/locationicon.svg', width: 20.w, height: 20.h),
+            SvgPicture.asset('assets/icons/locationicon.svg',
+                width: 20.w, height: 20.h),
             SizedBox(width: 8.w),
-            Expanded(child: Text('${ad.address ?? ''}', style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500))),
+            Expanded(
+                child: Text('${ad.address ?? ''}',
+                    style: TextStyle(
+                        fontSize: 14.sp,
+                        color: KTextColor,
+                        fontWeight: FontWeight.w500))),
           ]),
         ),
         SizedBox(height: 8.h),
@@ -835,7 +883,9 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
             return Container(
               height: 320.h,
               width: double.infinity,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8.r), border: Border.all(color: Colors.grey.shade300)),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: Colors.grey.shade300)),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.r),
                 child: FutureBuilder<LatLng>(
@@ -845,12 +895,15 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                     if (snapshot.hasData) adLocation = snapshot.data!;
 
                     return GoogleMap(
-                      initialCameraPosition: CameraPosition(target: adLocation, zoom: 14.0),
+                      initialCameraPosition:
+                          CameraPosition(target: adLocation, zoom: 14.0),
                       onMapCreated: (GoogleMapController controller) {
                         mapsProvider.onMapCreated(controller);
                         if (snapshot.hasData) {
                           Future.delayed(const Duration(milliseconds: 500), () {
-                            mapsProvider.moveCameraToLocation(adLocation.latitude, adLocation.longitude, zoom: 14.0);
+                            mapsProvider.moveCameraToLocation(
+                                adLocation.latitude, adLocation.longitude,
+                                zoom: 14.0);
                           });
                         }
                       },
@@ -868,8 +921,14 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
                           markerId: const MarkerId('ad_location'),
                           position: adLocation,
                           infoWindow: InfoWindow(
-                            title: (ad.address != null && (ad.address as String).isNotEmpty) ? 'الموقع المحدد' : (ad.emirate ?? 'الموقع'),
-                            snippet: (ad.address != null && (ad.address as String).isNotEmpty) ? (ad.address as String) : (ad.area ?? ''),
+                            title: (ad.address != null &&
+                                    (ad.address as String).isNotEmpty)
+                                ? 'الموقع المحدد'
+                                : (ad.emirate ?? 'الموقع'),
+                            snippet: (ad.address != null &&
+                                    (ad.address as String).isNotEmpty)
+                                ? (ad.address as String)
+                                : (ad.area ?? ''),
                           ),
                         ),
                       },
@@ -922,402 +981,5 @@ class _RestaurantsSaveAdScreenState extends State<RestaurantsSaveAdScreen> {
     }
 
     return const LatLng(25.2048, 55.2708);
-  }
-}
-
-// Custom widgets needed for the screen
-class TitledSelectOrAddField extends StatelessWidget {
-  final String title;
-  final String? value;
-  final List<String> items;
-  final Function(String) onChanged;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-
-  const TitledSelectOrAddField({
-    Key? key,
-    required this.title,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-    this.isNumeric = false,
-    this.onAddNew,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: KTextColor,
-            fontSize: 14.sp,
-          ),
-        ),
-        const SizedBox(height: 4),
-        GestureDetector(
-          onTap: () async {
-            final result = await showModalBottomSheet<String>(
-              context: context,
-              backgroundColor: Colors.white,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              builder: (_) => _SearchableSelectOrAddBottomSheet(
-                title: title,
-                items: items,
-                isNumeric: isNumeric,
-                onAddNew: onAddNew,
-              ),
-            );
-            if (result != null && result.isNotEmpty) {
-              onChanged(result);
-            }
-          },
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: borderColor),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    value ?? s.chooseAnOption,
-                    style: TextStyle(
-                      fontWeight: value == null ? FontWeight.normal : FontWeight.w500,
-                      color: value == null ? Colors.grey.shade500 : KTextColor,
-                      fontSize: 12.sp,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-
-  const _SearchableSelectOrAddBottomSheet({
-    required this.title,
-    required this.items,
-    this.isNumeric = false,
-    this.onAddNew,
-  });
-
-  @override
-  _SearchableSelectOrAddBottomSheetState createState() => _SearchableSelectOrAddBottomSheetState();
-}
-
-class _SearchableSelectOrAddBottomSheetState extends State<_SearchableSelectOrAddBottomSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _addController = TextEditingController();
-  List<String> _filteredItems = [];
-  String _selectedCountryCode = '+971';
-  final Map<String, String> _countryCodes = PhoneNumberFormatter.countryCodes;
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredItems = List.from(widget.items);
-    _searchController.addListener(_filterItems);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _addController.dispose();
-    super.dispose();
-  }
-
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredItems = widget.items.where((i) => i.toLowerCase().contains(query)).toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        top: 16,
-        left: 16,
-        right: 16,
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.75,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18.sp,
-                color: KTextColor,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _searchController,
-              style: const TextStyle(color: KTextColor),
-              decoration: InputDecoration(
-                hintText: s.search,
-                prefixIcon: const Icon(Icons.search, color: KTextColor),
-                hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: KPrimaryColor, width: 2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Divider(),
-            Expanded(
-              child: _filteredItems.isEmpty
-                  ? Center(
-                      child: Text(
-                        s.noResultsFound,
-                        style: const TextStyle(color: KTextColor),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _filteredItems[index];
-                        return ListTile(
-                          title: Text(
-                            item,
-                            style: const TextStyle(color: KTextColor),
-                          ),
-                          onTap: () => Navigator.pop(context, item),
-                        );
-                      },
-                    ),
-            ),
-            const Divider(),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.isNumeric) ...[
-                  SizedBox(
-                    width: 90,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCountryCode,
-                      items: _countryCodes.entries
-                          .map(
-                            (entry) => DropdownMenuItem<String>(
-                              value: entry.value,
-                              child: Text(
-                                entry.value,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: KTextColor,
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) => setState(() => _selectedCountryCode = value!),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: borderColor),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: borderColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: KPrimaryColor, width: 2),
-                        ),
-                      ),
-                      isDense: true,
-                      isExpanded: true,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: TextFormField(
-                    controller: _addController,
-                    keyboardType: widget.isNumeric ? TextInputType.number : TextInputType.text,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: KTextColor,
-                      fontSize: 12.sp,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: widget.isNumeric ? s.phoneNumber : s.addNew,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: KPrimaryColor, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    String result = _addController.text.trim();
-                    if (widget.isNumeric && result.isNotEmpty) {
-                      result = '$_selectedCountryCode$result';
-                    }
-                    if (result.isNotEmpty) {
-                      // Close first, then add asynchronously
-                      Navigator.pop(context, result);
-                      if (widget.onAddNew != null) {
-                        Future.microtask(() => widget.onAddNew!(result));
-                      }
-                    }
-                  },
-                  child: Text(
-                    s.add,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: KPrimaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    minimumSize: const Size(60, 48),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class TitledDescriptionBox extends StatefulWidget {
-  final String title;
-  final TextEditingController controller;
-  final Color borderColor;
-  final int maxLength;
-  final String? hintText;
-
-  const TitledDescriptionBox({
-    Key? key,
-    required this.title,
-    required this.controller,
-    required this.borderColor,
-    this.maxLength = 5000,
-    this.hintText,
-  }) : super(key: key);
-
-  @override
-  State<TitledDescriptionBox> createState() => _TitledDescriptionBoxState();
-}
-
-class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.title,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: KTextColor,
-            fontSize: 14.sp,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(color: widget.borderColor),
-          ),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: widget.controller,
-                maxLines: null,
-                minLines: 3,
-                maxLength: widget.maxLength,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: KTextColor,
-                  fontSize: 14.sp,
-                ),
-                decoration: InputDecoration(
-                  hintText: widget.hintText,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(12),
-                  counterText: "",
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Text(
-                    '${widget.controller.text.length}/${widget.maxLength}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    textDirection: Directionality.of(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }

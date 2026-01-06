@@ -1,12 +1,12 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
+import 'l10n.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+class SEn extends S {
+  SEn([String locale = 'en']) : super(locale);
 
   @override
   String get signUp => 'Sign Up';
@@ -295,7 +295,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editing1 => 'Editing';
 
   @override
-  String get editit2 => 'Do you want to edit your profile';
+  String get editit2 => 'To make changes, please press the edit button below';
 
   @override
   String get edit3 => 'Edit';
@@ -1125,4 +1125,111 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adDeletedFailed => 'Failed to delete ad';
+
+  @override
+  String get usernameRequired => 'Username is required';
+
+  @override
+  String get invalidPhoneFormat => 'Invalid phone number format';
+
+  @override
+  String get profileSavedSuccessfully => 'Profile saved successfully!';
+
+  @override
+  String get failedToSaveProfile => 'Failed to save profile';
+
+  @override
+  String get unsupportedImageFormat =>
+      'Unsupported image format. Choose JPG/PNG/GIF';
+
+  @override
+  String get logoUploadedSuccessfully => 'Logo uploaded successfully!';
+
+  @override
+  String get failedToUploadLogo => 'Failed to upload logo';
+
+  @override
+  String get logoDeletedSuccessfully => 'Logo deleted successfully!';
+
+  @override
+  String get failedToDeleteLogo => 'Failed to delete logo';
+
+  @override
+  String get pleaseSelectLocationFirst => 'Please select location first';
+
+  @override
+  String get pleaseLoginFirst2 => 'Please log in first';
+
+  @override
+  String get savingLocation => 'Saving location...';
+
+  @override
+  String get locationSavedSuccessfully => 'Location saved successfully!';
+
+  @override
+  String get locationUpdateSuccess => 'Location updated successfully!';
+
+  @override
+  String get failedToLocate => 'Failed to locate';
+
+  @override
+  String locationError(Object error) {
+    return 'Location error: $error';
+  }
+
+  @override
+  String get googleMapsOpenedAndLocationSaved =>
+      'Google Maps opened and location saved';
+
+  @override
+  String get googleMapsWebOpenedAndLocationSaved =>
+      'Google Maps (Web version) opened and location saved';
+
+  @override
+  String failedToOpenGoogleMaps(Object error) {
+    return 'Failed to open Google Maps: $error';
+  }
+
+  @override
+  String locationPickerError(Object error) {
+    return 'Location picker error: $error';
+  }
+
+  @override
+  String errorLabel(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get howToEnableLocationService => 'How to enable location service';
+
+  @override
+  String get locationInstructionsAndroid =>
+      'For Android:\n1. Go to Settings\n2. Tap Privacy or Location\n3. Enable Location Services\n4. Make sure the app has location permission';
+
+  @override
+  String get locationInstructionsIOS =>
+      'For iPhone:\n1. Go to Settings\n2. Tap Privacy\n3. Tap Location Services and enable it\n4. Find this app and set to \'While Using\'';
+
+  @override
+  String get locationNote =>
+      'Note: These steps may vary slightly depending on your device model and operating system version.';
+
+  @override
+  String get understood => 'Got it';
+
+  @override
+  String get tryNow => 'Try Now';
+
+  @override
+  String get selectAdvertiserType => 'Select advertiser type';
+
+  @override
+  String get individual => 'Individual';
+
+  @override
+  String get company => 'Company';
 }

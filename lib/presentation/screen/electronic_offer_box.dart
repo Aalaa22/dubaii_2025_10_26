@@ -90,7 +90,7 @@ class _ElectronicOfferBoxState extends State<ElectronicOfferBox> with FavoritesH
                                 color: KTextColor, size: 17.sp),
                             Transform.translate(
                                 offset: Offset(-3.w, 0),
-                                child: Text(s.back,
+                                child: Text(s!.back,
                                     style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w500,
@@ -484,7 +484,7 @@ Widget _buildRangePickerField(BuildContext context,
   displayText = (fromValue == null || fromValue.isEmpty) &&
           (toValue == null || toValue.isEmpty)
       ? title
-      : '${fromValue ?? s.from} - ${toValue ?? s.to} $unit'.trim();
+      : '${fromValue ?? s!.from} - ${toValue ?? s!.to} $unit'.trim();
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -624,7 +624,7 @@ class _MultiSelectBottomSheetState extends State<_MultiSelectBottomSheet> {
                   controller: _searchController,
                   style: TextStyle(color: KTextColor),
                   decoration: InputDecoration(
-                    hintText: s.search,
+                    hintText: s!.search,
                     prefixIcon: Icon(Icons.search, color: KTextColor),
                     hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
                     enabledBorder: OutlineInputBorder(
@@ -781,7 +781,7 @@ class __RangeSelectionBottomSheetState
                   _toController.clear();
                   setState(() {});
                 },
-                child: Text(s.reset,
+                child: Text(s!.reset,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,

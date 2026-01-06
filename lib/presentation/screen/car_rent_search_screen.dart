@@ -28,20 +28,38 @@ class CarRentAdCardAdapter implements FavoriteItemInterface {
   final CarRentAdModel _ad;
   CarRentAdCardAdapter(this._ad);
 
-  @override int get id => _ad.id;
-  @override String get contact => _ad.advertiserName;
-  @override String get details => _ad.title;
-  @override String get category => 'Car Rent'; // Category for car rent
-  
-  @override String get addCategory => 'Car Rent'; // Dynamic category for API
-  @override String get imageUrl => ImageUrlHelper.getMainImageUrl(_ad.mainImage ?? '');
-  @override List<String> get images => [ ImageUrlHelper.getMainImageUrl(_ad.mainImage ?? ''), ...ImageUrlHelper.getThumbnailImageUrls(_ad.thumbnailImages) ].where((img) => img.isNotEmpty).toList();
-  @override String get line1 => 'Day/Month Rent'; // تغيير من '' إلى قيمة غير فارغة
-  @override String get line2 => _ad.title;
-  @override String get price => _ad.price;
-  @override String get location => "${_ad.emirate} ${_ad.area}";
-  @override String get title => "${_ad.make ?? ''} ${_ad.model ?? ''} ${_ad.trim ?? ''} ${_ad.year ?? ''}".trim();
-  @override String get date => _ad.createdAt?.split('T').first ?? '';
+  @override
+  int get id => _ad.id;
+  @override
+  String get contact => _ad.advertiserName;
+  @override
+  String get details => _ad.title;
+  @override
+  String get category => 'Car Rent'; // Category for car rent
+
+  @override
+  String get addCategory => 'Car Rent'; // Dynamic category for API
+  @override
+  String get imageUrl => ImageUrlHelper.getMainImageUrl(_ad.mainImage ?? '');
+  @override
+  List<String> get images => [
+        ImageUrlHelper.getMainImageUrl(_ad.mainImage ?? ''),
+        ...ImageUrlHelper.getThumbnailImageUrls(_ad.thumbnailImages)
+      ].where((img) => img.isNotEmpty).toList();
+  @override
+  String get line1 => 'Day/Month Rent'; // تغيير من '' إلى قيمة غير فارغة
+  @override
+  String get line2 => _ad.title;
+  @override
+  String get price => _ad.price;
+  @override
+  String get location => "${_ad.emirate} ${_ad.area}";
+  @override
+  String get title =>
+      "${_ad.make ?? ''} ${_ad.model ?? ''} ${_ad.trim ?? ''} ${_ad.year ?? ''}"
+          .trim();
+  @override
+  String get date => _ad.createdAt?.split('T').first ?? '';
 
   @override
   AdPriority get priority {
@@ -52,9 +70,10 @@ class CarRentAdCardAdapter implements FavoriteItemInterface {
     if (plan.contains('featured')) return AdPriority.featured;
     return AdPriority.free;
   }
-  @override bool get isPremium => priority != AdPriority.free;
-}
 
+  @override
+  bool get isPremium => priority != AdPriority.free;
+}
 
 class _CarRentState {
   static double scrollPosition = 0;
@@ -64,14 +83,15 @@ class _CarRentState {
 
 class CarRentSearchScreen extends StatefulWidget {
   final Map<String, dynamic>? filters;
-  
+
   const CarRentSearchScreen({super.key, this.filters});
 
   @override
   State<CarRentSearchScreen> createState() => _CarRentSearchScreenState();
 }
 
-class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+class _CarRentSearchScreenState extends State<CarRentSearchScreen>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
   bool _showOverlayBar = false;
   double _lastOffset = 0;
@@ -99,7 +119,7 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
         final provider = context.read<CarRentAdProvider>();
         provider.clearFilters();
       }
-      
+
       if (_CarRentState.scrollPosition > 0 && _scrollController.hasClients) {
         _scrollController.jumpTo(_CarRentState.scrollPosition);
       }
@@ -139,43 +159,66 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
     }
     _lastOffset = currentOffset;
   }
-  
+
   Widget _buildFiltersRow(Function(void Function()) setInnerState) {
     return Container(
       height: 35.h,
       child: Row(
         children: [
-          SvgPicture.asset('assets/icons/filter.svg', width: 25.w, height: 25.h),
+          SvgPicture.asset('assets/icons/filter.svg',
+              width: 25.w, height: 25.h),
           SizedBox(width: 12.w),
           Expanded(
             child: Row(
               children: [
                 Expanded(
-                  child: _buildRangePickerField(context, title: S.of(context).year, fromValue: _yearFrom, toValue: _yearTo, unit: "", isFilter: true,
-                    onTap: () async {
-                       final result = await _showRangePicker(context, title: S.of(context).year, initialFrom: _yearFrom, initialTo: _yearTo, unit: "");
-                       if(result != null) {
-                         setState((){_yearFrom = result['from']; _yearTo = result['to'];});
-                         // Apply filter through provider
-                         Provider.of<CarRentAdProvider>(context, listen: false).updateYearRange(result['from'], result['to']);
-                         setInnerState((){});
-                       }
+                  child: _buildRangePickerField(context,
+                      title: S.of(context)!.year,
+                      fromValue: _yearFrom,
+                      toValue: _yearTo,
+                      unit: "",
+                      isFilter: true, onTap: () async {
+                    final result = await _showRangePicker(context,
+                        title: S.of(context)!.year,
+                        initialFrom: _yearFrom,
+                        initialTo: _yearTo,
+                        unit: "");
+                    if (result != null) {
+                      setState(() {
+                        _yearFrom = result['from'];
+                        _yearTo = result['to'];
+                      });
+                      // Apply filter through provider
+                      Provider.of<CarRentAdProvider>(context, listen: false)
+                          .updateYearRange(result['from'], result['to']);
+                      setInnerState(() {});
                     }
-                  ),
+                  }),
                 ),
                 SizedBox(width: 7.w),
                 Expanded(
-                  child: _buildRangePickerField(context, title: S.of(context).price, fromValue: _priceFrom, toValue: _priceTo, unit: "AED", isFilter: true,
-                     onTap: () async {
-                       final result = await _showRangePicker(context, title: S.of(context).price, initialFrom: _priceFrom, initialTo: _priceTo, unit: "AED");
-                       if(result != null) {
-                         setState((){_priceFrom = result['from']; _priceTo = result['to'];});
-                         // Apply filter through provider
-                         Provider.of<CarRentAdProvider>(context, listen: false).updatePriceRange(result['from'], result['to']);
-                         setInnerState((){});
-                       }
+                  child: _buildRangePickerField(context,
+                      title: S.of(context)!.price,
+                      fromValue: _priceFrom,
+                      toValue: _priceTo,
+                      unit: "AED",
+                      isFilter: true, onTap: () async {
+                    final result = await _showRangePicker(context,
+                        title: S.of(context)!.price,
+                        initialFrom: _priceFrom,
+                        initialTo: _priceTo,
+                        unit: "AED");
+                    if (result != null) {
+                      setState(() {
+                        _priceFrom = result['from'];
+                        _priceTo = result['to'];
+                      });
+                      // Apply filter through provider
+                      Provider.of<CarRentAdProvider>(context, listen: false)
+                          .updatePriceRange(result['from'], result['to']);
+                      setInnerState(() {});
                     }
-                  ),
+                  }),
                 ),
               ],
             ),
@@ -192,22 +235,92 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
         builder: (context, setOverlayState) {
           final provider = context.watch<CarRentAdProvider>();
           return Positioned(
-            top: MediaQuery.of(context).padding.top, left: 0, right: 0,
+            top: MediaQuery.of(context).padding.top,
+            left: 0,
+            right: 0,
             child: Material(
-              elevation: 6, color: Colors.white,
+              elevation: 6,
+              color: Colors.white,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                decoration: BoxDecoration( border: Border(bottom: BorderSide(color: Colors.grey.shade300))),
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(color: Colors.grey.shade300))),
                 child: Column(
                   children: [
-                    GestureDetector(onTap: () { _removeFloatingOverlayBar(); _resetState(); context.pop(); },
-                      child: Row(children: [ Icon(Icons.arrow_back_ios, color: KTextColor, size: 17.sp), Transform.translate( offset: Offset(-3.w, 0), child: Text(S.of(context).back, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor)))])),
+                    GestureDetector(
+                        onTap: () {
+                          _removeFloatingOverlayBar();
+                          _resetState();
+                          context.pop();
+                        },
+                        child: Row(children: [
+                          Icon(Icons.arrow_back_ios,
+                              color: KTextColor, size: 17.sp),
+                          Transform.translate(
+                              offset: Offset(-3.w, 0),
+                              child: Text(S.of(context)!.back,
+                                  style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: KTextColor)))
+                        ])),
                     SizedBox(height: 5.h),
-                    _buildFiltersRow(setOverlayState), 
-                    SizedBox(height:4.h),
-                    LayoutBuilder(builder: (context, constraints) {
-                        bool isSmallScreen = MediaQuery.of(context).size.width <= 370;
-                        return Row(children: [ Text('${S.of(context).ad} ${provider.totalAds}', style: TextStyle(fontSize: 12.sp, color: KTextColor, fontWeight: FontWeight.w400)), SizedBox(width: isSmallScreen ? 35.w : 30.w), Expanded(child: Container(height: 37.h, padding: EdgeInsetsDirectional.symmetric(horizontal: isSmallScreen ? 8.w : 12.w), decoration: BoxDecoration(border: Border.all(color: const Color(0xFF08C2C9)), borderRadius: BorderRadius.circular(8.r)), child: Row(children: [ SvgPicture.asset('assets/icons/locationicon.svg', width: 18.w, height: 18.h), SizedBox(width: isSmallScreen ? 12.w : 15.w), Expanded(child: Text( S.of(context).sort, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp))), SizedBox(width: isSmallScreen ? 35.w : 32.w, child: Transform.scale(scale: isSmallScreen ? 0.8 : .9, child: Switch( value: _isSortActive, onChanged: (val) => setState(() => _isSortActive = val), activeColor: Colors.white, activeTrackColor: const Color(0xFF08C2C9), inactiveThumbColor: isSmallScreen ? Colors.white : Colors.grey, inactiveTrackColor: Colors.grey[300])))])))]);
+                    _buildFiltersRow(setOverlayState),
+                    SizedBox(height: 4.h),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isSmallScreen =
+                            MediaQuery.of(context).size.width <= 370;
+                        return Row(children: [
+                          Text('${S.of(context)!.ad} ${provider.totalAds}',
+                              style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: KTextColor,
+                                  fontWeight: FontWeight.w400)),
+                          SizedBox(width: isSmallScreen ? 35.w : 30.w),
+                          Expanded(
+                              child: Container(
+                                  height: 37.h,
+                                  padding: EdgeInsetsDirectional.symmetric(
+                                      horizontal: isSmallScreen ? 8.w : 12.w),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: const Color(0xFF08C2C9)),
+                                      borderRadius: BorderRadius.circular(8.r)),
+                                  child: Row(children: [
+                                    SvgPicture.asset(
+                                        'assets/icons/locationicon.svg',
+                                        width: 18.w,
+                                        height: 18.h),
+                                    SizedBox(
+                                        width: isSmallScreen ? 12.w : 15.w),
+                                    Expanded(
+                                        child: Text(S.of(context)!.sort,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                color: KTextColor,
+                                                fontSize: 12.sp))),
+                                    SizedBox(
+                                        width: isSmallScreen ? 35.w : 32.w,
+                                        child: Transform.scale(
+                                            scale: isSmallScreen ? 0.8 : .9,
+                                            child: Switch(
+                                                value: _isSortActive,
+                                                onChanged: (val) => setState(
+                                                    () => _isSortActive = val),
+                                                activeColor: Colors.white,
+                                                activeTrackColor:
+                                                    const Color(0xFF08C2C9),
+                                                inactiveThumbColor:
+                                                    isSmallScreen
+                                                        ? Colors.white
+                                                        : Colors.grey,
+                                                inactiveTrackColor:
+                                                    Colors.grey[300])))
+                                  ])))
+                        ]);
                       },
                     ),
                   ],
@@ -218,7 +331,9 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
         },
       ),
     );
-    if (mounted) { Overlay.of(context).insert(_overlayEntry!); }
+    if (mounted) {
+      Overlay.of(context).insert(_overlayEntry!);
+    }
   }
 
   void _removeFloatingOverlayBar() {
@@ -245,7 +360,9 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-      child: Text(title, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: KTextColor)),
+      child: Text(title,
+          style: TextStyle(
+              fontSize: 18.sp, fontWeight: FontWeight.bold, color: KTextColor)),
     );
   }
 
@@ -257,7 +374,7 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
         _CarRentState.shouldShowOverlay = _showOverlayBar;
         _CarRentState.keepOverlayVisible = _showOverlayBar;
         _removeFloatingOverlayBar();
-        context.push('/car-rent-details', extra: item).then((_) {
+        context.push('/car-rent-details/${item.id}').then((_) {
           if (_CarRentState.keepOverlayVisible && mounted) {
             _showOverlayBar = true;
             _showFloatingOverlayBar();
@@ -272,10 +389,14 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
           customLine1Span: TextSpan(
             children: [
               WidgetSpan(
-                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    _buildLabelWithValue("Day Rent", item.dayRent ), // استخدام البيانات الحقيقية
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildLabelWithValue(
+                        "Day Rent", item.dayRent), // استخدام البيانات الحقيقية
                     const SizedBox(width: 16),
-                    _buildLabelWithValue("Month Rent", item.monthRent), // استخدام البيانات الحقيقية
+                    _buildLabelWithValue("Month Rent",
+                        item.monthRent), // استخدام البيانات الحقيقية
                   ],
                 ),
               ),
@@ -291,13 +412,15 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
                 _launchUrl(url);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("WhatsApp number not available")),
+                  const SnackBar(
+                      content: Text("WhatsApp number not available")),
                 );
               }
             }),
             const SizedBox(width: 5),
             _buildActionIcon(Icons.phone, onTap: () {
-              final url = PhoneNumberFormatter.getTelUrl(item.phoneNumber ?? '');
+              final url =
+                  PhoneNumberFormatter.getTelUrl(item.phoneNumber ?? '');
               _launchUrl(url);
             }),
           ],
@@ -307,12 +430,13 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
   }
 
   // +++ تم تعديل هذه الدالة للتعامل مع null +++
- Widget _buildLabelWithValue(String label, String? value) {
+  Widget _buildLabelWithValue(String label, String? value) {
     // Handle null values by showing the field name with "null"
-    final displayValue = (value == null || value.isEmpty || value.toLowerCase() == 'null') 
-        ? "$label: null" 
-        : value.split('.')[0];
-    
+    final displayValue =
+        (value == null || value.isEmpty || value.toLowerCase() == 'null')
+            ? "$label: null"
+            : value.split('.')[0];
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -334,8 +458,10 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
             displayValue,
             style: TextStyle(
               fontWeight: FontWeight.w500,
-              color: (value == null || value.isEmpty || value.toLowerCase() == 'null') 
-                  ? Colors.grey 
+              color: (value == null ||
+                      value.isEmpty ||
+                      value.toLowerCase() == 'null')
+                  ? Colors.grey
                   : const Color.fromRGBO(0, 30, 90, 1),
               fontSize: 14,
             ),
@@ -358,33 +484,55 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
         body: SafeArea(
           child: Consumer<CarRentAdProvider>(
             builder: (context, provider, child) {
-              
               final allAds = provider.ads;
-              allAds.sort((a,b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+              allAds.sort(
+                  (a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
 
-              final premiumStarCars = allAds.where((ad) => CarRentAdCardAdapter(ad).priority == AdPriority.PremiumStar).toList();
-              final premiumCars = allAds.where((ad) => CarRentAdCardAdapter(ad).priority == AdPriority.premium).toList();
-              final featuredCars = allAds.where((ad) => CarRentAdCardAdapter(ad).priority == AdPriority.featured).toList();
-              final freeCars = allAds.where((ad) => CarRentAdCardAdapter(ad).priority == AdPriority.free).toList();
-              
+              final premiumStarCars = allAds
+                  .where((ad) =>
+                      CarRentAdCardAdapter(ad).priority ==
+                      AdPriority.PremiumStar)
+                  .toList();
+              final premiumCars = allAds
+                  .where((ad) =>
+                      CarRentAdCardAdapter(ad).priority == AdPriority.premium)
+                  .toList();
+              final featuredCars = allAds
+                  .where((ad) =>
+                      CarRentAdCardAdapter(ad).priority == AdPriority.featured)
+                  .toList();
+              final freeCars = allAds
+                  .where((ad) =>
+                      CarRentAdCardAdapter(ad).priority == AdPriority.free)
+                  .toList();
+
               return NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification is ScrollUpdateNotification) { _handleScroll(); } return false;
+                  if (notification is ScrollUpdateNotification) {
+                    _handleScroll();
+                  }
+                  return false;
                 },
                 child: RefreshIndicator(
                   onRefresh: () async {
                     // Preserve current filters when refreshing
                     final provider = context.read<CarRentAdProvider>();
-                    if (provider.currentFilters.isNotEmpty || 
-                        provider.yearFrom != null || provider.yearTo != null ||
-                        provider.priceFrom != null || provider.priceTo != null) {
+                    if (provider.currentFilters.isNotEmpty ||
+                        provider.yearFrom != null ||
+                        provider.yearTo != null ||
+                        provider.priceFrom != null ||
+                        provider.priceTo != null) {
                       // If there are active filters, refresh with them
                       await provider.fetchAds(filters: provider.currentFilters);
                       // Reapply local filters if they exist
-                      if (provider.yearFrom != null || provider.yearTo != null ||
-                          provider.priceFrom != null || provider.priceTo != null) {
-                        provider.updateYearRange(provider.yearFrom, provider.yearTo);
-                        provider.updatePriceRange(provider.priceFrom, provider.priceTo);
+                      if (provider.yearFrom != null ||
+                          provider.yearTo != null ||
+                          provider.priceFrom != null ||
+                          provider.priceTo != null) {
+                        provider.updateYearRange(
+                            provider.yearFrom, provider.yearTo);
+                        provider.updatePriceRange(
+                            provider.priceFrom, provider.priceTo);
                       }
                     } else {
                       // No filters, just refresh normally
@@ -405,53 +553,148 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               GestureDetector(
-                                onTap: () { _removeFloatingOverlayBar(); _resetState(); context.pop(); },
-                                child: Row(children: [Icon(Icons.arrow_back_ios, color: KTextColor, size: 17.sp), Transform.translate( offset: Offset(-3.w, 0), child: Text(S.of(context).back, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor)))])),
+                                  onTap: () {
+                                    _removeFloatingOverlayBar();
+                                    _resetState();
+                                    context.pop();
+                                  },
+                                  child: Row(children: [
+                                    Icon(Icons.arrow_back_ios,
+                                        color: KTextColor, size: 17.sp),
+                                    Transform.translate(
+                                        offset: Offset(-3.w, 0),
+                                        child: Text(S.of(context)!.back,
+                                            style: TextStyle(
+                                                fontSize: 14.sp,
+                                                fontWeight: FontWeight.w500,
+                                                color: KTextColor)))
+                                  ])),
                               SizedBox(height: 3.h),
-                              Center(child: Text(S.of(context).carrent, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24.sp, color: KTextColor))),
+                              Center(
+                                  child: Text(S.of(context)!.carrent,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 24.sp,
+                                          color: KTextColor))),
                             ],
                           ),
                         ),
                         SizedBox(height: 8.h),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 18.w),
-                          child: _buildFiltersRow(setState), 
+                          child: _buildFiltersRow(setState),
                         ),
                         SizedBox(height: 4.h),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 18.w),
-                          child: LayoutBuilder(builder: (context, constraints) {
-                              bool isSmallScreen = MediaQuery.of(context).size.width <= 370;
-                              return Row(children: [ Text( '${S.of(context).ad} ${provider.totalAds}', style: TextStyle(fontSize: 12.sp, color: KTextColor, fontWeight: FontWeight.w400)), SizedBox(width: isSmallScreen ? 35.w : 30.w), Expanded(child: Container(height: 37.h, padding: EdgeInsetsDirectional.symmetric(horizontal: isSmallScreen ? 8.w : 12.w), decoration: BoxDecoration(border: Border.all(color: const Color(0xFF08C2C9)), borderRadius: BorderRadius.circular(8.r)), child: Row(children: [ SvgPicture.asset('assets/icons/locationicon.svg', width: 18.w, height: 18.h), SizedBox(width: isSmallScreen ? 12.w : 15.w), Expanded(child: Text(s.sort, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp))), SizedBox(width: isSmallScreen ? 35.w : 32.w, child: Transform.scale(scale: isSmallScreen ? 0.8 : .9, child: Switch(value: _isSortActive, onChanged: (val) => setState(() => _isSortActive = val), activeColor: Colors.white, activeTrackColor: const Color(0xFF08C2C9), inactiveThumbColor: isSmallScreen ? Colors.white : Colors.grey, inactiveTrackColor: Colors.grey[300])))])))]);
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              bool isSmallScreen =
+                                  MediaQuery.of(context).size.width <= 370;
+                              return Row(children: [
+                                Text(
+                                    '${S.of(context)!.ad} ${provider.totalAds}',
+                                    style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: KTextColor,
+                                        fontWeight: FontWeight.w400)),
+                                SizedBox(width: isSmallScreen ? 35.w : 30.w),
+                                Expanded(
+                                    child: Container(
+                                        height: 37.h,
+                                        padding:
+                                            EdgeInsetsDirectional.symmetric(
+                                                horizontal:
+                                                    isSmallScreen ? 8.w : 12.w),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: const Color(0xFF08C2C9)),
+                                            borderRadius:
+                                                BorderRadius.circular(8.r)),
+                                        child: Row(children: [
+                                          SvgPicture.asset(
+                                              'assets/icons/locationicon.svg',
+                                              width: 18.w,
+                                              height: 18.h),
+                                          SizedBox(
+                                              width:
+                                                  isSmallScreen ? 12.w : 15.w),
+                                          Expanded(
+                                              child: Text(s!.sort,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: KTextColor,
+                                                      fontSize: 12.sp))),
+                                          SizedBox(
+                                              width:
+                                                  isSmallScreen ? 35.w : 32.w,
+                                              child: Transform.scale(
+                                                  scale:
+                                                      isSmallScreen ? 0.8 : .9,
+                                                  child: Switch(
+                                                      value: _isSortActive,
+                                                      onChanged: (val) =>
+                                                          setState(() =>
+                                                              _isSortActive =
+                                                                  val),
+                                                      activeColor: Colors.white,
+                                                      activeTrackColor:
+                                                          const Color(
+                                                              0xFF08C2C9),
+                                                      inactiveThumbColor:
+                                                          isSmallScreen
+                                                              ? Colors.white
+                                                              : Colors.grey,
+                                                      inactiveTrackColor:
+                                                          Colors.grey[300])))
+                                        ])))
+                              ]);
                             },
                           ),
                         ),
                         SizedBox(height: 5.h),
                         if (provider.isLoading && allAds.isEmpty)
-                           Center(child: Padding(padding: const EdgeInsets.all(32.0), child: CircularProgressIndicator()))
+                          Center(
+                              child: Padding(
+                                  padding: const EdgeInsets.all(32.0),
+                                  child: CircularProgressIndicator()))
                         else if (provider.error != null && allAds.isEmpty)
-                          Center(child: Padding(padding: const EdgeInsets.all(32.0), child: Text("Error: ${provider.error}")))
-                        else if(allAds.isEmpty && !provider.isLoading)
-                           Center(child: Padding(padding: const EdgeInsets.all(32.0), child: Text("No ads found")))
-                        else ... [
+                          Center(
+                              child: Padding(
+                                  padding: const EdgeInsets.all(32.0),
+                                  child: Text("Error: ${provider.error}")))
+                        else if (allAds.isEmpty && !provider.isLoading)
+                          Center(
+                              child: Padding(
+                                  padding: const EdgeInsets.all(32.0),
+                                  child: Text("No ads found")))
+                        else ...[
                           // اعرض الأقسام بحسب الأولوية إن وُجدت، وإلا اعرض جميع الإعلانات كحل احتياطي
                           if (premiumStarCars.isNotEmpty) ...[
-                            _buildSectionTitle(s.priority_first_premium),
-                            ...premiumStarCars.map((ad) => _buildCard(ad)).toList()
+                            _buildSectionTitle(s!.priority_first_premium),
+                            ...premiumStarCars
+                                .map((ad) => _buildCard(ad))
+                                .toList()
                           ],
                           if (premiumCars.isNotEmpty) ...[
-                            _buildSectionTitle(s.priority_premium),
+                            _buildSectionTitle(s!.priority_premium),
                             ...premiumCars.map((ad) => _buildCard(ad)).toList()
                           ],
                           if (featuredCars.isNotEmpty) ...[
-                            _buildSectionTitle(s.priority_featured),
+                            _buildSectionTitle(s!.priority_featured),
                             ...featuredCars.map((ad) => _buildCard(ad)).toList()
                           ],
                           if (freeCars.isNotEmpty) ...[
-                            _buildSectionTitle(s.priority_free),
+                            _buildSectionTitle(s!.priority_free),
                             ...freeCars.map((ad) => _buildCard(ad)).toList()
                           ],
-                          if (premiumStarCars.isEmpty && premiumCars.isEmpty && featuredCars.isEmpty && freeCars.isEmpty)
+                          if (premiumStarCars.isEmpty &&
+                              premiumCars.isEmpty &&
+                              featuredCars.isEmpty &&
+                              freeCars.isEmpty)
                             ...allAds.map((ad) => _buildCard(ad)).toList(),
                         ]
                       ],
@@ -496,50 +739,87 @@ class _CarRentSearchScreenState extends State<CarRentSearchScreen> with WidgetsB
   }
 }
 
-Widget _buildRangePickerField(BuildContext context, {required String title, String? fromValue, String? toValue, required String unit, required VoidCallback onTap, bool isFilter = false}) {
-    final s = S.of(context);
-    String displayText = (fromValue == null || fromValue.isEmpty) && (toValue == null || toValue.isEmpty) 
-          ? title
-          : '${fromValue ?? s.from} - ${toValue ?? s.to} ${unit}'.trim();
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if(!isFilter) Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14)),
-        if(!isFilter) const SizedBox(height: 4),
-        GestureDetector(
-          onTap: onTap,
-          child: Container(
-            height: isFilter ? 35 : 48, 
-            width: double.infinity, 
-            padding: const EdgeInsets.symmetric(horizontal: 8), 
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: Colors.white, border: Border.all(color: borderColor), borderRadius: BorderRadius.circular(8)),
-            child: Text(displayText, style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: KTextColor,
-              fontSize: 11), 
-              overflow: TextOverflow.ellipsis, maxLines: 1),
-          ),
+Widget _buildRangePickerField(BuildContext context,
+    {required String title,
+    String? fromValue,
+    String? toValue,
+    required String unit,
+    required VoidCallback onTap,
+    bool isFilter = false}) {
+  final s = S.of(context);
+  String displayText = (fromValue == null || fromValue.isEmpty) &&
+          (toValue == null || toValue.isEmpty)
+      ? title
+      : '${fromValue ?? s!.from} - ${toValue ?? s!.to} ${unit}'.trim();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (!isFilter)
+        Text(title,
+            style: TextStyle(
+                fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14)),
+      if (!isFilter) const SizedBox(height: 4),
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: isFilter ? 35 : 48,
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(8)),
+          child: Text(displayText,
+              style: TextStyle(
+                  fontWeight: FontWeight.w500, color: KTextColor, fontSize: 11),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1),
         ),
-      ],
-    );
+      ),
+    ],
+  );
 }
 
-Future<Map<String, String?>?> _showRangePicker(BuildContext context, {required String title, String? initialFrom, String? initialTo, required String unit}) {
-    return showModalBottomSheet<Map<String, String?>>(
-      context: context, backgroundColor: Colors.white, isScrollControlled: true, shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => _RangeSelectionBottomSheet(title: title, initialFrom: initialFrom, initialTo: initialTo, unit: unit),
-    );
+Future<Map<String, String?>?> _showRangePicker(BuildContext context,
+    {required String title,
+    String? initialFrom,
+    String? initialTo,
+    required String unit}) {
+  return showModalBottomSheet<Map<String, String?>>(
+    context: context,
+    backgroundColor: Colors.white,
+    isScrollControlled: true,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+    builder: (context) => _RangeSelectionBottomSheet(
+        title: title,
+        initialFrom: initialFrom,
+        initialTo: initialTo,
+        unit: unit),
+  );
 }
 
 class _RangeSelectionBottomSheet extends StatefulWidget {
-  final String title; final String? initialFrom; final String? initialTo; final String unit;
-  const _RangeSelectionBottomSheet({Key? key, required this.title, this.initialFrom, this.initialTo, required this.unit}) : super(key: key);
+  final String title;
+  final String? initialFrom;
+  final String? initialTo;
+  final String unit;
+  const _RangeSelectionBottomSheet(
+      {Key? key,
+      required this.title,
+      this.initialFrom,
+      this.initialTo,
+      required this.unit})
+      : super(key: key);
   @override
-  __RangeSelectionBottomSheetState createState() => __RangeSelectionBottomSheetState();
+  __RangeSelectionBottomSheetState createState() =>
+      __RangeSelectionBottomSheetState();
 }
-class __RangeSelectionBottomSheetState extends State<_RangeSelectionBottomSheet> {
+
+class __RangeSelectionBottomSheetState
+    extends State<_RangeSelectionBottomSheet> {
   late TextEditingController _fromController;
   late TextEditingController _toController;
   @override
@@ -548,58 +828,113 @@ class __RangeSelectionBottomSheetState extends State<_RangeSelectionBottomSheet>
     _fromController = TextEditingController(text: widget.initialFrom);
     _toController = TextEditingController(text: widget.initialTo);
   }
+
   @override
   void dispose() {
     _fromController.dispose();
     _toController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    
-    Widget buildTextField(String hint, String suffix, TextEditingController controller) {
+
+    Widget buildTextField(
+        String hint, String suffix, TextEditingController controller) {
       return TextFormField(
-        controller: controller, keyboardType: TextInputType.number, style: const TextStyle(fontWeight: FontWeight.w500, color: KTextColor, fontSize: 14),
+        controller: controller,
+        keyboardType: TextInputType.number,
+        style: const TextStyle(
+            fontWeight: FontWeight.w500, color: KTextColor, fontSize: 14),
         decoration: InputDecoration(
-          hintText: hint, hintStyle: TextStyle(color: Colors.grey.shade400),
-          suffixIcon: suffix.isNotEmpty 
-              ? Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0), child: Text(suffix, style: const TextStyle(color: KTextColor, fontWeight: FontWeight.bold, fontSize: 12)))
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          suffixIcon: suffix.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(suffix,
+                      style: const TextStyle(
+                          color: KTextColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12)))
               : null,
-          suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: KPrimaryColor, width: 2)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          fillColor: Colors.white, filled: true,
+          suffixIconConstraints:
+              const BoxConstraints(minWidth: 0, minHeight: 0),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: borderColor)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: borderColor)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: KPrimaryColor, width: 2)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          fillColor: Colors.white,
+          filled: true,
         ),
       );
     }
+
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 16, right: 16, top: 16),
+      padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp, color: KTextColor)),
+            Text(widget.title,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.sp,
+                    color: KTextColor)),
             TextButton(
-              onPressed: () { _fromController.clear(); _toController.clear(); setState(() {}); }, 
-              child: Text(s.reset, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14.sp))),
+                onPressed: () {
+                  _fromController.clear();
+                  _toController.clear();
+                  setState(() {});
+                },
+                child: Text(s!.reset,
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.sp))),
           ]),
           SizedBox(height: 16.h),
           Row(children: [
-            Expanded(child: buildTextField(s.from, widget.unit, _fromController)),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0), child: Text(s.to, style: const TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14))),
-            Expanded(child: buildTextField(s.to, widget.unit, _toController)),
+            Expanded(
+                child: buildTextField(s!.from, widget.unit, _fromController)),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(s!.to,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: KTextColor,
+                        fontSize: 14))),
+            Expanded(child: buildTextField(s!.to, widget.unit, _toController)),
           ]),
           SizedBox(height: 24.h),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.pop(context, {'from': _fromController.text, 'to': _toController.text}),
-              child: Text(s.apply, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: KPrimaryColor, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+              onPressed: () => Navigator.pop(context,
+                  {'from': _fromController.text, 'to': _toController.text}),
+              child: Text(s.apply,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: KPrimaryColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8))),
             ),
           ),
           SizedBox(height: 16.h),

@@ -65,7 +65,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                              Transform.translate(
                               offset: Offset(-5.w, 0), // قربنا النص من السهم
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor),
                               ),
                             ),
@@ -89,7 +89,7 @@ class _ResetPasswordState extends State<ResetPassword> {
         widget.notifier.changeLocale(newLocale);
     },
                     child: Text(
-                      isArabic ? S.of(context).arabic : S.of(context).english,
+                      isArabic ? S.of(context)!.arabic : S.of(context)!.english,
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
@@ -114,7 +114,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               SizedBox(height: 10.h),
 
               Text(
-                S.of(context).resetpass,
+                S.of(context)!.resetpass,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: KTextColor,
@@ -126,7 +126,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               SizedBox(height: 16.h),
 
               Text(
-                S.of(context).newpass,
+                S.of(context)!.newpass,
                 style: TextStyle(
                   color: KTextColor,
                   fontWeight: FontWeight.w500,
@@ -140,7 +140,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                 isPassword: true,
                 validator: (value) {
                   if (value == null || value.length < 6) {
-                    return S.of(context).passwordTooShort;
+                    return S.of(context)!.passwordTooShort;
                   }
                   return null;
                 },
@@ -149,7 +149,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               SizedBox(height: 10.h),
 
               Text(
-                S.of(context).confirmpass,
+                S.of(context)!.confirmpass,
                 style: TextStyle(
                   color: KTextColor,
                   fontWeight: FontWeight.w500,
@@ -163,10 +163,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                 isPassword: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return S.of(context).pleaseConfirmPassword;
+                    return S.of(context)!.pleaseConfirmPassword;
                   }
                   if (value != _newPasswordController.text) {
-                    return S.of(context).passwordsDoNotMatch;
+                    return S.of(context)!.passwordsDoNotMatch;
                   }
                   return null;
                 },
@@ -176,7 +176,7 @@ class _ResetPasswordState extends State<ResetPassword> {
 
               CustomButton(
                 ontap: _submitNewPassword,
-                text: S.of(context).confirm,
+                text: S.of(context)!.confirm,
               ),
             ],
           ),

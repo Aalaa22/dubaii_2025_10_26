@@ -35,15 +35,20 @@ class ElectronicsInfoProvider extends ChangeNotifier {
   List<String> get advertiserNames => _advertiserNames;
   List<String> get phoneNumbers => _phoneNumbers;
   List<String> get whatsappNumbers => _whatsappNumbers;
-  
+
   List<String> getDistrictsForEmirate(String? emirateDisplayName) {
     if (emirateDisplayName == null) return [];
     try {
-      return _emirates.firstWhere((e) => e.name == emirateDisplayName).districts;
-    } catch(e) { return []; }
+      return _emirates
+          .firstWhere((e) => e.name == emirateDisplayName)
+          .districts;
+    } catch (e) {
+      return [];
+    }
   }
 
-  Future<void> fetchAllData({String? token, bool includeContactInfo = false}) async {
+  Future<void> fetchAllData(
+      {String? token, bool includeContactInfo = false}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -63,7 +68,7 @@ class ElectronicsInfoProvider extends ChangeNotifier {
       if (includeContactInfo) {
         await fetchContactInfo(token: token);
       }
-    } catch(e) {
+    } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -76,19 +81,30 @@ class ElectronicsInfoProvider extends ChangeNotifier {
       final authToken = token ?? await _storage.read(key: 'auth_token');
       // إذا لم يتوفر التوكن نتجاهل طلب معلومات التواصل لأنه خاص بالمستخدم
       if (authToken == null) return;
-      final response = await _apiService.get('/api/contact-info', token: authToken);
+      final response =
+          await _apiService.get('/api/contact-info', token: authToken);
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        _advertiserNames = data['advertiser_names'] != null ? List<String>.from(data['advertiser_names']) : [];
-        _phoneNumbers = data['phone_numbers'] != null ? List<String>.from(data['phone_numbers']) : [];
-        _whatsappNumbers = data['whatsapp_numbers'] != null ? List<String>.from(data['whatsapp_numbers']) : [];
+        _advertiserNames = data['advertiser_names'] != null
+            ? List<String>.from(data['advertiser_names'])
+            : [];
+        _phoneNumbers = data['phone_numbers'] != null
+            ? List<String>.from(data['phone_numbers'])
+            : [];
+        _whatsappNumbers = data['whatsapp_numbers'] != null
+            ? List<String>.from(data['whatsapp_numbers'])
+            : [];
       }
-    } catch (e) { print("Could not fetch contact info: $e"); }
+    } catch (e) {
+      print("Could not fetch contact info: $e");
+    }
   }
 
-  Future<bool> addContactItem(String field, String value, {required String token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {required String token}) async {
     try {
-      final response = await _apiService.post('/api/contact-info/add-item', data: {'field': field, 'value': value}, token: token);
+      final response = await _apiService.post('/api/contact-info/add-item',
+          data: {'field': field, 'value': value}, token: token);
       if (response['success'] == true) {
         await fetchContactInfo();
         notifyListeners();
@@ -96,17 +112,16 @@ class ElectronicsInfoProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-       _error = e.toString();
-       notifyListeners();
-       return false;
+      rethrow;
     }
   }
 
   String? getEmirateNameFromDisplayName(String? displayName) {
     if (displayName == null) return null;
-    try { return _emirates.firstWhere((e) => e.name == displayName).name; }
-    catch(e) { return null; }
+    try {
+      return _emirates.firstWhere((e) => e.name == displayName).name;
+    } catch (e) {
+      return null;
+    }
   }
-
-
 }

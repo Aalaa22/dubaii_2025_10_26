@@ -53,7 +53,7 @@ Widget _buildFilterChipDropdown({
         cursorColor: KTextColor,
         style: TextStyle(color: KTextColor, fontSize: 14.sp),
         decoration: InputDecoration(
-          hintText: s.search,
+          hintText: s!.search,
           contentPadding:
               EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
           enabledBorder: OutlineInputBorder(
@@ -147,7 +147,7 @@ Widget _buildFilterChipDropdown({
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -191,7 +191,7 @@ Widget _buildFilterChipDropdown({
                       //             children: [
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).price,
+                      //                   hint: S.of(context)!.price,
                       //                   items: const [
                       //                     "< 500",
                       //                     "500 - 2000",
@@ -205,7 +205,7 @@ Widget _buildFilterChipDropdown({
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).section,
+                      //                   hint: S.of(context)!.section,
                       //                   items: const [
                       //                     "هواتف",
                       //                     "شاشات",
@@ -219,7 +219,7 @@ Widget _buildFilterChipDropdown({
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).product,
+                      //                   hint: S.of(context)!.product,
                       //                   items: const ["جديد", "مستعمل"],
                       //                   value: _selectedProduct,
                       //                   onChanged: (val) => setState(
@@ -247,7 +247,7 @@ Widget _buildFilterChipDropdown({
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -276,7 +276,7 @@ Widget _buildFilterChipDropdown({
                       //                     SizedBox(width: 12.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,
@@ -314,7 +314,7 @@ Widget _buildFilterChipDropdown({
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -343,7 +343,7 @@ Widget _buildFilterChipDropdown({
                       //                     SizedBox(width: 20.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,

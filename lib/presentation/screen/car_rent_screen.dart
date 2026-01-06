@@ -49,7 +49,8 @@ class BestAdvertiserCarRentItemAdapter implements FavoriteItemInterface {
 
   @override
   String get line1 =>
-      'Day Rent: ${_ad.dayRent ?? ''}  Month Rent: ${_ad.monthRent ?? ''}'.trim();
+      'Day Rent: ${_ad.dayRent ?? ''}  Month Rent: ${_ad.monthRent ?? ''}'
+          .trim();
 
   @override
   String get price => _ad.price;
@@ -159,24 +160,24 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
   }
 
   List<String> get categories => [
-        S.of(context).carsales,
-        S.of(context).realestate,
-        S.of(context).electronics,
-        S.of(context).jobs,
-        S.of(context).carrent,
-        S.of(context).carservices,
-        S.of(context).restaurants,
-        S.of(context).otherservices
+        S.of(context)!.carsales,
+        S.of(context)!.realestate,
+        S.of(context)!.electronics,
+        S.of(context)!.jobs,
+        S.of(context)!.carrent,
+        S.of(context)!.carservices,
+        S.of(context)!.restaurants,
+        S.of(context)!.otherservices
       ];
   Map<String, String> get categoryRoutes => {
-        S.of(context).carsales: "/home",
-        S.of(context).realestate: "/realEstate",
-        S.of(context).electronics: "/electronics",
-        S.of(context).jobs: "/jobs",
-        S.of(context).carrent: "/car_rent",
-        S.of(context).carservices: "/carServices",
-        S.of(context).restaurants: "/restaurants",
-        S.of(context).otherservices: "/otherServices"
+        S.of(context)!.carsales: "/home",
+        S.of(context)!.realestate: "/realEstate",
+        S.of(context)!.electronics: "/electronics",
+        S.of(context)!.jobs: "/jobs",
+        S.of(context)!.carrent: "/car_rent",
+        S.of(context)!.carservices: "/carServices",
+        S.of(context)!.restaurants: "/restaurants",
+        S.of(context)!.otherservices: "/otherServices"
       };
 
   @override
@@ -223,7 +224,7 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                                         }
                                       },
                                       decoration: InputDecoration(
-                                          hintText: s.smart_search,
+                                          hintText: s!.smart_search,
                                           hintStyle: TextStyle(
                                               color: const Color.fromRGBO(
                                                   129, 126, 126, 1),
@@ -232,9 +233,13 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                                           //prefixIcon: Icon(Icons.search,
                                           //    color: borderColor, size: 25.sp),
                                           prefixIcon: IconButton(
-                                            icon: Icon(Icons.search, color: borderColor, size: 22.sp),
+                                            icon: Icon(Icons.search,
+                                                color: borderColor,
+                                                size: 22.sp),
                                             onPressed: () {
-                                              final text = _smartSearchController.text.trim();
+                                              final text =
+                                                  _smartSearchController.text
+                                                      .trim();
                                               if (text.isNotEmpty) {
                                                 _performSmartSearch(text);
                                               }
@@ -254,7 +259,9 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                                           filled: true,
                                           fillColor: Colors.white,
                                           isDense: true,
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 0.h))))),
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 8.w,
+                                              vertical: 0.h))))),
                           IconButton(
                               icon: Icon(Icons.notifications_none,
                                   color: borderColor, size: 35.sp),
@@ -268,7 +275,8 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(color: borderColor.withOpacity(0.4)),
+                            border:
+                                Border.all(color: borderColor.withOpacity(0.4)),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black12,
@@ -277,36 +285,50 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                               ),
                             ],
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.w, vertical: 8.h),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                height: min(180.h, (_suggestions.length * 48.h)),
+                                height:
+                                    min(180.h, (_suggestions.length * 48.h)),
                                 child: ListView.separated(
                                   itemCount: _suggestions.length,
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  separatorBuilder: (_, __) => Divider(height: 1, color: borderColor.withOpacity(0.4)),
+                                  separatorBuilder: (_, __) => Divider(
+                                      height: 1,
+                                      color: borderColor.withOpacity(0.4)),
                                   itemBuilder: (context, index) {
                                     final item = _suggestions[index];
                                     return ListTile(
                                       contentPadding: EdgeInsets.zero,
-                                      leading: Icon(Icons.search, color: KPrimaryColor, size: 18.sp),
+                                      leading: Icon(Icons.search,
+                                          color: KPrimaryColor, size: 18.sp),
                                       title: Text(
-                                        '${S.of(context).category} ${item.itemType}',
-                                        style: TextStyle(color: KTextColor, fontSize: 13.sp, fontWeight: FontWeight.w500),
+                                        '${S.of(context)!.category} ${item.itemType}',
+                                        style: TextStyle(
+                                            color: KTextColor,
+                                            fontSize: 13.sp,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                       trailing: Text(
                                         '${(Localizations.localeOf(context).languageCode == 'ar' ? 'إجمالي الإعلانات' : 'Total Ads')} ${item.totalAds}',
-                                        style: TextStyle(color: KPrimaryColor, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                        style: TextStyle(
+                                            color: KPrimaryColor,
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600),
                                       ),
                                       onTap: () {
                                         final current = _smartSearchResponse;
                                         if (current != null) {
-                                          context.push('/smart_search', extra: current);
+                                          context.push('/smart_search',
+                                              extra: current);
                                         } else {
-                                          final text = _smartSearchController.text.trim();
+                                          final text = _smartSearchController
+                                              .text
+                                              .trim();
                                           if (text.isNotEmpty) {
                                             _performSmartSearch(text);
                                           }
@@ -360,7 +382,8 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                             onConfirm: (selection) async {
                               setState(() {
                                 _selectedMake = selection;
-                                _selectedModel = null; // Reset model when make changes
+                                _selectedModel =
+                                    null; // Reset model when make changes
                               });
 
                               // Fetch models for the selected make
@@ -372,10 +395,12 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                                   } else {
                                     final makeObject = infoProvider.makes
                                         .firstWhere((m) => m.name == selection);
-                                    await infoProvider.fetchModelsForMake(makeObject);
+                                    await infoProvider
+                                        .fetchModelsForMake(makeObject);
                                   }
                                 } catch (e) {
-                                  debugPrint("Make object not found for $selection");
+                                  debugPrint(
+                                      "Make object not found for $selection");
                                 }
                               }
                             },
@@ -385,9 +410,11 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                           UnifiedDropdown<String>(
                             title: s.choose_model,
                             selectedValue: _selectedModel,
-                            items: infoProvider.modelNames, // Model list will be empty until a make is chosen and data is fetched
+                            items: infoProvider
+                                .modelNames, // Model list will be empty until a make is chosen and data is fetched
                             isLoading: infoProvider.isLoading,
-                            onConfirm: (selection) => setState(() => _selectedModel = selection),
+                            onConfirm: (selection) =>
+                                setState(() => _selectedModel = selection),
                           ),
                           SizedBox(height: 4.h),
                           UnifiedSearchButton(
@@ -397,7 +424,7 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(s.please_select_make ??
-                                        s.please_select_model ),
+                                        s.please_select_model),
                                     backgroundColor: Colors.red,
                                     duration: Duration(seconds: 2),
                                   ),
@@ -420,8 +447,7 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                                 filters['model'] = _selectedModel;
                               }
 
-                              context.push('/car_rent_search',
-                                  extra: filters);
+                              context.push('/car_rent_search', extra: filters);
 
                               setState(() {
                                 _selectedMake = null;
@@ -430,40 +456,41 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                             },
                           ),
                           SizedBox(height: 7.h),
-                          Padding(
-                            padding: EdgeInsetsDirectional.symmetric(
-                                horizontal: 8.w),
-                            child: GestureDetector(
-                              onTap: () => context.push('/carrentofferbox'),
-                              child: Container(
-                                  padding: EdgeInsetsDirectional.symmetric(
-                                      horizontal: 8.w),
-                                  height: 68.h,
-                                  decoration: BoxDecoration(
-                                      gradient: const LinearGradient(colors: [
-                                        Color(0xFFE4F8F6),
-                                        Color(0xFFC9F8FE)
-                                      ]),
-                                      borderRadius: BorderRadius.circular(8.r)),
-                                  child: Row(children: [
-                                    SvgPicture.asset(
-                                        'assets/icons/cardolar.svg',
-                                        height: 25.sp,
-                                        width: 24.sp),
-                                    SizedBox(width: 16.w),
-                                    Expanded(
-                                        child: Text(s.click_for_deals,
-                                            textAlign: TextAlign.start,
-                                            style: TextStyle(
-                                                fontSize: 13.sp,
-                                                color: KTextColor,
-                                                fontWeight: FontWeight.w500))),
-                                    SizedBox(width: 12.w),
-                                    Icon(Icons.arrow_forward_ios,
-                                        size: 22.sp, color: KTextColor)
-                                  ])),
-                            ),
-                          ),
+// Hiding offer box as per user request
+// Padding(
+//   padding: EdgeInsetsDirectional.symmetric(
+//       horizontal: 8.w),
+//   child: GestureDetector(
+//     onTap: () => context.push('/carrentofferbox'),
+//     child: Container(
+//         padding: EdgeInsetsDirectional.symmetric(
+//             horizontal: 8.w),
+//         height: 68.h,
+//         decoration: BoxDecoration(
+//             gradient: const LinearGradient(colors: [
+//               Color(0xFFE4F8F6),
+//               Color(0xFFC9F8FE)
+//             ]),
+//             borderRadius: BorderRadius.circular(8.r)),
+//         child: Row(children: [
+//           SvgPicture.asset(
+//               'assets/icons/cardolar.svg',
+//               height: 25.sp,
+//               width: 24.sp),
+//           SizedBox(width: 16.w),
+//           Expanded(
+//               child: Text(s.click_for_deals,
+//                   textAlign: TextAlign.start,
+//                   style: TextStyle(
+//                       fontSize: 13.sp,
+//                       color: KTextColor,
+//                       fontWeight: FontWeight.w500))),
+//           SizedBox(width: 12.w),
+//           Icon(Icons.arrow_forward_ios,
+//               size: 22.sp, color: KTextColor)
+//         ])),
+//   ),
+// ),
                           SizedBox(height: 5.h),
                           Row(children: [
                             SizedBox(width: 4.w),
@@ -582,7 +609,7 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                     padding: EdgeInsetsDirectional.only(end: 4.w),
                     child: GestureDetector(
                       onTap: () {
-                        context.push('/car_rent_details_screen', extra: ad);
+                        context.push('/car-rent-details/${ad.id}');
                       },
                       child: Container(
                         width: 145,
@@ -727,229 +754,224 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
     }
 
     if (infoProvider.bestAdvertisersError != null) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(20.h),
-          child: Text(
-            'Error loading best advertisers: ${infoProvider.bestAdvertisersError}',
-            style: TextStyle(color: Colors.red, fontSize: 14.sp),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+      return SizedBox.shrink();
     }
 
     if (infoProvider.bestAdvertiserAds.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(20.h),
-          child: Text(
-            'No best advertisers available',
-            style: TextStyle(color: Colors.grey, fontSize: 14.sp),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+      return SizedBox.shrink();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: infoProvider.bestAdvertiserAds
-          .map((advertiser) {
-            // فلترة الإعلانات للحصول على إعلانات car_rent فقط
-            final carRentAds = advertiser.ads.where((ad) {
-              final category = ad.category?.toLowerCase();
-              return category == 'car_rent' ||
-                  category == 'carrent' ||
-                  category == 'car rent';
-            }).toList();
+      children: [
+        Padding(
+          padding: EdgeInsetsDirectional.only(bottom: 5.h),
+          child: Row(children: [
+            SizedBox(width: 4.w),
+            Icon(Icons.star, color: Colors.amber, size: 20.sp),
+            SizedBox(width: 4.w),
+            Text(s.top_premium_dealers,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                    color: KTextColor))
+          ]),
+        ),
+        ...infoProvider.bestAdvertiserAds
+            .map((advertiser) {
+              // فلترة الإعلانات للحصول على إعلانات car_rent فقط
+              final carRentAds = advertiser.ads.where((ad) {
+                final category = ad.category?.toLowerCase();
+                return category == 'car_rent' ||
+                    category == 'carrent' ||
+                    category == 'car rent';
+              }).toList();
 
-            if (carRentAds.isEmpty) return SizedBox.shrink();
+              if (carRentAds.isEmpty) return SizedBox.shrink();
 
-            return Column(
-              children: [
-                Padding(
-                  padding: EdgeInsetsDirectional.symmetric(
-                      horizontal: 8.w, vertical: 8.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        advertiser.name,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: KTextColor,
-                        ),
-                      ),
-                      Spacer(),
-                      InkWell(
-                        onTap: () {
-                           final advertiserId = advertiser.id.toString();
-                        debugPrint('Navigating to all ads with advertiser ID: $advertiserId');
-                        context.push('/all_ad_car_sales/$advertiserId');
-                    
-                        },
-                        child: Text(
-                          s.see_all_ads,
+              return Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsetsDirectional.symmetric(
+                        horizontal: 8.w, vertical: 8.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          advertiser.name,
+                          textAlign: TextAlign.start,
                           style: TextStyle(
-                            fontSize: 14.sp,
-                            decoration: TextDecoration.underline,
-                            decorationColor: borderColor,
-                            color: borderColor,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: KTextColor,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 175,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: min(carRentAds.length, 15),
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 5.w),
-                    itemBuilder: (context, index) {
-                      final ad = carRentAds[index];
-
-                      return Padding(
-                        padding: EdgeInsetsDirectional.only(end: 4.w),
-                        child: Container(
-                          width: 145,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4.r),
-                            border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.15),
-                                blurRadius: 5.r,
-                                offset: Offset(0, 2.h),
-                              )
-                            ],
+                        Spacer(),
+                        InkWell(
+                          onTap: () {
+                            final advertiserId = advertiser.id.toString();
+                            debugPrint(
+                                'Navigating to all ads with advertiser ID: $advertiserId');
+                            context.push('/all_ad_car_sales/$advertiserId');
+                          },
+                          child: Text(
+                            s.see_all_ads,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              decoration: TextDecoration.underline,
+                              decorationColor: borderColor,
+                              color: borderColor,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(4.r),
-                                    child: CachedNetworkImage(
-                                      imageUrl: ImageUrlHelper.getMainImageUrl(
-                                          ad.mainImage ?? ''),
-                                      height: 94.h,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) {
-                                        print(
-                                            '🖼️ CachedNetworkImage - Loading image: $url');
-                                        return Container(
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 175,
+                    width: double.infinity,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: min(carRentAds.length, 15),
+                      padding: EdgeInsetsDirectional.symmetric(horizontal: 5.w),
+                      itemBuilder: (context, index) {
+                        final ad = carRentAds[index];
+
+                        return Padding(
+                          padding: EdgeInsetsDirectional.only(end: 4.w),
+                          child: Container(
+                            width: 145,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4.r),
+                              border: Border.all(color: Colors.grey.shade300),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.15),
+                                  blurRadius: 5.r,
+                                  offset: Offset(0, 2.h),
+                                )
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(4.r),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            ImageUrlHelper.getMainImageUrl(
+                                                ad.mainImage ?? ''),
+                                        height: 94.h,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) {
+                                          return Container(
+                                            height: 94.h,
+                                            width: double.infinity,
+                                            color: Colors.grey[300],
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: KPrimaryColor,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        errorWidget: (context, url, error) =>
+                                            Container(
                                           height: 94.h,
                                           width: double.infinity,
                                           color: Colors.grey[300],
-                                          child: Center(
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: KPrimaryColor,
-                                            ),
+                                          child: Icon(Icons.error,
+                                              color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 4.h,
+                                      left: 4.w,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 4.w, vertical: 2.h),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.6),
+                                          borderRadius:
+                                              BorderRadius.circular(4.r),
+                                        ),
+                                        child: Text(
+                                          // Fix: Use NumberFormatter directly
+                                          '${NumberFormatter.formatPrice(ad.price)} AED',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10.sp,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        );
-                                      },
-                                      errorWidget: (context, url, error) {
-                                        print(
-                                            '❌ CachedNetworkImage ERROR - URL: $url');
-                                        print(
-                                            '❌ CachedNetworkImage ERROR - Error: $error');
-                                        print(
-                                            '❌ CachedNetworkImage ERROR - Raw mainImage: ${ad.mainImage}');
-                                        return Image.asset(
-                                            'assets/images/Audi S5 TSFIjpeg.jpeg',
-                                            fit: BoxFit.cover);
-                                      },
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: buildFavoriteIcon(
+                                        BestAdvertiserCarRentItemAdapter(ad),
+                                        onAddToFavorite: () {},
+                                        onRemoveFromFavorite: null,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(4.w),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Text(
+                                          // Fix: Construct title manually
+                                          "${ad.make} ${ad.model} ${ad.trim ?? ''}"
+                                              .trim(),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w500,
+                                            color: KTextColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          "${ad.emirate ?? ''} ",
+                                          style: TextStyle(
+                                            fontSize: 11.5.sp,
+                                            color: const Color.fromRGBO(
+                                                165, 164, 162, 1),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                  child: buildFavoriteIcon(
-                                    BestAdvertiserCarRentItemAdapter(ad),
-                                    onAddToFavorite: () {},
-                                    onRemoveFromFavorite: null,
-                                  ),
                                 ),
-                                ],
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 6.w),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Text(
-                                        "${NumberFormatter.formatPrice(ad.price)}",
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 11.5.sp,
-                                        ),
-                                      ),
-                                      Text(
-                                        "${ad?.make ?? ''} ${ad?.model ?? ''} ${ad?.trim ?? ''}",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 11.5.sp,
-                                          color: KTextColor,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "${ad?.year ?? 'N/A'}",
-                                            style: TextStyle(
-                                              fontSize: 11.5.sp,
-                                              color: const Color.fromRGBO(
-                                                  165, 164, 162, 1),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          SizedBox(width: 8.w),
-                                          Text(
-                                            "${ad?.emirate ?? ''} ",
-                                            style: TextStyle(
-                                              fontSize: 11.5.sp,
-                                              color: const Color.fromRGBO(
-                                                  165, 164, 162, 1),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              ],
-            );
-          })
-          .where((widget) => widget is! SizedBox)
-          .toList(),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              );
+            })
+            .where((widget) => widget is! SizedBox)
+            .toList(),
+      ],
     );
   }
 }

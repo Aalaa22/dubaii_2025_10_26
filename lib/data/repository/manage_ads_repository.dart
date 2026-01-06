@@ -13,10 +13,9 @@ class ManageAdsRepository {
     if (response is Map<String, dynamic>) {
       return MyAdsResponse.fromJson(response);
     }
-    
+
     throw Exception('Failed to parse MyAdsResponse');
   }
-
 
   Future<void> activateOffer({
     required String token,
@@ -29,10 +28,11 @@ class ManageAdsRepository {
       'category_slug': categorySlug,
       'days': days,
     };
-    
+
     try {
       // استخدم دالة 'post' الموجودة في ApiService
-      final response = await _apiService.post('/api/offers-box/activate', data: body, token: token);
+      final response = await _apiService.post('/api/offers-box/activate',
+          data: body, token: token);
     } catch (e) {
       rethrow;
     }
@@ -76,11 +76,14 @@ class ManageAdsRepository {
     final c = category.toLowerCase().trim();
     if (c.contains('real') && (c.contains('estate') || c.contains('state'))) {
       return '/api/real-estate';
-    } else if (c.contains('cars sales') || (c.contains('car') && c.contains('sale'))) {
+    } else if (c.contains('cars sales') ||
+        (c.contains('car') && c.contains('sale'))) {
       return '/api/car-sales-ads';
-    } else if (c.contains('car rent') || (c.contains('car') && c.contains('rent'))) {
+    } else if (c.contains('car rent') ||
+        (c.contains('car') && c.contains('rent'))) {
       return '/api/car-rent-ads';
-    } else if (c.contains('car services') || (c.contains('car') && c.contains('service'))) {
+    } else if (c.contains('car services') ||
+        (c.contains('car') && c.contains('service'))) {
       return '/api/car-services-ads';
     } else if (c.contains('restaurant')) {
       return '/api/restaurants';

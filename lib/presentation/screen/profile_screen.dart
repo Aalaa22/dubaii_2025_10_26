@@ -39,15 +39,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // final List<String> advertiserTypes = [
   //   'Dealer / Showroom', 'Personal Owner', 'Real Estate Agent', 'Recruiter'
   // ];
-  
+
   File? _logoImageFile;
   final ImagePicker _picker = ImagePicker();
 
   // Location-related state variables
-   LatLng? _userLocation;
+  LatLng? _userLocation;
   String? _userAddress;
   bool _isLoadingLocation = false;
-  
+
   // FlutterSecureStorage instance for saving location data
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -58,21 +58,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshProfileData();
       _loadLocationData();
-       final authProvider = context.read<AuthProvider>();
+      final authProvider = context.read<AuthProvider>();
       if (authProvider.user == null) {
         authProvider.fetchUserProfile();
       }
       // Load saved location data when the screen initializes
       _loadSavedLocation();
     });
-    
   }
 
   Future<void> _saveLocationToStorage() async {
     if (_userLocation != null && _userAddress != null) {
       try {
-        await _storage.write(key: 'user_latitude', value: _userLocation!.latitude.toString());
-        await _storage.write(key: 'user_longitude', value: _userLocation!.longitude.toString());
+        await _storage.write(
+            key: 'user_latitude', value: _userLocation!.latitude.toString());
+        await _storage.write(
+            key: 'user_longitude', value: _userLocation!.longitude.toString());
         await _storage.write(key: 'user_address', value: _userAddress!);
         print('Location saved to secure storage successfully');
       } catch (e) {
@@ -87,10 +88,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final latitude = await _storage.read(key: 'user_latitude');
       final longitude = await _storage.read(key: 'user_longitude');
       final address = await _storage.read(key: 'user_address');
-      
+
       if (latitude != null && longitude != null && address != null) {
         setState(() {
-          _userLocation = LatLng(double.parse(latitude), double.parse(longitude));
+          _userLocation =
+              LatLng(double.parse(latitude), double.parse(longitude));
           _userAddress = address;
         });
         print('Location loaded from secure storage: $address');
@@ -103,24 +105,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Initialize user location automatically
   Future<void> _initializeUserLocation() async {
     if (_userLocation != null) return; // Already initialized
-    
+
     setState(() {
       _isLoadingLocation = true;
     });
-    
+
     try {
       final mapsProvider = context.read<GoogleMapsProvider>();
       await mapsProvider.getCurrentLocation();
-      
+
       if (mapsProvider.currentLocationData != null) {
         final locationData = mapsProvider.currentLocationData!;
         final address = await mapsProvider.getAddressFromCoordinates(
-          locationData.latitude!, 
-          locationData.longitude!
-        );
-        
+            locationData.latitude!, locationData.longitude!);
+
         setState(() {
-          _userLocation = LatLng(locationData.latitude!, locationData.longitude!);
+          _userLocation =
+              LatLng(locationData.latitude!, locationData.longitude!);
           _userAddress = address ?? 'Unknown location';
         });
       }
@@ -138,9 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
- 
- Future<void> _saveLocationData() async {
+  Future<void> _saveLocationData() async {
     if (_userLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -150,10 +149,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       return;
     }
-    
+
     final authProvider = context.read<AuthProvider>();
     final user = authProvider.user;
-    
+
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -163,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       return;
     }
-    
+
     // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -186,7 +185,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     // ignore: avoid_print
-    print('DEBUG(profile_screen): Sending location lat=${_userLocation!.latitude}, lng=${_userLocation!.longitude}, address=${_userAddress}');
+    print(
+        'DEBUG(profile_screen): Sending location lat=${_userLocation!.latitude}, lng=${_userLocation!.longitude}, address=${_userAddress}');
     final success = await authProvider.updateUserProfile(
       username: user.username,
       email: user.email,
@@ -199,13 +199,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       address: _userAddress,
       advertiserLocation: _userAddress, // إرسال الموقع كـ advertiser_location
     );
-    
+
     // Hide loading and show result
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    
+
     if (success) {
       // ignore: avoid_print
-      print('DEBUG(profile_screen): Server user lat=${authProvider.user?.latitude}, lng=${authProvider.user?.longitude}');
+      print(
+          'DEBUG(profile_screen): Server user lat=${authProvider.user?.latitude}, lng=${authProvider.user?.longitude}');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -218,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Force refresh the UI to show updated location
       setState(() {});
     } else {
@@ -232,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           errorMessage = 'حدث خطأ، الرجاء المحاولة مرة أخرى';
         }
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -276,17 +277,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 12),
-                _buildHelpStep('Chrome:', '1. اضغط على أيقونة القفل 🔒 أو الموقع 📍 بجانب العنوان\n2. اختر "السماح" أو "Allow" للموقع\n3. أعد تحميل الصفحة'),
+                _buildHelpStep('Chrome:',
+                    '1. اضغط على أيقونة القفل 🔒 أو الموقع 📍 بجانب العنوان\n2. اختر "السماح" أو "Allow" للموقع\n3. أعد تحميل الصفحة'),
                 const SizedBox(height: 8),
-                _buildHelpStep('Firefox:', '1. اضغط على أيقونة الدرع أو القفل\n2. اختر "إيقاف الحماية" أو "Allow Location"\n3. أعد تحميل الصفحة'),
+                _buildHelpStep('Firefox:',
+                    '1. اضغط على أيقونة الدرع أو القفل\n2. اختر "إيقاف الحماية" أو "Allow Location"\n3. أعد تحميل الصفحة'),
                 const SizedBox(height: 8),
-                _buildHelpStep('Safari:', '1. اذهب إلى Safari > Preferences > Websites\n2. اختر Location من القائمة\n3. اختر "Allow" للموقع'),
+                _buildHelpStep('Safari:',
+                    '1. اذهب إلى Safari > Preferences > Websites\n2. اختر Location من القائمة\n3. اختر "Allow" للموقع'),
                 const SizedBox(height: 8),
-                _buildHelpStep('Edge:', '1. اضغط على أيقونة القفل بجانب العنوان\n2. اختر "السماح" للموقع\n3. أعد تحميل الصفحة'),
+                _buildHelpStep('Edge:',
+                    '1. اضغط على أيقونة القفل بجانب العنوان\n2. اختر "السماح" للموقع\n3. أعد تحميل الصفحة'),
                 const SizedBox(height: 12),
                 const Text(
                   'إذا لم تنجح الطرق السابقة:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.orange),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -327,12 +333,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             browser,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           const SizedBox(height: 4),
           Text(
             steps,
-            style: const TextStyle(fontSize: 13,color:KTextColor),
+            style: const TextStyle(fontSize: 13, color: KTextColor),
           ),
         ],
       ),
@@ -344,21 +351,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isLoadingLocation = true;
     });
-    
+
     try {
       final mapsProvider = context.read<GoogleMapsProvider>();
       await mapsProvider.getCurrentLocation();
 
       if (mapsProvider.currentLocationData != null) {
         final locationData = mapsProvider.currentLocationData!;
-        
+
         // Convert coordinates to address
         final address = await mapsProvider.getAddressFromCoordinates(
             locationData.latitude!, locationData.longitude!);
-        
+
         setState(() {
-          _userLocation = LatLng(
-              locationData.latitude!, locationData.longitude!);
+          _userLocation =
+              LatLng(locationData.latitude!, locationData.longitude!);
           _userAddress = address ?? 'موقع غير معروف';
         });
 
@@ -408,21 +415,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       // Get current location if available, otherwise use Dubai coordinates
       double lat = _userLocation?.latitude ?? 25.2048;
       double lng = _userLocation?.longitude ?? 55.2708;
-      
+
       // Save current location data before opening maps
       if (_userLocation != null && _userAddress != null) {
         await _saveLocationData();
         await _saveLocationToStorage();
       }
-      
+
       // Create Google Maps URL with better parameters
-      final String googleMapsUrl = 'https://www.google.com/maps/place/$lat,$lng/@$lat,$lng,15z';
+      final String googleMapsUrl =
+          'https://www.google.com/maps/place/$lat,$lng/@$lat,$lng,15z';
       final Uri url = Uri.parse(googleMapsUrl);
-      
+
       // Try to launch Google Maps
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('تم فتح خرائط جوجل وحفظ الموقع'),
@@ -435,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final String webUrl = 'https://maps.google.com/?q=$lat,$lng&z=15';
         final Uri webUri = Uri.parse(webUrl);
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('تم فتح خرائط جوجل (نسخة الويب) وحفظ الموقع'),
@@ -463,7 +471,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       double? initialLat = _userLocation?.latitude;
       double? initialLng = _userLocation?.longitude;
       String? initialAddress = _userAddress;
-      
+
       // Build the route with query parameters
       String route = '/location_picker';
       if (initialLat != null && initialLng != null) {
@@ -472,15 +480,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           route += '&address=${Uri.encodeComponent(initialAddress)}';
         }
       }
-      
+
       // Navigate to location picker and wait for result
       final result = await context.push(route);
-      
+
       // Handle the returned location data
       if (result != null && result is Map<String, dynamic>) {
         final LatLng? location = result['location'] as LatLng?;
         final String? address = result['address'] as String?;
-        
+
         if (location != null) {
           setState(() {
             _userLocation = location;
@@ -488,11 +496,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _userAddress = address;
             }
           });
-          
+
           // Save the new location data to database and secure storage
           await _saveLocationData();
           await _saveLocationToStorage();
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('تم تحديث الموقع بنجاح'),
@@ -510,14 +518,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
   }
-
- 
-
-
-
-
-
-
 
   @override
   void didChangeDependencies() {
@@ -550,11 +550,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadLocationData() async {
     final authProvider = context.read<AuthProvider>();
     final user = authProvider.user;
-    
+
     if (user != null && user.latitude != null && user.longitude != null) {
       setState(() {
         _userLocation = LatLng(user.latitude!, user.longitude!);
-        _userAddress = user.address ?? user.advertiserLocation ?? 'موقع غير معروف';
+        _userAddress =
+            user.address ?? user.advertiserLocation ?? 'موقع غير معروف';
       });
     }
   }
@@ -563,18 +564,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //   setState(() {
   //     _isLoadingLocation = true;
   //   });
-    
+
   //   try {
   //     final mapsProvider = context.read<GoogleMapsProvider>();
   //     await mapsProvider.getCurrentLocation();
 
   //     if (mapsProvider.currentLocationData != null) {
   //       final locationData = mapsProvider.currentLocationData!;
-        
+
   //       // Convert coordinates to address
   //       final address = await mapsProvider.getAddressFromCoordinates(
   //           locationData.latitude!, locationData.longitude!);
-        
+
   //       setState(() {
   //         _userLocation = LatLng(
   //             locationData.latitude!, locationData.longitude!);
@@ -630,10 +631,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //     );
   //     return;
   //   }
-    
+
   //   final authProvider = context.read<AuthProvider>();
   //   final user = authProvider.user;
-    
+
   //   if (user == null) {
   //     ScaffoldMessenger.of(context).showSnackBar(
   //       const SnackBar(
@@ -643,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //     );
   //     return;
   //   }
-    
+
   //   final success = await authProvider.updateUserProfile(
   //     username: user.username,
   //     email: user.email,
@@ -656,7 +657,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //     address: _userAddress,
   //     advertiserLocation: _userAddress,
   //   );
-    
+
   //   if (success) {
   //     ScaffoldMessenger.of(context).showSnackBar(
   //       const SnackBar(
@@ -670,7 +671,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //         backgroundColor: Colors.green,
   //       ),
   //     );
-      
+
   //     setState(() {});
   //   } else {
   //     ScaffoldMessenger.of(context).showSnackBar(
@@ -693,30 +694,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //   }
   // }
 
-
-  
-
   // Helper method to extract phone number without country code
   String _extractPhoneNumber(String? fullPhone) {
     if (fullPhone == null || fullPhone.trim().isEmpty) {
       return '';
     }
-    
+
     try {
       // Remove common prefixes like +, 00, and country codes
       String cleaned = fullPhone.trim().replaceAll(RegExp(r'^\+|^00'), '');
-      
+
       // Extract country code from the full phone number
       String countryCode = _extractCountryCode(fullPhone);
-      
+
       // Remove the detected country code if present
       if (countryCode.isNotEmpty) {
         cleaned = cleaned.replaceFirst(RegExp('^$countryCode'), '');
       }
-      
+
       // Remove leading zero if present after country code removal
       cleaned = cleaned.replaceFirst(RegExp(r'^0'), '');
-      
+
       // Return the cleaned number
       return cleaned;
     } catch (e) {
@@ -729,11 +727,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (fullPhone == null || fullPhone.trim().isEmpty) {
       return '971'; // Default to UAE
     }
-    
+
     try {
       // Remove + and 00 prefixes
       String cleaned = fullPhone.trim().replaceAll(RegExp(r'^\+|^00'), '');
-      
+
       // Common country codes mapping based on phone number patterns
       Map<String, String> countryCodePatterns = {
         '971': r'^971[1-9]', // UAE
@@ -742,7 +740,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         '974': r'^974[1-9]', // Qatar
         '973': r'^973[1-9]', // Bahrain
         '968': r'^968[1-9]', // Oman
-        '20': r'^20[1-9]',   // Egypt
+        '20': r'^20[1-9]', // Egypt
         '962': r'^962[1-9]', // Jordan
         '961': r'^961[1-9]', // Lebanon
         '963': r'^963[1-9]', // Syria
@@ -752,14 +750,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         '216': r'^216[1-9]', // Tunisia
         '218': r'^218[1-9]', // Libya
       };
-      
+
       // Find matching country code
       for (var entry in countryCodePatterns.entries) {
         if (RegExp(entry.value).hasMatch(cleaned)) {
           return entry.key;
         }
       }
-      
+
       // Default to UAE if no match found
       return '971';
     } catch (e) {
@@ -772,32 +770,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (number == null || number.trim().isEmpty) {
       return '';
     }
-    
+
     try {
       // Remove all non-digit characters
       String cleaned = number.trim().replaceAll(RegExp(r'[^0-9]'), '');
-      
+
       // Remove leading zero if present
       cleaned = cleaned.replaceFirst(RegExp(r'^0'), '');
-      
+
       // Use detected country code or provided default
       String countryCode = defaultCountryCode ?? _extractCountryCode(number);
-      
+
       // Add country code if not already present
       if (cleaned.isNotEmpty && !cleaned.startsWith(countryCode)) {
         cleaned = '$countryCode$cleaned';
       }
-      
+
       // Return formatted with + sign
       return cleaned.isNotEmpty ? '+$cleaned' : '';
     } catch (e) {
       return number.trim();
     }
   }
-  
+
   @override
   void dispose() {
-    _userNameController.dispose(); _phoneController.dispose(); _whatsAppController.dispose();
+    _userNameController.dispose();
+    _phoneController.dispose();
+    _whatsAppController.dispose();
     // _newPasswordController.dispose(); _currentPasswordController.dispose(); _emailController.dispose();
     // _advertiserNameController.dispose();
     _referralCodeController.dispose();
@@ -807,25 +807,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // دالة الحفظ المحدثة (بدون validation)
   Future<void> _saveProfile() async {
     final provider = context.read<AuthProvider>();
-    
+
     // Validate required fields
     // Username/phone validation will be applied only if values are changed
-    
+
     // Email field is disabled; skip email validation
-    
+
     // Format phone numbers with country codes before sending
     // Use the country code from existing user data if available
     final authProvider = context.read<AuthProvider>();
     final user = authProvider.user;
-    
-    String existingCountryCode = user?.phone != null && user!.phone!.isNotEmpty 
-        ? _extractCountryCode(user.phone) 
+
+    String existingCountryCode = user?.phone != null && user!.phone!.isNotEmpty
+        ? _extractCountryCode(user.phone)
         : '971';
-    
-    String formattedPhone = _formatPhoneNumber(_phoneController.text, defaultCountryCode: existingCountryCode);
-    String formattedWhatsApp = _formatPhoneNumber(_whatsAppController.text, defaultCountryCode: existingCountryCode);
+
+    String formattedPhone = _formatPhoneNumber(_phoneController.text,
+        defaultCountryCode: existingCountryCode);
+    String formattedWhatsApp = _formatPhoneNumber(_whatsAppController.text,
+        defaultCountryCode: existingCountryCode);
     final String referralCode = _referralCodeController.text.trim();
-    
+
     // Ensure phone numbers are properly formatted
     // Validate only if phone has actually changed
     final currentUsername = user?.username ?? '';
@@ -834,24 +836,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final currentReferralCode = user?.referral_code ?? '';
     final newUsername = _userNameController.text.trim();
     final changingUsername = newUsername != currentUsername;
-    final changingPhone = formattedPhone.isNotEmpty && formattedPhone != currentPhone;
-    final changingWhatsApp = formattedWhatsApp.isNotEmpty && formattedWhatsApp != currentWhatsApp;
-    final changingReferralCode = referralCode.isNotEmpty && referralCode != currentReferralCode;
+    final changingPhone =
+        formattedPhone.isNotEmpty && formattedPhone != currentPhone;
+    final changingWhatsApp =
+        formattedWhatsApp.isNotEmpty && formattedWhatsApp != currentWhatsApp;
+    final changingReferralCode =
+        referralCode.isNotEmpty && referralCode != currentReferralCode;
 
     if (changingUsername && newUsername.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Username is required'), backgroundColor: Colors.red)
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(S.of(context)!.usernameRequired),
+          backgroundColor: Colors.red));
       return;
     }
 
     if (changingPhone && formattedPhone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid phone number format'), backgroundColor: Colors.red)
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(S.of(context)!.invalidPhoneFormat),
+          backgroundColor: Colors.red));
       return;
     }
-    
+
     // تحديث البروفايل بالبيانات الحالية في الـ controllers (including location data)
     // Provider requires username/email/phone; pass empty strings for unchanged ones
     final String usernameParam = changingUsername ? newUsername : '';
@@ -866,18 +871,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       referralCode: changingReferralCode ? referralCode : null,
       advertiserLogoFile: _logoImageFile,
     );
-    
+
     // تحديث كلمة المرور فقط إذا تم كتابة شيء في الحقول
     // Password change disabled; skip password update
 
     if (!mounted) return;
     if (profileSuccess) {
-       // Refresh user data after successful update
-       await provider.fetchUserProfile();
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile saved successfully!'), backgroundColor: Colors.green));
-       context.pop();
+      // Refresh user data after successful update
+      await provider.fetchUserProfile();
+
+      // Wait a bit to ensure the provider has notified all listeners
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(S.of(context)!.profileSavedSuccessfully),
+          backgroundColor: Colors.green));
+      context.pop(true); // Pass true to signal successful update
     } else {
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.updateError ?? "Failed to save profile."), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text(provider.updateError ?? S.of(context)!.failedToSaveProfile),
+          backgroundColor: Colors.red));
     }
   }
 
@@ -900,7 +916,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Error: ${provider.profileError}", style: const TextStyle(color: Colors.red)),
+                    Text("Error: ${provider.profileError}",
+                        style: const TextStyle(color: Colors.red)),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () => provider.fetchUserProfile(),
@@ -928,48 +945,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.arrow_back_ios, color: KTextColor, size: 17.sp),
-                        Transform.translate(offset: Offset(-3.w, 0), child: Text(S.of(context).back, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor))),
+                        Icon(Icons.arrow_back_ios,
+                            color: KTextColor, size: 17.sp),
+                        Transform.translate(
+                            offset: Offset(-3.w, 0),
+                            child: Text(S.of(context)!.back,
+                                style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: KTextColor))),
                       ],
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Center(child: Text(S.of(context).myProfile, style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w500, color: KTextColor))),
+                  Center(
+                      child: Text(S.of(context)!.myProfile,
+                          style: TextStyle(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.w500,
+                              color: KTextColor))),
                   const SizedBox(height: 5),
 
-                  _buildLabel(S.of(context).userName),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _userNameController, hintText: "Username")),
+                  _buildLabel(S.of(context)!.userName),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: CustomTextField(
+                          controller: _userNameController,
+                          hintText: "Username")),
 
-                  _buildLabel(S.of(context).phone),
+                  _buildLabel(S.of(context)!.phone),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: CustomTextField(controller: _phoneController, hintText: S.of(context).phone),
+                    child: CustomTextField(
+                        controller: _phoneController,
+                        hintText: S.of(context)!.phone),
                   ),
-                  
-                  _buildLabel(S.of(context).referralCode),
+
+                  _buildLabel(S.of(context)!.referralCode),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: CustomTextField(controller: _referralCodeController, hintText: S.of(context).optional),
+                    child: CustomTextField(
+                        controller: _referralCodeController,
+                        hintText: S.of(context)!.optional),
                   ),
-                  
+
                   // _buildLabel("Current Password (for changing)"),
                   // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _currentPasswordController, hintText: 'Current password', isPassword: true)),
 
                   // _buildLabel("New Password (leave empty to not change)"),
                   // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _newPasswordController, hintText: 'New password', isPassword: true)),
-                  
-                  // _buildLabel(S.of(context).email),
+
+                  // _buildLabel(S.of(context)!.email),
                   // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _emailController, hintText: 'Email', keyboardType: TextInputType.emailAddress)),
-                  
-                  // _buildLabel(S.of(context).advertiserName),
-                  // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _advertiserNameController, hintText: S.of(context).optional)),
-                  
-                  // _buildLabel(S.of(context).advertiserType),
+
+                  // _buildLabel(S.of(context)!.advertiserName),
+                  // Padding(padding: const EdgeInsets.symmetric(vertical: 8.0), child: CustomTextField(controller: _advertiserNameController, hintText: S.of(context)!.optional)),
+
+                  // _buildLabel(S.of(context)!.advertiserType),
                   // Padding(
                   //   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   //   child: DropdownButtonFormField<String>(
                   //     decoration: InputDecoration(
-                  //       hintText: S.of(context).optional,
+                  //       hintText: S.of(context)!.optional,
                   //       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
                   //       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KTextColor, width: 1.5)),
                   //     ),
@@ -979,34 +1016,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   //   ),
                   // ),
 
-                   _buildLabel(S.of(context).advertiserLogo),
-                            // اعرض الصورة أولاً إن كانت موجودة (محليًا أو من الشبكة)
-                            (() {
-                              final user = provider.user;
-                              final hasNetworkLogo = user?.advertiserLogo != null && (user!.advertiserLogo!.isNotEmpty);
-                              if (_logoImageFile != null || hasNetworkLogo) {
-                                return _buildImagePreview();
-                              } else {
-                                // لا توجد صورة، اعرض زر الرفع
-                                return _buildUploadButton();
-                              }
-                            })(),
-                            
-                            const SizedBox(height: 10),
-                            
-                            Text(S.of(context).advertiserLocation, style: TextStyle(color: KTextColor, fontSize: 16.sp, fontWeight: FontWeight.w500)),
-                            const SizedBox(height: 5),
-                            Text(
-              _userAddress ?? S.of(context).address,
-              style: TextStyle(color: KTextColor, fontSize: 16.sp, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
-                            const SizedBox(height: 5),
-                            
-                           _buildMapSection(context),
-                            
-                            const SizedBox(height: 10),
-                  
+                  _buildLabel(S.of(context)!.advertiserLogo),
+                  // اعرض الصورة أولاً إن كانت موجودة (محليًا أو من الشبكة)
+                  (() {
+                    final user = provider.user;
+                    final hasNetworkLogo = user?.advertiserLogo != null &&
+                        (user!.advertiserLogo!.isNotEmpty);
+                    if (_logoImageFile != null || hasNetworkLogo) {
+                      return _buildImagePreview();
+                    } else {
+                      // لا توجد صورة، اعرض زر الرفع
+                      return _buildUploadButton();
+                    }
+                  })(),
+
+                  const SizedBox(height: 10),
+
                   // Padding(
                   //   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   //   child: Container(
@@ -1027,17 +1052,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Row(
                       children: [
-                        Expanded(child: OutlinedButton(onPressed: () => context.pop(), child: Text(S.of(context).cancel), style: OutlinedButton.styleFrom(foregroundColor: KTextColor, side: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1)), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)))),
+                        Expanded(
+                            child: OutlinedButton(
+                                onPressed: () => context.pop(),
+                                child: Text(S.of(context)!.cancel),
+                                style: OutlinedButton.styleFrom(
+                                    foregroundColor: KTextColor,
+                                    side: const BorderSide(
+                                        color: Color.fromRGBO(8, 194, 201, 1)),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                    textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 16)))),
                         const SizedBox(width: 10),
                         Expanded(
                           child: provider.isUpdating
-                            ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(onPressed: _saveProfile, child: Text(S.of(context).save), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF01547E), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16))),
+                              ? const Center(child: CircularProgressIndicator())
+                              : ElevatedButton(
+                                  onPressed: _saveProfile,
+                                  child: Text(S.of(context)!.save),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF01547E),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                      textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16))),
                         ),
                       ],
                     ),
                   ),
-                   const SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             );
@@ -1047,9 +1099,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-   Widget _buildLabel(String text) => Padding(padding: const EdgeInsets.symmetric(vertical: 4.0), child: Text(text, style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)));
- 
- 
+  Widget _buildLabel(String text) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Text(text,
+          style: TextStyle(
+              color: KTextColor,
+              fontWeight: FontWeight.w500,
+              fontSize: 16.sp)));
+
   Widget _buildMapSection(BuildContext context) {
     final s = S.of(context);
     return Consumer<GoogleMapsProvider>(
@@ -1088,7 +1145,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     SizedBox(height: 8),
                                     Text(
                                       'Press "Locate Me" to set your location',
-                                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 14),
                                       textAlign: TextAlign.center,
                                     ),
                                   ],
@@ -1110,15 +1168,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   // Locate Me button (match edit_profile)
                                   Expanded(
                                     child: ElevatedButton(
-                                      onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                                      onPressed: _isLoadingLocation
+                                          ? null
+                                          : _getCurrentLocation,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: _isLoadingLocation ? Colors.grey : const Color(0xFF01547E),
+                                        backgroundColor: _isLoadingLocation
+                                            ? Colors.grey
+                                            : const Color(0xFF01547E),
                                         minimumSize: const Size(0, 40),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8)),
                                       ),
                                       child: Text(
-                                        _isLoadingLocation ? 'loading..' : s.locateMe,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
+                                        _isLoadingLocation
+                                            ? 'loading..'
+                                            : s.locateMe,
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14),
                                       ),
                                     ),
                                   ),
@@ -1128,13 +1197,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: ElevatedButton(
                                       onPressed: _navigateToLocationPicker,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF01547E),
+                                        backgroundColor:
+                                            const Color(0xFF01547E),
                                         minimumSize: const Size(0, 40),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8)),
                                       ),
                                       child: Text(
                                         s.pickLocation,
-                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12),
                                       ),
                                     ),
                                   ),
@@ -1144,7 +1219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Location Picker button
                               // SizedBox(
                               //   width: double.infinity,
-                              //   child: 
+                              //   child:
                               //   ElevatedButton.icon(
                               //     icon: const Icon(Icons.place, color: Colors.white, size: 20),
                               //     label: const Text(
@@ -1189,52 +1264,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               tiltGesturesEnabled: true,
                               rotateGesturesEnabled: true,
                               onTap: (LatLng position) async {
-                                 // Update user location when tapping on map
-                                 setState(() {
-                                   _userLocation = position;
-                                 });
-                                 
-                                 // Get address for the new location
-                                 final address = await mapsProvider.getAddressFromCoordinates(
-                                   position.latitude,
-                                   position.longitude,
-                                 );
-                                 
-                                 if (address != null) {
-                                   setState(() {
-                                     _userAddress = address;
-                                   });
-                                 }
-                                 
-                                 // Save location data automatically
-                                 await _saveLocationData();
-                               },
+                                // Update user location when tapping on map
+                                setState(() {
+                                  _userLocation = position;
+                                });
+
+                                // Get address for the new location
+                                final address = await mapsProvider
+                                    .getAddressFromCoordinates(
+                                  position.latitude,
+                                  position.longitude,
+                                );
+
+                                if (address != null) {
+                                  setState(() {
+                                    _userAddress = address;
+                                  });
+                                }
+
+                                // Save location data automatically
+                                await _saveLocationData();
+                              },
                               markers: _userLocation != null
                                   ? {
                                       Marker(
-                                        markerId: const MarkerId('user_location'),
+                                        markerId:
+                                            const MarkerId('user_location'),
                                         position: _userLocation!,
                                         draggable: true,
                                         onDragEnd: (LatLng position) async {
-                                           setState(() {
-                                             _userLocation = position;
-                                           });
-                                           
-                                           // Get address for the new location
-                                           final address = await mapsProvider.getAddressFromCoordinates(
-                                             position.latitude,
-                                             position.longitude,
-                                           );
-                                           
-                                           if (address != null) {
-                                             setState(() {
-                                               _userAddress = address;
-                                             });
-                                           }
-                                           
-                                           // Save location data automatically
-                                           await _saveLocationData();
-                                         },
+                                          setState(() {
+                                            _userLocation = position;
+                                          });
+
+                                          // Get address for the new location
+                                          final address = await mapsProvider
+                                              .getAddressFromCoordinates(
+                                            position.latitude,
+                                            position.longitude,
+                                          );
+
+                                          if (address != null) {
+                                            setState(() {
+                                              _userAddress = address;
+                                            });
+                                          }
+
+                                          // Save location data automatically
+                                          await _saveLocationData();
+                                        },
                                       ),
                                     }
                                   : {},
@@ -1254,42 +1332,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   // Locate Me button
                                   Expanded(
                                     child: ElevatedButton.icon(
-                                      icon: const Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
+                                      icon: const Icon(
+                                          Icons.location_on_outlined,
+                                          color: Colors.white,
+                                          size: 20),
                                       label: Text(
                                         s.locateMe,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14),
                                       ),
                                       onPressed: () async {
                                         await _getCurrentLocation();
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF01547E),
+                                        backgroundColor:
+                                            const Color(0xFF01547E),
                                         minimumSize: const Size(0, 40),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8)),
                                       ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   // Open Google Map button
                                   Expanded(
-                                    child:
-                                   
-
-                                     ElevatedButton.icon(
-                                  icon: const Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
-                                  label: const Text(
-                                    "Open Google Map",
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
-                                  ),
-                                  onPressed: () async {
-                                    await _navigateToLocationPicker();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF01547E),
-                                    minimumSize: const Size(0, 40),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                ),
+                                    child: ElevatedButton.icon(
+                                      icon: const Icon(
+                                          Icons.location_on_outlined,
+                                          color: Colors.white,
+                                          size: 20),
+                                      label: const Text(
+                                        "Open Google Map",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12),
+                                      ),
+                                      onPressed: () async {
+                                        await _navigateToLocationPicker();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xFF01547E),
+                                        minimumSize: const Size(0, 40),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8)),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1313,8 +1406,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               //     ),
                               //   ),
                               // ),
-                           
-                           
                             ],
                           ),
                         ),
@@ -1385,7 +1476,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //                                 // Locate Me button
   //                                 Expanded(
   //                                   child: ElevatedButton.icon(
-  //                                     icon: _isLoadingLocation 
+  //                                     icon: _isLoadingLocation
   //                                       ? const SizedBox(
   //                                           width: 20,
   //                                           height: 20,
@@ -1462,19 +1553,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //                                setState(() {
   //                                  _userLocation = position;
   //                                });
-                                 
+
   //                                // Get address for the new location
   //                                final address = await mapsProvider.getAddressFromCoordinates(
   //                                  position.latitude,
   //                                  position.longitude,
   //                                );
-                                 
+
   //                                if (address != null) {
   //                                  setState(() {
   //                                    _userAddress = address;
   //                                  });
   //                                }
-                                 
+
   //                                // Save location data automatically
   //                                await _saveLocationData();
   //                              },
@@ -1488,19 +1579,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //                                          setState(() {
   //                                            _userLocation = position;
   //                                          });
-                                           
+
   //                                          // Get address for the new location
   //                                          final address = await mapsProvider.getAddressFromCoordinates(
   //                                            position.latitude,
   //                                            position.longitude,
   //                                          );
-                                           
+
   //                                          if (address != null) {
   //                                            setState(() {
   //                                              _userAddress = address;
   //                                            });
   //                                          }
-                                           
+
   //                                          // Save location data automatically
   //                                          await _saveLocationData();
   //                                        },
@@ -1523,7 +1614,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //                                 // Locate Me button
   //                                 Expanded(
   //                                   child: ElevatedButton.icon(
-  //                                     icon: _isLoadingLocation 
+  //                                     icon: _isLoadingLocation
   //                                       ? const SizedBox(
   //                                           width: 20,
   //                                           height: 20,
@@ -1577,10 +1668,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //     },
   //   );
   // }
-  
-    Widget _buildUploadButton() {
+
+  Widget _buildUploadButton() {
     return GestureDetector(
-     onTap: _pickLogoImage,
+      onTap: _pickLogoImage,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -1596,8 +1687,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(width: 5),
             Flexible(
               child: Text(
-                S.of(context).uploadYourLogo,
-                style: const TextStyle(color: KTextColor, fontSize: 15, fontWeight: FontWeight.w500),
+                S.of(context)!.uploadYourLogo,
+                style: const TextStyle(
+                    color: KTextColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -1609,7 +1703,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Builds the image preview with overlay buttons (Edit/Delete).
   Widget _buildImagePreview() {
     final user = context.watch<AuthProvider>().user;
-    
+
     return SizedBox(
       height: 200.h,
       width: double.infinity,
@@ -1621,17 +1715,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             borderRadius: BorderRadius.circular(12),
             child: _logoImageFile != null
                 ? Image.file(_logoImageFile!, fit: BoxFit.cover)
-                : (user?.advertiserLogo != null && user!.advertiserLogo!.isNotEmpty
+                : (user?.advertiserLogo != null &&
+                        user!.advertiserLogo!.isNotEmpty
                     ? CachedNetworkImage(
-                        imageUrl: ImageUrlHelper.getFullImageUrl(user.advertiserLogo!),
+                        imageUrl: ImageUrlHelper.getFullImageUrl(
+                            user.advertiserLogo!),
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
                           color: Colors.grey[300],
-                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 2)),
                         ),
-                        errorWidget: (context, url, error) => const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+                        errorWidget: (context, url, error) => const Center(
+                            child: Icon(Icons.broken_image,
+                                size: 50, color: Colors.grey)),
                       )
-                    : const Center(child: Icon(Icons.person, size: 50, color: Colors.grey))),
+                    : const Center(
+                        child:
+                            Icon(Icons.person, size: 50, color: Colors.grey))),
           ),
           // A semi-transparent overlay to make buttons more visible
           Container(
@@ -1647,11 +1748,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 _buildImageActionButton(
                   icon: Icons.edit,
-                  label: S.of(context).edit, // "Edit"
+                  label: S.of(context)!.edit, // "Edit"
                   onTap: _pickLogoImage,
                   color: Colors.white,
                 ),
-                if (user?.advertiserLogo != null && user!.advertiserLogo!.isNotEmpty)
+                if (user?.advertiserLogo != null &&
+                    user!.advertiserLogo!.isNotEmpty)
                   _buildImageActionButton(
                     icon: Icons.delete,
                     label: "delete", // "Delete"
@@ -1667,14 +1769,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickLogoImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       // Validate extension locally to avoid 422 from backend
       final ext = pickedFile.path.split('.').last.toLowerCase();
-      const allowed = ['jpg','jpeg','png','gif'];
+      const allowed = ['jpg', 'jpeg', 'png', 'gif'];
       if (!allowed.contains(ext)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF'), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text('صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF'),
+              backgroundColor: Colors.red),
         );
         return;
       }
@@ -1687,36 +1792,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _logoImageFile = newLogoFile;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logo uploaded successfully!'), backgroundColor: Colors.green),
+          const SnackBar(
+              content: Text('Logo uploaded successfully!'),
+              backgroundColor: Colors.green),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authProvider.updateError ?? 'Failed to upload logo'), backgroundColor: Colors.red),
+          SnackBar(
+              content:
+                  Text(authProvider.updateError ?? 'Failed to upload logo'),
+              backgroundColor: Colors.red),
         );
       }
     }
   }
- 
-   Future<void> _deleteLogoImage() async {
+
+  Future<void> _deleteLogoImage() async {
     final authProvider = context.read<AuthProvider>();
-    
+
     final success = await authProvider.deleteLogo();
     if (success) {
       setState(() {
         _logoImageFile = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logo deleted successfully!'), backgroundColor: Colors.green),
+        const SnackBar(
+            content: Text('Logo deleted successfully!'),
+            backgroundColor: Colors.green),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.updateError ?? 'Failed to delete logo'), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text(authProvider.updateError ?? 'Failed to delete logo'),
+            backgroundColor: Colors.red),
       );
     }
   }
 
-  
-  Widget _buildImageActionButton({required IconData icon, required String label, required VoidCallback onTap, required Color color}) {
+  Widget _buildImageActionButton(
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap,
+      required Color color}) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -1726,16 +1843,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14.sp),
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.bold, fontSize: 14.sp),
           ),
         ],
       ),
     );
   }
 
-  
   /// Builds a read-only text field that shows the edit popup on tap.
-  Widget _buildEditableField(TextEditingController controller, VoidCallback onEdit, {bool isPassword = false}) {
+  Widget _buildEditableField(
+      TextEditingController controller, VoidCallback onEdit,
+      {bool isPassword = false}) {
     return GestureDetector(
       onTap: () => _showEditPopup(() => context.push('/profile')),
       child: AbsorbPointer(
@@ -1743,17 +1862,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
           controller: controller,
           readOnly: true,
           obscureText: isPassword,
-          style: TextStyle(color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
+          style: TextStyle(
+              color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
           ),
         ),
       ),
@@ -1771,14 +1894,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             const Icon(Icons.edit, color: Color(0xFF01547E)),
             const SizedBox(width: 8),
-            Text(S.of(context).editing1, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF01547E))),
+            Text(S.of(context)!.editing1,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF01547E))),
           ],
         ),
-        content: Text(S.of(context).editit2, style: TextStyle(fontSize: 16.sp, color: KTextColor)),
+        content: Text(S.of(context)!.editit2,
+            style: TextStyle(fontSize: 16.sp, color: KTextColor)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(S.of(context).cancel, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+            child: Text(S.of(context)!.cancel,
+                style: TextStyle(color: Colors.grey[700], fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1788,14 +1917,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF01547E),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text(S.of(context).edit3),
+            child: Text(S.of(context)!.edit3),
           ),
         ],
       ),
     );
   }
-
-  
 }

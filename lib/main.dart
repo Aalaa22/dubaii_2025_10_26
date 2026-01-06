@@ -61,49 +61,60 @@ void main() async {
   // 1. تهيئة جميع الخدمات والـ Repositories في مكان واحد
   final ApiService apiService = ApiService();
   final AuthRepository authRepository = AuthRepository(apiService);
-  final CarAdRepository carAdRepository = CarAdRepository(apiService); // <-- تم تعريفه هنا
+  final CarAdRepository carAdRepository =
+      CarAdRepository(apiService); // <-- تم تعريفه هنا
   final ManageAdsRepository myAdsRepository = ManageAdsRepository(apiService);
   final SettingsRepository settingsRepository = SettingsRepository(apiService);
-  final RestaurantsRepository restaurantsRepository = RestaurantsRepository(apiService);
+  final RestaurantsRepository restaurantsRepository =
+      RestaurantsRepository(apiService);
   final GoogleApiService googleApiService = GoogleApiService();
-  final GoogleMapsService googleMapsService = GoogleMapsService(googleApiService);
+  final GoogleMapsService googleMapsService =
+      GoogleMapsService(googleApiService);
 
   runApp(
     // 2. استخدام MultiProvider لتوفير جميع الـ Providers
     MultiProvider(
       providers: [
-         ChangeNotifierProvider.value(value: localeChangeNotifier),
+        ChangeNotifierProvider.value(value: localeChangeNotifier),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authRepository),
         ),
         ChangeNotifierProvider(
-          create: (_) => CarAdProvider(carAdRepository), // <-- الآن يعمل بشكل صحيح
+          create: (_) =>
+              CarAdProvider(carAdRepository), // <-- الآن يعمل بشكل صحيح
         ),
         ChangeNotifierProvider(
-          create: (_) => CarSalesInfoProvider(), // <-- CarSalesInfoProvider بدون repository
+          create: (_) =>
+              CarSalesInfoProvider(), // <-- CarSalesInfoProvider بدون repository
         ),
         ChangeNotifierProvider(
-          create: (_) => MyAdsProvider(myAdsRepository), // <-- استخدم الكائن الذي أنشأته
+          create: (_) =>
+              MyAdsProvider(myAdsRepository), // <-- استخدم الكائن الذي أنشأته
         ),
         ChangeNotifierProvider(
-          create: (_) => GoogleMapsProvider(googleMapsService), // <-- Google Maps Provider
+          create: (_) =>
+              GoogleMapsProvider(googleMapsService), // <-- Google Maps Provider
         ),
         ChangeNotifierProvider(
-          create: (_) => SettingsProvider(settingsRepository), // <-- Settings Provider
+          create: (_) =>
+              SettingsProvider(settingsRepository), // <-- Settings Provider
         ),
         ChangeNotifierProvider(create: (_) => CarRentInfoProvider()),
         ChangeNotifierProvider(create: (_) => CarRentAdProvider()),
         ChangeNotifierProvider(create: (_) => CarRentOffersProvider()),
- ChangeNotifierProvider(create: (_) => RestaurantDetailsProvider()),
+        ChangeNotifierProvider(create: (_) => RestaurantDetailsProvider()),
 
-         ChangeNotifierProvider(create: (_) => CarServicesInfoProvider()),
-           ChangeNotifierProvider(create: (_) => CarServicesAdProvider()),
-          ChangeNotifierProvider(create: (_) => CarServicesProvider()),
-          ChangeNotifierProvider(create: (_) => CarServicesOffersProvider()),
+        ChangeNotifierProvider(create: (_) => CarServicesInfoProvider()),
+        ChangeNotifierProvider(create: (_) => CarServicesAdProvider()),
+        ChangeNotifierProvider(create: (_) => CarServicesProvider()),
+        ChangeNotifierProvider(create: (_) => CarServicesOffersProvider()),
         ChangeNotifierProvider(create: (_) => RestaurantsInfoProvider()),
-        ChangeNotifierProxyProvider<RestaurantsInfoProvider, RestaurantAdProvider>(
-          create: (context) => RestaurantAdProvider(Provider.of<RestaurantsInfoProvider>(context, listen: false)),
-          update: (context, restaurantsInfoProvider, previous) => previous ?? RestaurantAdProvider(restaurantsInfoProvider),
+        ChangeNotifierProxyProvider<RestaurantsInfoProvider,
+            RestaurantAdProvider>(
+          create: (context) => RestaurantAdProvider(
+              Provider.of<RestaurantsInfoProvider>(context, listen: false)),
+          update: (context, restaurantsInfoProvider, previous) =>
+              previous ?? RestaurantAdProvider(restaurantsInfoProvider),
         ),
         ChangeNotifierProvider(create: (_) => RestaurantsAdProvider()),
         ChangeNotifierProvider(create: (_) => RestaurantOffersProvider()),
@@ -126,10 +137,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => OtherServicesAdPostProvider()),
         // User packages summary provider
         ChangeNotifierProvider(create: (_) => UserPackagesProvider()),
-      //  ChangeNotifierProvider(create: (_) => JobAdProvider()),
+        //  ChangeNotifierProvider(create: (_) => JobAdProvider()),
 
-    // +++ أضيفي السطر التالي +++
-    ChangeNotifierProvider(create: (_) => JobDetailsProvider()),
+        // +++ أضيفي السطر التالي +++
+        ChangeNotifierProvider(create: (_) => JobDetailsProvider()),
 
         // يمكنك إضافة أي providers مستقبلية هنا
       ],
@@ -165,30 +176,33 @@ class _RootAppState extends State<RootApp> {
           minTextAdapt: true,
           splitScreenMode: true,
           builder: (context, child) {
-            final baseTextTheme = Typography.englishLike2018.apply(fontSizeFactor: 1.sp);
+            final baseTextTheme =
+                Typography.englishLike2018.apply(fontSizeFactor: 1.sp);
             final theme = _localeNotifier.locale.languageCode == 'ar'
-                ? ThemeData(textTheme: GoogleFonts.cairoTextTheme(baseTextTheme))
+                ? ThemeData(
+                    textTheme: GoogleFonts.cairoTextTheme(baseTextTheme))
                 : ThemeData(fontFamily: 'Montserrat', textTheme: baseTextTheme);
 
             return MaterialApp.router(
-              locale: _localeNotifier.locale,
-              routerConfig: _router,
-              supportedLocales: S.delegate.supportedLocales,
-              localizationsDelegates: const [
-                S.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              debugShowCheckedModeBanner: false,
-              scaffoldMessengerKey: rootScaffoldMessengerKey,
-              theme: theme,
-              builder: (context, child) {
-                return MediaQuery.withClampedTextScaling(
-                  minScaleFactor: 1.0, maxScaleFactor: 1.0, child: child!,
-                );
-              }
-            );
+                locale: _localeNotifier.locale,
+                routerConfig: _router,
+                supportedLocales: S.supportedLocales,
+                localizationsDelegates: const [
+                  S.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                debugShowCheckedModeBanner: false,
+                scaffoldMessengerKey: rootScaffoldMessengerKey,
+                theme: theme,
+                builder: (context, child) {
+                  return MediaQuery.withClampedTextScaling(
+                    minScaleFactor: 1.0,
+                    maxScaleFactor: 1.0,
+                    child: child!,
+                  );
+                });
           },
         );
       },

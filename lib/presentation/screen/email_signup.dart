@@ -45,7 +45,7 @@
 //     if (!_formKey.currentState!.validate()) return;
 //     if (!isChecked) {
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//         content: Text(S.of(context).agreeTermsValidation),
+//         content: Text(S.of(context)!.agreeTermsValidation),
 //         backgroundColor: Colors.orangeAccent,
 //       ));
 //       return;
@@ -65,7 +65,7 @@
 //     if (!mounted) return;
 //     if (success) {
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//         content: Text(S.of(context).accountCreatedSuccessfully),
+//         content: Text(S.of(context)!.accountCreatedSuccessfully),
 //         backgroundColor: Colors.green,
 //       ));
 //       context.go('/home');
@@ -73,7 +73,7 @@
 //       // --- هنا هو الإصلاح ---
 //       // استخدام errorMessage بدلاً من createAdError
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//         content: Text(authProvider.errorMessage ?? S.of(context).unknownError),
+//         content: Text(authProvider.errorMessage ?? S.of(context)!.unknownError),
 //         backgroundColor: Colors.red,
 //       ));
 //     }
@@ -111,7 +111,7 @@
 //         widget.notifier.changeLocale(newLocale);
 //     },
 //                     child: Text(
-//                       locale.languageCode == 'ar' ? S.of(context).arabic : S.of(context).english,
+//                       locale.languageCode == 'ar' ? S.of(context)!.arabic : S.of(context)!.english,
 //                       style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: KTextColor),
 //                     ),
 //                   ),
@@ -120,36 +120,36 @@
 //                 SizedBox(height: 10.h),
 //                 Center(
 //                   child: Text(
-//                     S.of(context).signUp,
+//                     S.of(context)!.signUp,
 //                     textAlign: TextAlign.center,
 //                     style: TextStyle(color: KTextColor, fontSize: 24.sp, fontWeight: FontWeight.w500),
 //                   ),
 //                 ),
 //                 SizedBox(height: 7.h),
-//                 Text(" ${S.of(context).userName}*", style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
+//                 Text(" ${S.of(context)!.userName}*", style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
 //                 CustomTextField(
 //                   controller: _nameController,
 //                   hintText: "Ralph Edwards",
-//                   validator: (v) => v!.trim().isEmpty ? S.of(context).pleaseEnterUsername : null,
+//                   validator: (v) => v!.trim().isEmpty ? S.of(context)!.pleaseEnterUsername : null,
 //                 ),
 //                 SizedBox(height: 5.h),
-//                 Text("${S.of(context).email}*", style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
+//                 Text("${S.of(context)!.email}*", style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
 //                 CustomTextField(
 //                   controller: _emailController,
 //                   hintText: "Yourname@Example.Com",
 //                   keyboardType: TextInputType.emailAddress,
-//                   validator: (v) => v == null || !v.contains('@') ? S.of(context).pleaseEnterValidEmail : null,
+//                   validator: (v) => v == null || !v.contains('@') ? S.of(context)!.pleaseEnterValidEmail : null,
 //                 ),
 //                 SizedBox(height: 5.h),
-//                 Text("${S.of(context).password}*", style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
+//                 Text("${S.of(context)!.password}*", style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
 //                 CustomTextField(
 //                   controller: _passwordController,
 //                   hintText: '1234567',
 //                   isPassword: true,
-//                   validator: (v) => v!.length < 6 ? S.of(context).passwordTooShort : null,
+//                   validator: (v) => v!.length < 6 ? S.of(context)!.passwordTooShort : null,
 //                 ),
 //                 SizedBox(height: 5.h),
-//                 Text(S.of(context).referralCode, style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
+//                 Text(S.of(context)!.referralCode, style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
 //                 CustomTextField(
 //                   controller: _referralController,
 //                   hintText: "XXXX",
@@ -165,7 +165,7 @@
 //                     ),
 //                     Expanded(
 //                       child: Text(
-//                         S.of(context).agreeTerms,
+//                         S.of(context)!.agreeTerms,
 //                         style: TextStyle(fontSize: 14.sp, color: KTextColor, fontWeight: FontWeight.w500),
 //                       ),
 //                     ),
@@ -177,30 +177,30 @@
 //                   const Center(child: CircularProgressIndicator())
 //                 else
 //                   CustomButton(
-//                     text: S.of(context).register,
+//                     text: S.of(context)!.register,
 //                     ontap: _submitSignUp,
 //                   ),
 //                 SizedBox(height: 4.h),
-//                 Center(child: Text(S.of(context).or, style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp))),
+//                 Center(child: Text(S.of(context)!.or, style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp))),
 //                 SizedBox(height: 8.h),
 //                 Row(
 //                   mainAxisAlignment: MainAxisAlignment.center,
 //                   children: [
-//                     Flexible(child: CustomElevatedButton(onpress: () => context.go('/signup'), text: S.of(context).phonesignup)),
+//                     Flexible(child: CustomElevatedButton(onpress: () => context.go('/signup'), text: S.of(context)!.phonesignup)),
 //                     SizedBox(width: 16.w),
-//                     Flexible(child: CustomElevatedButton(onpress: () => context.go("/home"), text: S.of(context).guestLogin)),
+//                     Flexible(child: CustomElevatedButton(onpress: () => context.go("/home"), text: S.of(context)!.guestLogin)),
 //                   ],
 //                 ),
 //                 SizedBox(height: 8.h),
 //                 Row(
 //                   mainAxisAlignment: MainAxisAlignment.center,
 //                   children: [
-//                     Text(S.of(context).haveAccount, style: TextStyle(color: KTextColor, fontSize: 14.sp)),
+//                     Text(S.of(context)!.haveAccount, style: TextStyle(color: KTextColor, fontSize: 14.sp)),
 //                     SizedBox(width: 4.w),
 //                     GestureDetector(
 //                       onTap: () => context.go('/login'),
 //                       child: Text(
-//                         S.of(context).login,
+//                         S.of(context)!.login,
 //                         style: TextStyle(
 //                           decoration: TextDecoration.underline,
 //                           decorationColor: KTextColor,

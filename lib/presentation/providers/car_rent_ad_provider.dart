@@ -60,7 +60,7 @@ class CarRentAdProvider extends ChangeNotifier {
   List<String> _phoneNumbers = [];
   List<String> _whatsappNumbers = [];
   List<String> _emirates = [];
-  
+
   // Dynamic field labels from API
   Map<String, String> _fieldLabels = {};
 
@@ -72,21 +72,77 @@ class CarRentAdProvider extends ChangeNotifier {
   final List<String> _defaultSpecs = ['Automatic', 'Manual', 'CVT'];
   final List<String> _defaultCarTypes = ['Sedan', 'SUV', 'Hatchback', 'Coupe'];
   final List<String> _defaultTransmissionTypes = ['Automatic', 'Manual', 'CVT'];
-  final List<String> _defaultFuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'];
-  final List<String> _defaultColors = ['White', 'Black', 'Silver', 'Red', 'Blue'];
-  final List<String> _defaultInteriorColors = ['Black', 'Beige', 'Brown', 'Gray'];
-  final List<String> _defaultWarrantyOptions = ['1 Year', '2 Years', '3 Years', 'No Warranty'];
-  final List<String> _defaultEngineCapacities = ['1.0L', '1.5L', '2.0L', '2.5L', '3.0L'];
+  final List<String> _defaultFuelTypes = [
+    'Petrol',
+    'Diesel',
+    'Hybrid',
+    'Electric'
+  ];
+  final List<String> _defaultColors = [
+    'White',
+    'Black',
+    'Silver',
+    'Red',
+    'Blue'
+  ];
+  final List<String> _defaultInteriorColors = [
+    'Black',
+    'Beige',
+    'Brown',
+    'Gray'
+  ];
+  final List<String> _defaultWarrantyOptions = [
+    '1 Year',
+    '2 Years',
+    '3 Years',
+    'No Warranty'
+  ];
+  final List<String> _defaultEngineCapacities = [
+    '1.0L',
+    '1.5L',
+    '2.0L',
+    '2.5L',
+    '3.0L'
+  ];
   final List<String> _defaultCylinders = ['3', '4', '6', '8'];
-  final List<String> _defaultHorsePowers = ['100-150', '150-200', '200-250', '250+'];
+  final List<String> _defaultHorsePowers = [
+    '100-150',
+    '150-200',
+    '200-250',
+    '250+'
+  ];
   final List<String> _defaultDoorsNumbers = ['2', '4', '5'];
   final List<String> _defaultSeatsNumbers = ['2', '4', '5', '7', '8'];
   final List<String> _defaultSteeringSides = ['Left', 'Right'];
-  final List<String> _defaultAdvertiserTypes = ['Individual', 'Dealer', 'Company'];
-  final List<String> _defaultAdvertiserNames = ['Ahmed Ali', 'Sara Mohamed', 'Dubai Motors'];
-  final List<String> _defaultPhoneNumbers = ['+971501234567', '+971509876543', '+971507654321'];
-  final List<String> _defaultWhatsappNumbers = ['+971501234567', '+971509876543', '+971507654321'];
-  final List<String> _defaultEmirates = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'];
+  final List<String> _defaultAdvertiserTypes = [
+    'Individual',
+    'Dealer',
+    'Company'
+  ];
+  final List<String> _defaultAdvertiserNames = [
+    'Ahmed Ali',
+    'Sara Mohamed',
+    'Dubai Motors'
+  ];
+  final List<String> _defaultPhoneNumbers = [
+    '+971501234567',
+    '+971509876543',
+    '+971507654321'
+  ];
+  final List<String> _defaultWhatsappNumbers = [
+    '+971501234567',
+    '+971509876543',
+    '+971507654321'
+  ];
+  final List<String> _defaultEmirates = [
+    'Dubai',
+    'Abu Dhabi',
+    'Sharjah',
+    'Ajman',
+    'Ras Al Khaimah',
+    'Fujairah',
+    'Umm Al Quwain'
+  ];
 
   // Map to store models for each make
   final Map<String, List<String>> _makeToModelsMap = {};
@@ -110,20 +166,34 @@ class CarRentAdProvider extends ChangeNotifier {
   bool get isAddingContactItem => _isAddingContactItem;
   bool get isSubmittingAd => _isSubmittingAd;
   bool get isSubmitting => _isSubmittingAd; // Alias for compatibility
-  bool get loading => _isLoading || _isLoadingMakesAndModels || _isLoadingSpecs || _isLoadingContactInfo || _isAddingContactItem || _isSubmittingAd || _isLoadingAdDetails;
+  bool get loading =>
+      _isLoading ||
+      _isLoadingMakesAndModels ||
+      _isLoadingSpecs ||
+      _isLoadingContactInfo ||
+      _isAddingContactItem ||
+      _isSubmittingAd ||
+      _isLoadingAdDetails;
   String? get makesAndModelsError => _makesAndModelsError;
   String? get specsError => _specsError;
   String? get contactInfoError => _contactInfoError;
   String? get addContactItemError => _addContactItemError;
   String? get createAdError => _createAdError;
   String? get submissionError => _createAdError; // Alias for submission error
-  String? get allErrors => _error ?? _makesAndModelsError ?? _specsError ?? _contactInfoError ?? _addContactItemError ?? _createAdError ?? _adDetailsError;
-  
+  String? get allErrors =>
+      _error ??
+      _makesAndModelsError ??
+      _specsError ??
+      _contactInfoError ??
+      _addContactItemError ??
+      _createAdError ??
+      _adDetailsError;
+
   // Additional getters for compatibility
   CarRentAdModel? get editAd => _currentAd; // Alias for currentAd
   List<String> get interiorColor => _interiorColors; // Alias for interiorColors
   List<String> get seatsNo => _seatsNumbers; // Alias for seatsNumbers
-  
+
   List<String> get makes => _makes;
   List<String> get models => _models;
   List<String> get trims => _trims;
@@ -157,25 +227,44 @@ class CarRentAdProvider extends ChangeNotifier {
   String _getDefaultLabel(String fieldName) {
     // Fallback to default labels if API doesn't provide them
     switch (fieldName) {
-      case 'make': return 'Make';
-      case 'model': return 'Model';
-      case 'trim': return 'Trim';
-      case 'year': return 'Year';
-      case 'specs': return 'Specs';
-      case 'carType': return 'Car Type';
-      case 'transType': return 'Transmission Type';
-      case 'fuelType': return 'Fuel Type';
-      case 'color': return 'Color';
-      case 'interiorColor': return 'Interior Color';
-      case 'warranty': return 'Warranty';
-      case 'engineCapacity': return 'Engine Capacity';
-      case 'cylinders': return 'Cylinders';
-      case 'horsePower': return 'Horse Power';
-      case 'doorsNo': return 'Doors Number';
-      case 'seatsNo': return 'Seats Number';
-      case 'steeringSide': return 'Steering Side';
-      case 'advertiserType': return 'Advertiser Type';
-      default: return fieldName;
+      case 'make':
+        return 'Make';
+      case 'model':
+        return 'Model';
+      case 'trim':
+        return 'Trim';
+      case 'year':
+        return 'Year';
+      case 'specs':
+        return 'Specs';
+      case 'carType':
+        return 'Car Type';
+      case 'transType':
+        return 'Transmission Type';
+      case 'fuelType':
+        return 'Fuel Type';
+      case 'color':
+        return 'Color';
+      case 'interiorColor':
+        return 'Interior Color';
+      case 'warranty':
+        return 'Warranty';
+      case 'engineCapacity':
+        return 'Engine Capacity';
+      case 'cylinders':
+        return 'Cylinders';
+      case 'horsePower':
+        return 'Horse Power';
+      case 'doorsNo':
+        return 'Doors Number';
+      case 'seatsNo':
+        return 'Seats Number';
+      case 'steeringSide':
+        return 'Steering Side';
+      case 'advertiserType':
+        return 'Advertiser Type';
+      default:
+        return fieldName;
     }
   }
 
@@ -183,18 +272,18 @@ class CarRentAdProvider extends ChangeNotifier {
   Future<void> fetchAdDetails(String adId, {String? token}) async {
     // print('=== CarRentAdProvider.fetchAdDetails ===');
     // print('Ad ID: $adId');
-    
+
     _isLoadingAdDetails = true;
     _adDetailsError = null;
     _currentAd = null;
     notifyListeners();
 
     try {
-      final authToken = token ?? await _storage.read(key: 'auth_token');
-      // print('Calling repository.getCarRentAdDetails with ID: $adId');
-      final ad = await _repository.getCarRentAdDetails(adId: adId, token: authToken);
+      // Don't use token for public details fetching to avoid issues with guest users
+      // or invalid tokens. The /api/car-rent/:id endpoint should be public.
+      final ad = await _repository.getCarRentAdDetails(adId: adId);
       // print('Ad details fetched successfully: ${ad.title}');
-      
+
       _currentAd = ad;
     } catch (e) {
       // print('Error in fetchAdDetails: $e');
@@ -206,10 +295,11 @@ class CarRentAdProvider extends ChangeNotifier {
   }
 
   /// Update car rent ad
-  Future<bool> updateCarRentAd(String adId, Map<String, dynamic> adData, {String? token}) async {
+  Future<bool> updateCarRentAd(String adId, Map<String, dynamic> adData,
+      {String? token}) async {
     // print('=== CarRentAdProvider.updateCarRentAd ===');
     // print('Ad ID: $adId');
-    
+
     _isSubmittingAd = true;
     _createAdError = null;
     safeNotifyListeners();
@@ -232,10 +322,10 @@ class CarRentAdProvider extends ChangeNotifier {
       );
 
       // print('✅ Car rent ad updated successfully');
-      
+
       // Refresh the current ad details after update
       await fetchAdDetails(adId, token: authToken);
-      
+
       return true;
     } catch (e) {
       _createAdError = e.toString();
@@ -258,29 +348,29 @@ class CarRentAdProvider extends ChangeNotifier {
   }
 
   Future<void> fetchAds({Map<String, dynamic>? filters}) async {
-   // // print('=== CarRentAdProvider.fetchAds ===');
-   // // print('Filters received: $filters');
-    
+    // // print('=== CarRentAdProvider.fetchAds ===');
+    // // print('Filters received: $filters');
+
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       // Public data - no token required for browsing car rental ads
-     // // print('Calling repository.getCarRentAds with filters: $filters');
+      // // print('Calling repository.getCarRentAds with filters: $filters');
       final response = await _repository.getCarRentAds(query: filters);
-     // // print('API Response - Total ads: ${response.total}');
-     // // print('API Response - Ads count: ${response.ads.length}');
-      
+      // // print('API Response - Total ads: ${response.total}');
+      // // print('API Response - Ads count: ${response.ads.length}');
+
       _ads = response.ads;
-      _allFetchedAds = List.from(response.ads); // Store all fetched ads for local filtering
+      _allFetchedAds =
+          List.from(response.ads); // Store all fetched ads for local filtering
       _totalAds = response.total;
 
       // Apply local filters (keyword/year/price) on top of fetched data
       _performLocalFilter();
-
     } catch (e) {
-     // // print('Error in fetchAds: $e');
+      // // print('Error in fetchAds: $e');
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -296,55 +386,68 @@ class CarRentAdProvider extends ChangeNotifier {
 
     try {
       // Fetch makes
-      final makesResponse = await _apiService.get('/api/filters/car-sale/makes', );
+      final makesResponse = await _apiService.get(
+        '/api/filters/car-sale/makes',
+      );
       if (makesResponse['success'] == true && makesResponse['data'] != null) {
-        _makes = List<String>.from(makesResponse['data'].map((item) => item['name'] ?? item.toString()));
-        
+        _makes = List<String>.from(makesResponse['data']
+            .map((item) => item['name'] ?? item.toString()));
+
         // Clear previous mappings
         _makeToModelsMap.clear();
-        
+
         // Fetch models for each make
         for (final makeData in makesResponse['data']) {
           final makeId = makeData['id'];
           final makeName = makeData['name'];
-          
+
           if (makeId != null && makeName != null) {
             try {
-              final modelsResponse = await _apiService.get('/api/filters/car-sale/makes/$makeId/models', );
-              if (modelsResponse['success'] == true && modelsResponse['data'] != null) {
-                final models = List<String>.from(modelsResponse['data'].map((item) => item['name'] ?? item.toString()));
+              final modelsResponse = await _apiService.get(
+                '/api/filters/car-sale/makes/$makeId/models',
+              );
+              if (modelsResponse['success'] == true &&
+                  modelsResponse['data'] != null) {
+                final models = List<String>.from(modelsResponse['data']
+                    .map((item) => item['name'] ?? item.toString()));
                 _makeToModelsMap[makeName] = models;
-                
+
                 // Fetch trims for each model
                 for (final modelData in modelsResponse['data']) {
                   final modelId = modelData['id'];
                   final modelName = modelData['name'];
-                  
+
                   if (modelId != null && modelName != null) {
                     try {
-                      final trimsResponse = await _apiService.get('/api/filters/car-sale/models/$modelId/trims', );
-                      if (trimsResponse['success'] == true && trimsResponse['data'] != null) {
-                        final trims = List<String>.from(trimsResponse['data'].map((item) => item['name'] ?? item.toString()));
+                      final trimsResponse = await _apiService.get(
+                        '/api/filters/car-sale/models/$modelId/trims',
+                      );
+                      if (trimsResponse['success'] == true &&
+                          trimsResponse['data'] != null) {
+                        final trims = List<String>.from(trimsResponse['data']
+                            .map((item) => item['name'] ?? item.toString()));
                         _modelToTrimsMap[modelName] = trims;
                       }
                     } catch (e) {
                       // Continue with other models if one fails
-                     // // print('Error fetching trims for model $modelName: $e');
+                      // // print('Error fetching trims for model $modelName: $e');
                     }
                   }
                 }
               }
             } catch (e) {
               // Continue with other makes if one fails
-             // // print('Error fetching models for make $makeName: $e');
+              // // print('Error fetching models for make $makeName: $e');
             }
           }
         }
-        
+
         // Update models and trims lists
-        _models = _makeToModelsMap.values.expand((models) => models).toSet().toList();
-        _trims = _modelToTrimsMap.values.expand((trims) => trims).toSet().toList();
-        
+        _models =
+            _makeToModelsMap.values.expand((models) => models).toSet().toList();
+        _trims =
+            _modelToTrimsMap.values.expand((trims) => trims).toSet().toList();
+
         // Initialize car makes data with proper structure
         _carMakes = List<Map<String, dynamic>>.from(makesResponse['data']);
       } else {
@@ -367,8 +470,10 @@ class CarRentAdProvider extends ChangeNotifier {
     safeNotifyListeners();
 
     try {
-      final response = await _apiService.get('/api/car-rent-ad-specs', );
-      
+      final response = await _apiService.get(
+        '/api/car-rent-ad-specs',
+      );
+
       if (response['success'] == true && response['data'] != null) {
         _parseSpecsFromApi(response['data']);
       } else {
@@ -392,19 +497,20 @@ class CarRentAdProvider extends ChangeNotifier {
 
     try {
       final authToken = token ?? await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/contact-info', token: authToken);
-      
+      final response =
+          await _apiService.get('/api/contact-info', token: authToken);
+
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        
+
         if (data['advertiser_names'] != null) {
           _advertiserNames = List<String>.from(data['advertiser_names']);
         }
-        
+
         if (data['phone_numbers'] != null) {
           _phoneNumbers = List<String>.from(data['phone_numbers']);
         }
-        
+
         if (data['whatsapp_numbers'] != null) {
           _whatsappNumbers = List<String>.from(data['whatsapp_numbers']);
         }
@@ -422,7 +528,8 @@ class CarRentAdProvider extends ChangeNotifier {
   }
 
   /// Add new contact item via API
-  Future<bool> addContactItem(String field, String value, {String? token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {String? token}) async {
     _isAddingContactItem = true;
     _addContactItemError = null;
     safeNotifyListeners();
@@ -436,7 +543,7 @@ class CarRentAdProvider extends ChangeNotifier {
         },
         token: token,
       );
-      
+
       if (response['success'] == true) {
         // Add the new item to the appropriate list
         switch (field) {
@@ -462,8 +569,7 @@ class CarRentAdProvider extends ChangeNotifier {
         throw Exception('API returned success: false');
       }
     } catch (e) {
-      _addContactItemError = e.toString();
-      return false;
+      rethrow;
     } finally {
       _isAddingContactItem = false;
       safeNotifyListeners();
@@ -499,14 +605,14 @@ class CarRentAdProvider extends ChangeNotifier {
     _makeToModelsMap.clear();
     _modelToTrimsMap.clear();
     _fieldLabels.clear();
-    
+
     _error = null;
     _adDetailsError = null;
     _makesAndModelsError = null;
     _specsError = null;
     _contactInfoError = null;
     _addContactItemError = null;
-    
+
     safeNotifyListeners();
   }
 
@@ -557,7 +663,8 @@ class CarRentAdProvider extends ChangeNotifier {
     }
 
     // Parse transmission types
-    if (specs['transmissionTypes'] != null && specs['transmissionTypes'] is List) {
+    if (specs['transmissionTypes'] != null &&
+        specs['transmissionTypes'] is List) {
       _transmissionTypes.addAll(List<String>.from(specs['transmissionTypes']));
     }
 
@@ -582,7 +689,8 @@ class CarRentAdProvider extends ChangeNotifier {
     }
 
     // Parse engine capacities
-    if (specs['engineCapacities'] != null && specs['engineCapacities'] is List) {
+    if (specs['engineCapacities'] != null &&
+        specs['engineCapacities'] is List) {
       _engineCapacities.addAll(List<String>.from(specs['engineCapacities']));
     }
 
@@ -635,7 +743,7 @@ class CarRentAdProvider extends ChangeNotifier {
       _emirates = List<String>.from(_defaultEmirates);
     }
   }
-  
+
   /// استخدام القيم الافتراضية للمواصفات
   void _useDefaultSpecsValues() {
     _specs = List<String>.from(_defaultSpecs);
@@ -675,13 +783,13 @@ class CarRentAdProvider extends ChangeNotifier {
     _phoneNumbers = List<String>.from(_defaultPhoneNumbers);
     _whatsappNumbers = List<String>.from(_defaultWhatsappNumbers);
     _emirates = List<String>.from(_defaultEmirates);
-    
+
     // Setup default make-to-models mapping
     _makeToModelsMap.clear();
     _makeToModelsMap['BMW'] = ['X5', 'X3', '3 Series'];
     _makeToModelsMap['Honda'] = ['Accord', 'Civic', 'CR-V'];
     _makeToModelsMap['Toyota'] = ['Corolla', 'Camry', 'RAV4'];
-    
+
     // Setup default model-to-trims mapping
     _modelToTrimsMap.clear();
     _modelToTrimsMap['Corolla'] = ['Base', 'Sport', 'Luxury'];
@@ -704,13 +812,14 @@ class CarRentAdProvider extends ChangeNotifier {
     try {
       // Public data - no token required
       final response = await _apiService.get('/api/filters/car-rent/makes');
-      
+
       if (response['success'] == true && response['data'] != null) {
-        _makes = List<String>.from(response['data'].map((item) => item['name'] ?? item.toString()));
+        _makes = List<String>.from(
+            response['data'].map((item) => item['name'] ?? item.toString()));
         notifyListeners();
       }
     } catch (e) {
-     // // print('Error fetching makes: $e');
+      // // print('Error fetching makes: $e');
       // Use default makes if API fails
       _makes = List<String>.from(_defaultMakes);
       notifyListeners();
@@ -722,7 +831,7 @@ class CarRentAdProvider extends ChangeNotifier {
   List<CarRentAdModel> _allFetchedAds = [];
   String? yearFrom, yearTo, priceFrom, priceTo;
   String? _keyword;
-  
+
   Map<String, dynamic> get currentFilters => _currentFilters;
   String? get keyword => _keyword;
 
@@ -736,7 +845,8 @@ class CarRentAdProvider extends ChangeNotifier {
         : incomingKeyword.trim();
 
     // Remove local filters from API params
-    final Map<String, dynamic> apiFilters = Map<String, dynamic>.from(_currentFilters);
+    final Map<String, dynamic> apiFilters =
+        Map<String, dynamic>.from(_currentFilters);
     apiFilters.remove('keyword');
     apiFilters.remove('price_from');
     apiFilters.remove('price_to');
@@ -760,19 +870,27 @@ class CarRentAdProvider extends ChangeNotifier {
   /// Perform local filtering for year and price ranges
   void _performLocalFilter() {
     List<CarRentAdModel> filteredList = List.from(_allFetchedAds);
-    
+
     // Filter by Year
     final fromYear = int.tryParse(yearFrom ?? '');
     final toYear = int.tryParse(yearTo ?? '');
-    if (fromYear != null) filteredList.retainWhere((ad) => (int.tryParse(ad.year ?? '') ?? 0) >= fromYear);
-    if (toYear != null) filteredList.retainWhere((ad) => (int.tryParse(ad.year ?? '') ?? 0) <= toYear);
-    
+    if (fromYear != null)
+      filteredList
+          .retainWhere((ad) => (int.tryParse(ad.year ?? '') ?? 0) >= fromYear);
+    if (toYear != null)
+      filteredList
+          .retainWhere((ad) => (int.tryParse(ad.year ?? '') ?? 0) <= toYear);
+
     // Filter by Price (using dayRent as the primary price)
     final fromPrice = double.tryParse(priceFrom?.replaceAll(',', '') ?? '');
     final toPrice = double.tryParse(priceTo?.replaceAll(',', '') ?? '');
-    if (fromPrice != null) filteredList.retainWhere((ad) => (double.tryParse(ad.dayRent.replaceAll(',', '')) ?? 0) >= fromPrice);
-    if (toPrice != null) filteredList.retainWhere((ad) => (double.tryParse(ad.dayRent.replaceAll(',', '')) ?? 0) <= toPrice);
-    
+    if (fromPrice != null)
+      filteredList.retainWhere((ad) =>
+          (double.tryParse(ad.dayRent.replaceAll(',', '')) ?? 0) >= fromPrice);
+    if (toPrice != null)
+      filteredList.retainWhere((ad) =>
+          (double.tryParse(ad.dayRent.replaceAll(',', '')) ?? 0) <= toPrice);
+
     // Keyword filter: case-insensitive, uses containment across multiple fields
     if (_keyword != null && _keyword!.isNotEmpty) {
       final kw = _keyword!.trim().toLowerCase();
@@ -781,7 +899,8 @@ class CarRentAdProvider extends ChangeNotifier {
 
       filteredList.retainWhere((ad) {
         final composedTitle =
-            "${ad.make ?? ''} ${ad.model ?? ''} ${ad.trim ?? ''} ${ad.year ?? ''}".trim();
+            "${ad.make ?? ''} ${ad.model ?? ''} ${ad.trim ?? ''} ${ad.year ?? ''}"
+                .trim();
         return containsKw(ad.title) ||
             containsKw(composedTitle) ||
             containsKw(ad.make) ||
@@ -791,24 +910,25 @@ class CarRentAdProvider extends ChangeNotifier {
             containsKw(ad.advertiserName);
       });
     }
-    
+
     _ads = filteredList;
-    _totalAds = filteredList.length; // Update total count to reflect filtered results
+    _totalAds =
+        filteredList.length; // Update total count to reflect filtered results
     notifyListeners();
   }
 
   /// Update year range and apply local filtering
-  void updateYearRange(String? from, String? to) { 
-    yearFrom = from; 
-    yearTo = to; 
-    _performLocalFilter(); 
+  void updateYearRange(String? from, String? to) {
+    yearFrom = from;
+    yearTo = to;
+    _performLocalFilter();
   }
 
   /// Update price range and apply local filtering
-  void updatePriceRange(String? from, String? to) { 
-    priceFrom = from; 
-    priceTo = to; 
-    _performLocalFilter(); 
+  void updatePriceRange(String? from, String? to) {
+    priceFrom = from;
+    priceTo = to;
+    _performLocalFilter();
   }
 
   /// Update keyword and apply local filtering
@@ -821,14 +941,17 @@ class CarRentAdProvider extends ChangeNotifier {
   Future<void> fetchModels(int makeId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/filters/car-sale/makes/$makeId/models', );
-      
+      final response = await _apiService.get(
+        '/api/filters/car-sale/makes/$makeId/models',
+      );
+
       if (response['success'] == true && response['data'] != null) {
-        _models = List<String>.from(response['data'].map((item) => item['name'] ?? item.toString()));
+        _models = List<String>.from(
+            response['data'].map((item) => item['name'] ?? item.toString()));
         notifyListeners();
       }
     } catch (e) {
-     // // print('Error fetching models: $e');
+      // // print('Error fetching models: $e');
       // Use default models if API fails
       _models = List<String>.from(_defaultModels);
       notifyListeners();
@@ -846,24 +969,31 @@ class CarRentAdProvider extends ChangeNotifier {
 
   /// Initialize car makes data from fetchCarMakesAndModels
   void _initializeCarMakes() {
-    _carMakes = _makes.asMap().entries.map((entry) => {
-      'id': entry.key + 1, // Simple ID assignment
-      'name': entry.value,
-    }).toList();
+    _carMakes = _makes
+        .asMap()
+        .entries
+        .map((entry) => {
+              'id': entry.key + 1, // Simple ID assignment
+              'name': entry.value,
+            })
+        .toList();
   }
 
   /// Fetch trims for a specific model ID
   Future<void> fetchTrims(int modelId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/filters/car-sale/models/$modelId/trims', );
-      
+      final response = await _apiService.get(
+        '/api/filters/car-sale/models/$modelId/trims',
+      );
+
       if (response['success'] == true && response['data'] != null) {
-        _trims = List<String>.from(response['data'].map((item) => item['name'] ?? item.toString()));
+        _trims = List<String>.from(
+            response['data'].map((item) => item['name'] ?? item.toString()));
         notifyListeners();
       }
     } catch (e) {
-     // // print('Error fetching trims: $e');
+      // // print('Error fetching trims: $e');
       // Use default trims if API fails
       _trims = List<String>.from(_defaultTrims);
       notifyListeners();
@@ -874,14 +1004,16 @@ class CarRentAdProvider extends ChangeNotifier {
   Future<void> fetchCarModels(int makeId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/filters/car-sale/makes/$makeId/models', );
-      
+      final response = await _apiService.get(
+        '/api/filters/car-sale/makes/$makeId/models',
+      );
+
       if (response['success'] == true && response['data'] != null) {
         _carModels = List<Map<String, dynamic>>.from(response['data']);
         notifyListeners();
       }
     } catch (e) {
-     // // print('Error fetching car models: $e');
+      // // print('Error fetching car models: $e');
       _carModels = [];
       notifyListeners();
     }
@@ -891,14 +1023,16 @@ class CarRentAdProvider extends ChangeNotifier {
   Future<void> fetchCarTrims(int modelId) async {
     try {
       final token = await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/filters/car-sale/models/$modelId/trims', );
-      
+      final response = await _apiService.get(
+        '/api/filters/car-sale/models/$modelId/trims',
+      );
+
       if (response['success'] == true && response['data'] != null) {
         _carTrims = List<Map<String, dynamic>>.from(response['data']);
         notifyListeners();
       }
     } catch (e) {
-     // // print('Error fetching car trims: $e');
+      // // print('Error fetching car trims: $e');
       _carTrims = [];
       notifyListeners();
     }
@@ -906,7 +1040,7 @@ class CarRentAdProvider extends ChangeNotifier {
 
   /// Submit car rent ad
   Future<bool> submitCarRentAd(Map<String, dynamic> adData) async {
-   // // print('=== Car Rent Ad Submission Started ===');
+    // // print('=== Car Rent Ad Submission Started ===');
     _isSubmittingAd = true;
     _createAdError = null;
     safeNotifyListeners();
@@ -915,11 +1049,11 @@ class CarRentAdProvider extends ChangeNotifier {
       final token = await const FlutterSecureStorage().read(key: 'auth_token');
       if (token == null) {
         _createAdError = 'Authentication token not found';
-       // // print('❌ No auth token found');
+        // // print('❌ No auth token found');
         return false;
       }
 
-     // // print('✅ Auth token found: ${token.substring(0, 20)}...');
+      // // print('✅ Auth token found: ${token.substring(0, 20)}...');
 
       // Prepare submission data
       final submissionData = {
@@ -964,39 +1098,50 @@ class CarRentAdProvider extends ChangeNotifier {
         submissionData['payment'] = adData['payment'].toString();
       }
 
-     // // print('=== DETAILED SUBMISSION DATA DEBUG ===');
+      // // print('=== DETAILED SUBMISSION DATA DEBUG ===');
       submissionData.forEach((key, value) {
-       // // print('$key: "$value" (${value.runtimeType}) - Length: ${value.toString().length}');
+        // // print('$key: "$value" (${value.runtimeType}) - Length: ${value.toString().length}');
       });
-      
+
       // Check for required fields
       List<String> missingFields = [];
-      List<String> requiredFields = ['title', 'emirate', 'make', 'year', 'price', 'day_rent', 'month_rent', 'seats_no', 'area', 'phone_number'];
-      
+      List<String> requiredFields = [
+        'title',
+        'emirate',
+        'make',
+        'year',
+        'price',
+        'day_rent',
+        'month_rent',
+        'seats_no',
+        'area',
+        'phone_number'
+      ];
+
       for (String field in requiredFields) {
         if (submissionData[field] == null || submissionData[field]!.isEmpty) {
           missingFields.add(field);
         }
       }
-      
+
       if (missingFields.isNotEmpty) {
         _createAdError = 'Missing required fields: ${missingFields.join(', ')}';
-       // // print('❌ Missing required fields: $missingFields');
+        // // print('❌ Missing required fields: $missingFields');
         return false;
       }
-      
-     // // print('✅ All required fields are present');
-     // // print('Main Image: ${adData['mainImage'] != null ? 'File provided (${adData['mainImage'].path})' : 'No file'}');
-     // // print('Thumbnail Images: ${(adData['thumbnailImages'] as List?)?.length ?? 0} images');
-      
+
+      // // print('✅ All required fields are present');
+      // // print('Main Image: ${adData['mainImage'] != null ? 'File provided (${adData['mainImage'].path})' : 'No file'}');
+      // // print('Thumbnail Images: ${(adData['thumbnailImages'] as List?)?.length ?? 0} images');
+
       if (adData['thumbnailImages'] != null) {
         for (int i = 0; i < (adData['thumbnailImages'] as List).length; i++) {
-         // // print('  Thumbnail $i: ${(adData['thumbnailImages'] as List)[i].path}');
+          // // print('  Thumbnail $i: ${(adData['thumbnailImages'] as List)[i].path}');
         }
       }
 
       // Use postFormData to handle images properly
-     // // print('🚀 Sending request to /api/car-rent-ads...');
+      // // print('🚀 Sending request to /api/car-rent-ads...');
       final response = await _apiService.postFormData(
         '/api/car-rent-ads',
         data: submissionData,
@@ -1005,51 +1150,52 @@ class CarRentAdProvider extends ChangeNotifier {
         token: token,
       );
 
-     // // print('=== API RESPONSE RECEIVED ===');
-     // // print('Response Type: ${response.runtimeType}');
-     // // print('Response Content: $response');
+      // // print('=== API RESPONSE RECEIVED ===');
+      // // print('Response Type: ${response.runtimeType}');
+      // // print('Response Content: $response');
 
       if (response is Map<String, dynamic>) {
         if (response['success'] == true) {
-         // // print('✅ Car rent ad submitted successfully');
+          // // print('✅ Car rent ad submitted successfully');
           return true;
         } else {
-          _createAdError = response['message'] ?? 'Failed to submit car rent ad';
-         // // print('❌ Failed to submit car rent ad: $_createAdError');
-         // // print('Full response: $response');
+          _createAdError =
+              response['message'] ?? 'Failed to submit car rent ad';
+          // // print('❌ Failed to submit car rent ad: $_createAdError');
+          // // print('Full response: $response');
           return false;
         }
       } else {
         // Handle non-map responses
-       // // print('✅ Car rent ad submitted successfully (non-map response)');
+        // // print('✅ Car rent ad submitted successfully (non-map response)');
         return true;
       }
     } catch (e, stackTrace) {
       _createAdError = e.toString();
-     // // print('❌ Exception submitting car rent ad: $e');
-     // // print('Exception Type: ${e.runtimeType}');
-     // // print('Stack trace: $stackTrace');
-      
+      // // print('❌ Exception submitting car rent ad: $e');
+      // // print('Exception Type: ${e.runtimeType}');
+      // // print('Stack trace: $stackTrace');
+
       // More detailed error analysis
       if (e.toString().contains('500')) {
-       // // print('🔍 Server Error 500 - Internal Server Error');
-       // // print('This usually means there\'s an issue on the server side');
+        // // print('🔍 Server Error 500 - Internal Server Error');
+        // // print('This usually means there\'s an issue on the server side');
       } else if (e.toString().contains('400')) {
-       // // print('🔍 Client Error 400 - Bad Request');
-       // // print('This usually means the data format is incorrect');
+        // // print('🔍 Client Error 400 - Bad Request');
+        // // print('This usually means the data format is incorrect');
       } else if (e.toString().contains('401')) {
-       // // print('🔍 Auth Error 401 - Unauthorized');
-       // // print('This usually means the token is invalid or expired');
+        // // print('🔍 Auth Error 401 - Unauthorized');
+        // // print('This usually means the token is invalid or expired');
       } else if (e.toString().contains('422')) {
-       // // print('🔍 Validation Error 422 - Unprocessable Entity');
-       // // print('This usually means validation failed on the server');
+        // // print('🔍 Validation Error 422 - Unprocessable Entity');
+        // // print('This usually means validation failed on the server');
       }
-      
+
       return false;
     } finally {
       _isSubmittingAd = false;
       safeNotifyListeners();
-     // // print('=== Car Rent Ad Submission Finished ===');
+      // // print('=== Car Rent Ad Submission Finished ===');
     }
   }
 

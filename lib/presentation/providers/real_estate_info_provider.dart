@@ -20,7 +20,7 @@ class RealEstateInfoProvider extends ChangeNotifier {
   String? _error;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  
+
   List<EmirateModel> _emirates = [];
   List<String> _propertyTypes = [];
   List<String> _contractTypes = [];
@@ -33,10 +33,11 @@ class RealEstateInfoProvider extends ChangeNotifier {
   List<BestAdvertiser> _bestAdvertisers = [];
   bool _isLoadingBestAdvertisers = false;
   String? _bestAdvertisersError;
-  bool _hasAttemptedBestAdvertisers = false; // Track if we've already tried to fetch
+  bool _hasAttemptedBestAdvertisers =
+      false; // Track if we've already tried to fetch
 
   List<String> get emirateDisplayNames => _emirates.map((e) => e.name).toList();
-  
+
   // إرجاع البيانات الحقيقية من الـ API فقط
   List<String> get propertyTypes => _propertyTypes;
   List<String> get contractTypes => _contractTypes;
@@ -52,8 +53,12 @@ class RealEstateInfoProvider extends ChangeNotifier {
   List<String> getDistrictsForEmirate(String? emirateDisplayName) {
     if (emirateDisplayName == null) return [];
     try {
-      return _emirates.firstWhere((e) => e.name == emirateDisplayName).districts;
-    } catch(e) { return []; }
+      return _emirates
+          .firstWhere((e) => e.name == emirateDisplayName)
+          .districts;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<void> fetchAllData({String? token}) async {
@@ -72,7 +77,7 @@ class RealEstateInfoProvider extends ChangeNotifier {
         _propertyTypes = options.propertyTypes;
         _contractTypes = options.contractTypes;
       });
-    } catch(e) {
+    } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -83,19 +88,30 @@ class RealEstateInfoProvider extends ChangeNotifier {
   Future<void> fetchContactInfo({String? token}) async {
     try {
       final authToken = token ?? await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/contact-info', token: authToken);
+      final response =
+          await _apiService.get('/api/contact-info', token: authToken);
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        _advertiserNames = data['advertiser_names'] != null ? List<String>.from(data['advertiser_names']) : [];
-        _phoneNumbers = data['phone_numbers'] != null ? List<String>.from(data['phone_numbers']) : [];
-        _whatsappNumbers = data['whatsapp_numbers'] != null ? List<String>.from(data['whatsapp_numbers']) : [];
+        _advertiserNames = data['advertiser_names'] != null
+            ? List<String>.from(data['advertiser_names'])
+            : [];
+        _phoneNumbers = data['phone_numbers'] != null
+            ? List<String>.from(data['phone_numbers'])
+            : [];
+        _whatsappNumbers = data['whatsapp_numbers'] != null
+            ? List<String>.from(data['whatsapp_numbers'])
+            : [];
       }
-    } catch (e) { print("Could not fetch contact info: $e"); }
+    } catch (e) {
+      print("Could not fetch contact info: $e");
+    }
   }
 
-  Future<bool> addContactItem(String field, String value, {required String token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {required String token}) async {
     try {
-      final response = await _apiService.post('/api/contact-info/add-item', data: {'field': field, 'value': value}, token: token);
+      final response = await _apiService.post('/api/contact-info/add-item',
+          data: {'field': field, 'value': value}, token: token);
       if (response['success'] == true) {
         await fetchContactInfo(token: token);
         notifyListeners();
@@ -103,67 +119,80 @@ class RealEstateInfoProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-       _error = e.toString();
-       notifyListeners();
-       return false;
+      rethrow;
     }
   }
 
   String? getEmirateNameFromDisplayName(String? displayName) {
     if (displayName == null) return null;
-    try { return _emirates.firstWhere((e) => e.name == displayName).name; }
-    catch(e) { return null; }
+    try {
+      return _emirates.firstWhere((e) => e.name == displayName).name;
+    } catch (e) {
+      return null;
+    }
   }
 
   // Fetch best advertisers for real estate category
-  Future<void> fetchBestAdvertisers({String? token, bool forceRefresh = false}) async {
+  Future<void> fetchBestAdvertisers(
+      {String? token, bool forceRefresh = false}) async {
     // Prevent repeated calls unless forced refresh
     if (_hasAttemptedBestAdvertisers && !forceRefresh) {
       return;
     }
-    
+
     _isLoadingBestAdvertisers = true;
     _bestAdvertisersError = null;
     _hasAttemptedBestAdvertisers = true;
     notifyListeners();
 
     try {
-      print('🔍 Fetching best advertisers from: /api/best-advertisers/real-estate');
-      final response = await _apiService.get('/api/best-advertisers/real-estate');
-      
+      print(
+          '🔍 Fetching best advertisers from: /api/best-advertisers/real-estate');
+      final response =
+          await _apiService.get('/api/best-advertisers/real-estate');
+
       print('📥 API Response type: ${response.runtimeType}');
       print('📥 API Response: $response');
-      
+
       if (response is List) {
         print('📋 Response is List with ${response.length} items');
-        
-        _bestAdvertisers = response.map((json) {
-          print('🏢 Processing advertiser: ${json['advertiser_name']} (ID: ${json['id']})');
-          print('📊 Latest ads count: ${(json['latest_ads'] as List?)?.length ?? 0}');
-          print('🏷️ Advertiser category: ${json['category']}');
-          
-          return BestAdvertiser(
-            id: json['id'] ?? 0,
-            name: json['advertiser_name'] ?? 'Unknown Advertiser',
-            ads: (json['latest_ads'] as List? ?? []).map((adJson) {
-              print('🏠 Processing ad: ${adJson['title']} - ${adJson['price']}');
-              
-              // إضافة category من المستوى الأعلى إذا لم تكن موجودة في الإعلان
-              Map<String, dynamic> adWithCategory = Map<String, dynamic>.from(adJson);
-              if (adWithCategory['category'] == null && json['category'] != null) {
-                adWithCategory['category'] = json['category'];
-                print('🏷️ Added category to ad: ${json['category']}');
-              }
-              
-              return BestAdvertiserAd.fromJson(
-                adWithCategory,
-                advertiserId: json['id'] ?? 0,
-                advertiserName: json['advertiser_name'] ?? 'Unknown Advertiser',
+
+        _bestAdvertisers = response
+            .map((json) {
+              print(
+                  '🏢 Processing advertiser: ${json['advertiser_name']} (ID: ${json['id']})');
+              print(
+                  '📊 Latest ads count: ${(json['latest_ads'] as List?)?.length ?? 0}');
+              print('🏷️ Advertiser category: ${json['category']}');
+
+              return BestAdvertiser(
+                id: json['id'] ?? 0,
+                name: json['advertiser_name'] ?? 'Unknown Advertiser',
+                ads: (json['latest_ads'] as List? ?? []).map((adJson) {
+                  print(
+                      '🏠 Processing ad: ${adJson['title']} - ${adJson['price']}');
+
+                  // إضافة category من المستوى الأعلى إذا لم تكن موجودة في الإعلان
+                  Map<String, dynamic> adWithCategory =
+                      Map<String, dynamic>.from(adJson);
+                  if (adWithCategory['category'] == null &&
+                      json['category'] != null) {
+                    adWithCategory['category'] = json['category'];
+                    print('🏷️ Added category to ad: ${json['category']}');
+                  }
+
+                  return BestAdvertiserAd.fromJson(
+                    adWithCategory,
+                    advertiserId: json['id'] ?? 0,
+                    advertiserName:
+                        json['advertiser_name'] ?? 'Unknown Advertiser',
+                  );
+                }).toList(),
               );
-            }).toList(),
-          );
-        }).where((advertiser) => advertiser.ads.isNotEmpty).toList();
-        
+            })
+            .where((advertiser) => advertiser.ads.isNotEmpty)
+            .toList();
+
         print('✅ Successfully parsed ${_bestAdvertisers.length} advertisers');
         for (var advertiser in _bestAdvertisers) {
           print('   - ${advertiser.name}: ${advertiser.ads.length} ads');
@@ -175,7 +204,7 @@ class RealEstateInfoProvider extends ChangeNotifier {
     } catch (e) {
       print('❌ Error fetching best advertisers: $e');
       _bestAdvertisersError = e.toString();
-      
+
       // Fallback: Create dummy data when API fails
       _bestAdvertisers = [
         BestAdvertiser(
@@ -183,9 +212,11 @@ class RealEstateInfoProvider extends ChangeNotifier {
           name: 'Premium Real Estate',
           ads: [
             BestAdvertiserAd(
-              'Villa', 'Sale', null, null,
+              'Villa',
+              'Sale',
+              null,
+              null,
               id: 1,
-            
               make: 'Villa',
               model: 'Luxury',
               year: '2024',
@@ -199,7 +230,10 @@ class RealEstateInfoProvider extends ChangeNotifier {
               category: 'real-estate',
             ),
             BestAdvertiserAd(
-              'Apartment', 'Sale', null,null,
+              'Apartment',
+              'Sale',
+              null,
+              null,
               id: 2,
               make: 'Apartment',
               model: 'Modern',
@@ -220,7 +254,10 @@ class RealEstateInfoProvider extends ChangeNotifier {
           name: 'Elite Properties',
           ads: [
             BestAdvertiserAd(
-              'Penthouse', 'Sale', null, null,
+              'Penthouse',
+              'Sale',
+              null,
+              null,
               id: 3,
               make: 'Penthouse',
               model: 'Exclusive',

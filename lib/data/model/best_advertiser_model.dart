@@ -28,11 +28,14 @@ class BestAdvertiserAd {
   final String? contractType;
   final String? salary;
   final String? job_name;
-  
+  final double? latitude;
+  final double? longitude;
+
   BestAdvertiserAd(
     this.propertyType,
     this.contractType,
-    this.salary, this.job_name, {
+    this.salary,
+    this.job_name, {
     required this.id,
     required this.make,
     required this.model,
@@ -53,6 +56,8 @@ class BestAdvertiserAd {
     this.area,
     this.images = const [],
     this.category,
+    this.latitude,
+    this.longitude,
   });
 
   // Factory constructor that needs additional data (advertiser ID and name)
@@ -99,6 +104,13 @@ class BestAdvertiserAd {
       mainImageUrl = json['main_image'].toString().trim();
     }
 
+    double? parseDouble(dynamic value) {
+      if (value == null) return null;
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value);
+      return null;
+    }
+
     return BestAdvertiserAd(
       json['property_type']?.toString() ?? '',
       json['contract_type']?.toString() ?? '',
@@ -124,6 +136,8 @@ class BestAdvertiserAd {
       area: json['area']?.toString(),
       images: imagesList,
       category: json['category']?.toString(),
+      latitude: parseDouble(json['latitude'] ?? json['lat']),
+      longitude: parseDouble(json['longitude'] ?? json['lng']),
     );
   }
 }
@@ -175,13 +189,16 @@ class BestAdvertiser {
       if (advertiserId == 0) advertiserId = parseInt(adv['id']);
       if (advertiserId == 0) advertiserId = parseInt(adv['user_id']);
       // Fill name from nested advertiser if missing
-      if ((advertiserName.isEmpty || advertiserName == 'Top Dealer') && adv['advertiser_name'] != null) {
+      if ((advertiserName.isEmpty || advertiserName == 'Top Dealer') &&
+          adv['advertiser_name'] != null) {
         advertiserName = adv['advertiser_name'].toString();
       }
     }
 
     // Try first ad in latest_ads to infer advertiserId/name
-    if (advertiserId == 0 && json['latest_ads'] is List && (json['latest_ads'] as List).isNotEmpty) {
+    if (advertiserId == 0 &&
+        json['latest_ads'] is List &&
+        (json['latest_ads'] as List).isNotEmpty) {
       final firstAdRaw = (json['latest_ads'] as List).first;
       if (firstAdRaw is Map) {
         final firstAd = Map<String, dynamic>.from(firstAdRaw as Map);
@@ -200,15 +217,20 @@ class BestAdvertiser {
     }
 
     // Try featured_in nested ads (restaurant/car_services style payloads)
-    if (advertiserId == 0 && json['featured_in'] is List && (json['featured_in'] as List).isNotEmpty) {
+    if (advertiserId == 0 &&
+        json['featured_in'] is List &&
+        (json['featured_in'] as List).isNotEmpty) {
       final featuredList = json['featured_in'] as List;
       for (var item in featuredList) {
-        if (item is Map && item['latest_ads'] is List && (item['latest_ads'] as List).isNotEmpty) {
+        if (item is Map &&
+            item['latest_ads'] is List &&
+            (item['latest_ads'] as List).isNotEmpty) {
           final firstAdRaw = (item['latest_ads'] as List).first;
           if (firstAdRaw is Map) {
             final firstAd = Map<String, dynamic>.from(firstAdRaw as Map);
             advertiserId = parseInt(firstAd['advertiser_id']);
-            if (advertiserId == 0) advertiserId = parseInt(firstAd['advertiserId']);
+            if (advertiserId == 0)
+              advertiserId = parseInt(firstAd['advertiserId']);
             if (advertiserId == 0) advertiserId = parseInt(firstAd['user_id']);
             if (advertiserId == 0) advertiserId = parseInt(firstAd['userId']);
             if ((advertiserName.isEmpty || advertiserName == 'Top Dealer')) {

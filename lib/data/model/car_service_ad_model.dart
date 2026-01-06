@@ -52,7 +52,11 @@ class CarServiceModel {
         return v.isEmpty ? null : v;
       }
       if (raw is Map<String, dynamic>) {
-        final candidate = raw['url'] ?? raw['path'] ?? raw['src'] ?? raw['image'] ?? raw['main'];
+        final candidate = raw['url'] ??
+            raw['path'] ??
+            raw['src'] ??
+            raw['image'] ??
+            raw['main'];
         if (candidate == null) return null;
         final v = candidate.toString().trim();
         return v.isEmpty ? null : v;
@@ -64,7 +68,8 @@ class CarServiceModel {
           return v.isEmpty ? null : v;
         }
         if (first is Map<String, dynamic>) {
-          final candidate = first['url'] ?? first['path'] ?? first['src'] ?? first['image'];
+          final candidate =
+              first['url'] ?? first['path'] ?? first['src'] ?? first['image'];
           if (candidate == null) return null;
           final v = candidate.toString().trim();
           return v.isEmpty ? null : v;
@@ -74,8 +79,7 @@ class CarServiceModel {
     }
 
     // ابحث عن أكثر من مفتاح محتمل للصورة الرئيسية من الـ API
-    final dynamic mainImageRaw =
-        json['main_image_url'] ??
+    final dynamic mainImageRaw = json['main_image_url'] ??
         json['main_image'] ??
         json['mainImageUrl'] ??
         json['mainImage'];
@@ -83,8 +87,7 @@ class CarServiceModel {
 
     // --- معالجة الصور المصغرة بشكل مرن ---
     List<String> thumbs = [];
-    dynamic thumbnailData =
-        json['thumbnail_images_urls'] ??
+    dynamic thumbnailData = json['thumbnail_images_urls'] ??
         json['thumbnail_images'] ??
         json['thumbnails'] ??
         json['images'];
@@ -97,42 +100,49 @@ class CarServiceModel {
           if (decoded is List) {
             thumbs = decoded
                 .map((e) => e is Map<String, dynamic>
-                    ? (e['url'] ?? e['path'] ?? e['src'] ?? e['image'] ?? '').toString()
+                    ? (e['url'] ?? e['path'] ?? e['src'] ?? e['image'] ?? '')
+                        .toString()
                     : e.toString())
                 .where((e) => e.trim().isNotEmpty)
                 .toList();
           } else {
             // قد تكون سلسلة مفصولة بفاصلة
             final parts = thumbnailData.split(',');
-            thumbs = parts.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+            thumbs =
+                parts.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
           }
         } catch (_) {
           // في حال فشل التحويل، نحاول اعتبارها قائمة مفصولة بفواصل
           final parts = thumbnailData.split(',');
-          thumbs = parts.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          thumbs =
+              parts.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
         }
       } else if (thumbnailData is List) {
         // قائمة مباشرة من المسارات أو الكائنات
         thumbs = thumbnailData
             .map((e) => e is Map<String, dynamic>
-                ? (e['url'] ?? e['path'] ?? e['src'] ?? e['image'] ?? '').toString()
+                ? (e['url'] ?? e['path'] ?? e['src'] ?? e['image'] ?? '')
+                    .toString()
                 : e.toString())
             .where((e) => e.trim().isNotEmpty)
             .toList();
       } else if (thumbnailData is Map<String, dynamic>) {
         // بعض الـ API قد يعيدها داخل مفتاح مثل 'urls' أو 'paths'
-        final list = thumbnailData['urls'] ?? thumbnailData['paths'] ?? thumbnailData['images'];
+        final list = thumbnailData['urls'] ??
+            thumbnailData['paths'] ??
+            thumbnailData['images'];
         if (list is List) {
           thumbs = list
               .map((e) => e is Map<String, dynamic>
-                  ? (e['url'] ?? e['path'] ?? e['src'] ?? e['image'] ?? '').toString()
+                  ? (e['url'] ?? e['path'] ?? e['src'] ?? e['image'] ?? '')
+                      .toString()
                   : e.toString())
               .where((e) => e.trim().isNotEmpty)
               .toList();
         }
       }
     }
-    
+
     String parseServiceType(dynamic raw) {
       if (raw == null) return 'other';
       if (raw is Map<String, dynamic>) {
@@ -142,7 +152,7 @@ class CarServiceModel {
     }
 
     return CarServiceModel(
-      id: json['id'],
+      id: int.tryParse(json['id'].toString()) ?? 0,
       planType: json['plan_type'],
       title: json['title'] ?? 'No Title',
       description: json['description'] ?? '',
@@ -179,7 +189,9 @@ class CarServiceAdResponse {
   factory CarServiceAdResponse.fromJson(Map<String, dynamic> json) {
     var adList = <CarServiceModel>[];
     if (json['data'] != null && json['data'] is List) {
-      adList = (json['data'] as List).map((i) => CarServiceModel.fromJson(i)).toList();
+      adList = (json['data'] as List)
+          .map((i) => CarServiceModel.fromJson(i))
+          .toList();
     }
     return CarServiceAdResponse(
       ads: adList,

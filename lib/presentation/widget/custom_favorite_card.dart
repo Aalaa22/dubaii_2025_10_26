@@ -796,21 +796,21 @@ class _FavoriteCardState extends State<FavoriteCard> {
   // showDialog(
   //   context: context,
   //   builder: (context) => AlertDialog(
-  //     title:  Text(S.of(context).add_to_favorite,style: TextStyle(color: KTextColor,fontSize: 16)), // "إضافة إلى المفضلة"
-  //   content: Text(S.of(context).confirm_add_to_favorite,style: TextStyle(color: KTextColor,fontSize: 18),), // "هل تريد إضافة هذا العنصر إلى المفضلة؟"
+  //     title:  Text(S.of(context)!.add_to_favorite,style: TextStyle(color: KTextColor,fontSize: 16)), // "إضافة إلى المفضلة"
+  //   content: Text(S.of(context)!.confirm_add_to_favorite,style: TextStyle(color: KTextColor,fontSize: 18),), // "هل تريد إضافة هذا العنصر إلى المفضلة؟"
   //  actions: [
   //       TextButton(
-  //         child:Text(S.of(context).cancel,style: TextStyle(color: KTextColor,fontSize: 20)),
+  //         child:Text(S.of(context)!.cancel,style: TextStyle(color: KTextColor,fontSize: 20)),
   //         onPressed: () => Navigator.pop(context),
   //       ),
   //       TextButton(
-  //         child:  Text(S.of(context).yes,style: TextStyle(color: KTextColor,fontSize: 20)),
+  //         child:  Text(S.of(context)!.yes,style: TextStyle(color: KTextColor,fontSize: 20)),
   //         onPressed: () {
   //           Navigator.pop(context);
   //           widget.onAddToFavorite?.call();
   //         // ✅ Optional: عرض SnackBar تأكيد
   //           ScaffoldMessenger.of(context).showSnackBar(
-  //             SnackBar(content: Text(S.of(context).added_to_favorite)),
+  //             SnackBar(content: Text(S.of(context)!.added_to_favorite)),
   //           );
   //         },
           

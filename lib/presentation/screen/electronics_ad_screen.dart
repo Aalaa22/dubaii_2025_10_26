@@ -18,6 +18,7 @@ import 'package:advertising_app/generated/l10n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:advertising_app/presentation/widget/titled_select_or_add_field.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -111,11 +112,12 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
     try {
       final hasCoords = user.latitude != null && user.longitude != null;
       if (hasCoords) {
-        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        final latLng =
+            LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
         setState(() => selectedLatLng = latLng);
-        await context
-            .read<GoogleMapsProvider>()
-            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+        await context.read<GoogleMapsProvider>().moveCameraToLocation(
+            latLng.latitude, latLng.longitude,
+            zoom: 16.0);
       }
     } catch (e) {
       debugPrint('Failed to set default coordinates from profile: $e');
@@ -147,9 +149,9 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
         final List<String> localizedMissingFields = missingFields.map((field) {
           switch (field.trim().toLowerCase()) {
             case 'phone number':
-              return s.phone;
+              return s!.phone;
             case 'your location':
-              return s.advertiserLocation;
+              return s!.advertiserLocation;
             default:
               return field;
           }
@@ -168,7 +170,7 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
               title: Text(
-                s.editprof4,
+                s!.editprof4,
                 style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: KTextColor,
@@ -430,13 +432,15 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(S.of(context).please_fill_required_fields),
+          content: Text(S.of(context)!.please_fill_required_fields),
           backgroundColor: KPrimaryColor));
       return;
     }
     if (_mainImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isArabic ? 'الرجاء إضافة صورة رئيسية.' : 'Please add a main image.'),
+          content: Text(isArabic
+              ? 'الرجاء إضافة صورة رئيسية.'
+              : 'Please add a main image.'),
           backgroundColor: KPrimaryColor));
       return;
     }
@@ -504,7 +508,7 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
                               color: KTextColor, size: 20.sp),
                           Transform.translate(
                               offset: Offset(-3.w, 0),
-                              child: Text(s.back,
+                              child: Text(s!.back,
                                   style: TextStyle(
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w500,
@@ -669,7 +673,7 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
                               child: Text(
                                   selectedLocation.isNotEmpty
                                       ? selectedLocation
-                                      : S.of(context).advertiserLocation,
+                                      : S.of(context)!.advertiserLocation,
                                   style: TextStyle(
                                       fontSize: 14.sp,
                                       color: KTextColor,
@@ -816,7 +820,7 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
                                       ? Colors.red
                                       : borderColor),
                               borderRadius: BorderRadius.circular(8)),
-                          child: Text(selectedValue ?? s.chooseAnOption,
+                          child: Text(selectedValue ?? s!.chooseAnOption,
                               style: TextStyle(
                                   fontWeight: selectedValue == null
                                       ? FontWeight.normal
@@ -932,7 +936,7 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
                                                 Colors.white)))
-                                :  Text(S.of(context).locateMe,
+                                : Text(S.of(context)!.locateMe,
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w500,
@@ -946,7 +950,7 @@ class _ElectronicsAdScreenState extends State<ElectronicsAdScreen> {
                                 minimumSize: const Size(double.infinity, 43),
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8))),
-                            child:  Text(S.of(context).pickLocation,
+                            child: Text(S.of(context)!.pickLocation,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w500,
@@ -1010,328 +1014,6 @@ class TitledDescriptionBox extends StatelessWidget {
   }
 }
 
-class TitledSelectOrAddField extends StatelessWidget {
-  final String title;
-  final String? value;
-  final List<String> items;
-  final Function(String) onChanged;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-  const TitledSelectOrAddField(
-      {Key? key,
-      required this.title,
-      required this.value,
-      required this.items,
-      required this.onChanged,
-      this.isNumeric = false,
-      this.onAddNew})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title,
-          style: TextStyle(
-              fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
-      const SizedBox(height: 4),
-      GestureDetector(
-        onTap: () async {
-          final result = await showModalBottomSheet<String>(
-              context: context,
-              backgroundColor: Colors.white,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(20))),
-              builder: (_) => _SearchableSelectOrAddBottomSheet(
-                  title: title,
-                  items: items,
-                  isNumeric: isNumeric,
-                  onAddNew: (newValue) async {
-                    final token = await const FlutterSecureStorage()
-                        .read(key: 'auth_token');
-                    if (token != null) {
-                      final infoProvider =
-                          context.read<ElectronicsInfoProvider>();
-                      String field;
-                      if (title == s.advertiserName) {
-                        field = 'advertiser_names';
-                      } else if (title == s.phoneNumber) {
-                        field = 'phone_numbers';
-                      } else if (title == s.whatsApp) {
-                        field = 'whatsapp_numbers';
-                      } else {
-                        field = 'advertiser_names';
-                      }
-                      final success = await infoProvider
-                          .addContactItem(field, newValue, token: token);
-                      if (success) {
-                        onChanged(newValue);
-                      }
-                    }
-                  }));
-          if (result != null && result.isNotEmpty) {
-            onChanged(result);
-          }
-        },
-        child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: borderColor),
-                borderRadius: BorderRadius.circular(8)),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                      child: Text(
-                    value ?? s.chooseAnOption,
-                    style: TextStyle(
-                        fontWeight:
-                            value == null ? FontWeight.normal : FontWeight.w500,
-                        color:
-                            value == null ? Colors.grey.shade500 : KTextColor,
-                        fontSize: 12.sp),
-                    overflow: TextOverflow.ellipsis,
-                  ))
-                ])),
-      )
-    ]);
-  }
-}
-
-class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-  const _SearchableSelectOrAddBottomSheet(
-      {required this.title,
-      required this.items,
-      this.isNumeric = false,
-      this.onAddNew});
-  @override
-  _SearchableSelectOrAddBottomSheetState createState() =>
-      _SearchableSelectOrAddBottomSheetState();
-}
-
-class _SearchableSelectOrAddBottomSheetState
-    extends State<_SearchableSelectOrAddBottomSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _addController = TextEditingController();
-  List<String> _filteredItems = [];
-  String _selectedCountryCode = '+971';
-  final Map<String, String> _countryCodes = PhoneNumberFormatter.countryCodes;
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredItems = List.from(widget.items);
-    _searchController.addListener(_filterItems);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _addController.dispose();
-    super.dispose();
-  }
-
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredItems =
-          widget.items.where((i) => i.toLowerCase().contains(query)).toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        top: 16,
-        left: 16,
-        right: 16,
-      ),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.75,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18.sp,
-                color: KTextColor,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _searchController,
-              style: const TextStyle(color: KTextColor),
-              decoration: InputDecoration(
-                hintText: s.search,
-                prefixIcon: const Icon(Icons.search, color: KTextColor),
-                hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: KPrimaryColor, width: 2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Divider(),
-            Expanded(
-              child: _filteredItems.isEmpty
-                  ? Center(
-                      child: Text(
-                        s.noResultsFound,
-                        style: const TextStyle(color: KTextColor),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _filteredItems[index];
-                        return ListTile(
-                          title: Text(
-                            item,
-                            style: const TextStyle(color: KTextColor),
-                          ),
-                          onTap: () => Navigator.pop(context, item),
-                        );
-                      },
-                    ),
-            ),
-            const Divider(),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.isNumeric) ...[
-                  SizedBox(
-                    width: 90,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCountryCode,
-                      items: _countryCodes.entries
-                          .map(
-                            (entry) => DropdownMenuItem<String>(
-                              value: entry.value,
-                              child: Text(
-                                entry.value,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: KTextColor,
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) =>
-                          setState(() => _selectedCountryCode = value!),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: borderColor),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: borderColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              const BorderSide(color: KPrimaryColor, width: 2),
-                        ),
-                      ),
-                      isExpanded: true,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: TextFormField(
-                    controller: _addController,
-                    keyboardType: widget.isNumeric
-                        ? TextInputType.number
-                        : TextInputType.text,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: KTextColor,
-                      fontSize: 12.sp,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: widget.isNumeric ? s.phoneNumber : s.addNew,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide:
-                            const BorderSide(color: KPrimaryColor, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    String result = _addController.text.trim();
-                    if (widget.isNumeric && result.isNotEmpty) {
-                      result = '$_selectedCountryCode$result';
-                    }
-                    if (result.isNotEmpty) {
-                      if (widget.onAddNew != null)
-                        await widget.onAddNew!(result);
-                      Navigator.pop(context, result);
-                    }
-                  },
-                  child: Text(
-                    s.add,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: KPrimaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    minimumSize: const Size(60, 48),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SingleSelectBottomSheet extends StatefulWidget {
   final String title;
   final List<String> items;
@@ -1387,7 +1069,7 @@ class _SingleSelectBottomSheetState extends State<_SingleSelectBottomSheet> {
                   controller: _searchController,
                   style: const TextStyle(color: KTextColor),
                   decoration: InputDecoration(
-                      hintText: s.search,
+                      hintText: s!.search,
                       prefixIcon: const Icon(Icons.search, color: KTextColor),
                       hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
                       enabledBorder: OutlineInputBorder(
@@ -1402,7 +1084,7 @@ class _SingleSelectBottomSheetState extends State<_SingleSelectBottomSheet> {
               Expanded(
                   child: _filteredItems.isEmpty
                       ? Center(
-                          child: Text(s.noResultsFound,
+                          child: Text(s!.noResultsFound,
                               style: const TextStyle(color: KTextColor)))
                       : ListView.builder(
                           itemCount: _filteredItems.length,

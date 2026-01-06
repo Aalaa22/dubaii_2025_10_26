@@ -6,7 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class CarSalesInfoProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  
+
   CarSalesInfoProvider();
 
   // Loading states
@@ -44,7 +44,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
   List<String> _phoneNumbers = [];
   List<String> _whatsappNumbers = [];
   List<String> _emirates = [];
-  
+
   // Dynamic field labels from API
   Map<String, String> _fieldLabels = {};
 
@@ -56,33 +56,93 @@ class CarSalesInfoProvider extends ChangeNotifier {
   final List<String> _defaultSpecs = ['Automatic', 'Manual', 'CVT'];
   final List<String> _defaultCarTypes = ['Sedan', 'SUV', 'Hatchback', 'Coupe'];
   final List<String> _defaultTransmissionTypes = ['Automatic', 'Manual', 'CVT'];
-  final List<String> _defaultFuelTypes = ['Petrol', 'Diesel', 'Hybrid', 'Electric'];
-  final List<String> _defaultColors = ['White', 'Black', 'Silver', 'Red', 'Blue'];
-  final List<String> _defaultInteriorColors = ['Black', 'Beige', 'Brown', 'Gray'];
-  final List<String> _defaultWarrantyOptions = ['1 Year', '2 Years', '3 Years', 'No Warranty'];
-  final List<String> _defaultEngineCapacities = ['1.0L', '1.5L', '2.0L', '2.5L', '3.0L'];
+  final List<String> _defaultFuelTypes = [
+    'Petrol',
+    'Diesel',
+    'Hybrid',
+    'Electric'
+  ];
+  final List<String> _defaultColors = [
+    'White',
+    'Black',
+    'Silver',
+    'Red',
+    'Blue'
+  ];
+  final List<String> _defaultInteriorColors = [
+    'Black',
+    'Beige',
+    'Brown',
+    'Gray'
+  ];
+  final List<String> _defaultWarrantyOptions = [
+    '1 Year',
+    '2 Years',
+    '3 Years',
+    'No Warranty'
+  ];
+  final List<String> _defaultEngineCapacities = [
+    '1.0L',
+    '1.5L',
+    '2.0L',
+    '2.5L',
+    '3.0L'
+  ];
   final List<String> _defaultCylinders = ['3', '4', '6', '8'];
-  final List<String> _defaultHorsePowers = ['100-150', '150-200', '200-250', '250+'];
+  final List<String> _defaultHorsePowers = [
+    '100-150',
+    '150-200',
+    '200-250',
+    '250+'
+  ];
   final List<String> _defaultDoorsNumbers = ['2', '4', '5'];
   final List<String> _defaultSeatsNumbers = ['2', '4', '5', '7', '8'];
   final List<String> _defaultSteeringSides = ['Left', 'Right'];
-  final List<String> _defaultAdvertiserTypes = ['Individual', 'Dealer', 'Company'];
+  final List<String> _defaultAdvertiserTypes = [
+    'Individual',
+    'Dealer',
+    'Company'
+  ];
   final List<String> _defaultAdvertiserNames = [''];
-  final List<String> _defaultPhoneNumbers = ['+971501234567', '+971509876543', '+971507654321'];
-  final List<String> _defaultWhatsappNumbers = ['+971501234567', '+971509876543', '+971507654321'];
-  final List<String> _defaultEmirates = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Ras Al Khaimah', 'Fujairah', 'Umm Al Quwain'];
+  final List<String> _defaultPhoneNumbers = [
+    '+971501234567',
+    '+971509876543',
+    '+971507654321'
+  ];
+  final List<String> _defaultWhatsappNumbers = [
+    '+971501234567',
+    '+971509876543',
+    '+971507654321'
+  ];
+  final List<String> _defaultEmirates = [
+    'Dubai',
+    'Abu Dhabi',
+    'Sharjah',
+    'Ajman',
+    'Ras Al Khaimah',
+    'Fujairah',
+    'Umm Al Quwain'
+  ];
 
   // Getters
   bool get isLoadingMakesAndModels => _isLoadingMakesAndModels;
   bool get isLoadingSpecs => _isLoadingSpecs;
   bool get isLoadingContactInfo => _isLoadingContactInfo;
   bool get isAddingContactItem => _isAddingContactItem;
-  bool get loading => _isLoadingMakesAndModels || _isLoadingSpecs || _isLoadingContactInfo || _isAddingContactItem;
+  bool get loading =>
+      _isLoadingMakesAndModels ||
+      _isLoadingSpecs ||
+      _isLoadingContactInfo ||
+      _isAddingContactItem;
   String? get makesAndModelsError => _makesAndModelsError;
   String? get specsError => _specsError;
   String? get contactInfoError => _contactInfoError;
   String? get addContactItemError => _addContactItemError;
-  String? get error => _makesAndModelsError ?? _specsError ?? _contactInfoError ?? _addContactItemError;
+  String? get error =>
+      _makesAndModelsError ??
+      _specsError ??
+      _contactInfoError ??
+      _addContactItemError;
   List<String> get makes => _makes;
   List<String> get models => _models;
   List<String> get trims => _trims;
@@ -114,28 +174,47 @@ class CarSalesInfoProvider extends ChangeNotifier {
   String _getDefaultLabel(String fieldName) {
     // Fallback to default labels if API doesn't provide them
     switch (fieldName) {
-      case 'make': return 'Make';
-      case 'model': return 'Model';
-      case 'trim': return 'Trim';
-      case 'year': return 'Year';
-      case 'specs': return 'Specs';
-      case 'carType': return 'Car Type';
-      case 'transType': return 'Transmission Type';
-      case 'fuelType': return 'Fuel Type';
-      case 'color': return 'Color';
-      case 'interiorColor': return 'Interior Color';
-      case 'warranty': return 'Warranty';
-      case 'engineCapacity': return 'Engine Capacity';
-      case 'cylinders': return 'Cylinders';
-      case 'horsePower': return 'Horse Power';
-      case 'doorsNo': return 'Doors Number';
-      case 'seatsNo': return 'Seats Number';
-      case 'steeringSide': return 'Steering Side';
-      case 'advertiserType': return 'Advertiser Type';
-      default: return fieldName;
+      case 'make':
+        return 'Make';
+      case 'model':
+        return 'Model';
+      case 'trim':
+        return 'Trim';
+      case 'year':
+        return 'Year';
+      case 'specs':
+        return 'Specs';
+      case 'carType':
+        return 'Car Type';
+      case 'transType':
+        return 'Transmission Type';
+      case 'fuelType':
+        return 'Fuel Type';
+      case 'color':
+        return 'Color';
+      case 'interiorColor':
+        return 'Interior Color';
+      case 'warranty':
+        return 'Warranty';
+      case 'engineCapacity':
+        return 'Engine Capacity';
+      case 'cylinders':
+        return 'Cylinders';
+      case 'horsePower':
+        return 'Horse Power';
+      case 'doorsNo':
+        return 'Doors Number';
+      case 'seatsNo':
+        return 'Seats Number';
+      case 'steeringSide':
+        return 'Steering Side';
+      case 'advertiserType':
+        return 'Advertiser Type';
+      default:
+        return fieldName;
     }
   }
-  
+
   /// Get display name for a field
   // String getFieldLabel(String fieldName) {
   //   return _fieldLabels[fieldName] ?? fieldName;
@@ -168,7 +247,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
     try {
       // Simulate API call delay
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // Use default values instead of API call
       _useDefaultValues();
     } catch (e) {
@@ -191,7 +270,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
       // بيانات عامة - لا حاجة لتوكن
       final response = await _apiService.get('/api/car-sales-ad-specs');
       final carSpecsResponse = CarSpecsResponse.fromJson(response);
-      
+
       if (carSpecsResponse.success) {
         _parseSpecsFromApi(carSpecsResponse.data);
       } else {
@@ -216,21 +295,21 @@ class CarSalesInfoProvider extends ChangeNotifier {
     try {
       // قراءة الـ token من الـ storage
       final token = await _storage.read(key: 'auth_token');
-      
+
       // بيانات عامة - لا حاجة لتوكن
       final response = await _apiService.get('/api/contact-info', token: token);
-      
+
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        
+
         if (data['advertiser_names'] != null) {
           _advertiserNames = List<String>.from(data['advertiser_names']);
         }
-        
+
         if (data['phone_numbers'] != null) {
           _phoneNumbers = List<String>.from(data['phone_numbers']);
         }
-        
+
         if (data['whatsapp_numbers'] != null) {
           _whatsappNumbers = List<String>.from(data['whatsapp_numbers']);
         }
@@ -248,15 +327,18 @@ class CarSalesInfoProvider extends ChangeNotifier {
   }
 
   /// Add new contact item via API
-  Future<bool> addContactItem(String field, String value, {String? token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {String? token}) async {
     _isAddingContactItem = true;
     _addContactItemError = null;
     safeNotifyListeners();
 
     try {
       // استخدام التوكن الجديد من التحقق
-      final authToken = token ?? await _storage.read(key: 'auth_token') ?? await _storage.read(key: 'auth_token');
-      
+      final authToken = token ??
+          await _storage.read(key: 'auth_token') ??
+          await _storage.read(key: 'auth_token');
+
       final response = await _apiService.post(
         '/api/contact-info/add-item',
         data: {
@@ -265,7 +347,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
         },
         token: authToken,
       );
-      
+
       if (response['success'] == true) {
         // Add the new item to the appropriate list
         switch (field) {
@@ -291,8 +373,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
         throw Exception('API returned success: false');
       }
     } catch (e) {
-      _addContactItemError = e.toString();
-      return false;
+      rethrow;
     } finally {
       _isAddingContactItem = false;
       safeNotifyListeners();
@@ -326,12 +407,12 @@ class CarSalesInfoProvider extends ChangeNotifier {
     _makeToModelsMap.clear();
     _modelToTrimsMap.clear();
     _fieldLabels.clear();
-    
+
     _makesAndModelsError = null;
     _specsError = null;
     _contactInfoError = null;
     _addContactItemError = null;
-    
+
     safeNotifyListeners();
   }
 
@@ -369,11 +450,11 @@ class CarSalesInfoProvider extends ChangeNotifier {
     _steeringSides.clear();
     _advertiserTypes.clear();
     _fieldLabels.clear();
-    
+
     // Parse each field from API response
     for (final field in fields) {
       _fieldLabels[field.fieldName] = field.fieldName;
-      
+
       switch (field.fieldName) {
         case 'make':
           _makes = List<String>.from(field.options);
@@ -434,7 +515,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
           break;
       }
     }
-    
+
     // Keep default values for fields not provided by API
     if (_advertiserNames.isEmpty) {
       _advertiserNames = List<String>.from(_defaultAdvertiserNames);
@@ -449,7 +530,7 @@ class CarSalesInfoProvider extends ChangeNotifier {
       _emirates = List<String>.from(_defaultEmirates);
     }
   }
-  
+
   /// استخدام القيم الافتراضية للمواصفات
   void _useDefaultSpecsValues() {
     _specs = List<String>.from(_defaultSpecs);
@@ -492,13 +573,13 @@ class CarSalesInfoProvider extends ChangeNotifier {
     _phoneNumbers = List<String>.from(_defaultPhoneNumbers);
     _whatsappNumbers = List<String>.from(_defaultWhatsappNumbers);
     _emirates = List<String>.from(_defaultEmirates);
-    
+
     // Setup default make-to-models mapping
     _makeToModelsMap.clear();
     _makeToModelsMap['BMW'] = ['X5', 'X3', '3 Series'];
     _makeToModelsMap['Honda'] = ['Accord', 'Civic', 'CR-V'];
     _makeToModelsMap['Toyota'] = ['Corolla', 'Camry', 'RAV4'];
-    
+
     // Setup default model-to-trims mapping
     _modelToTrimsMap.clear();
     _modelToTrimsMap['Corolla'] = ['Base', 'Sport', 'Luxury'];

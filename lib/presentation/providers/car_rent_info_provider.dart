@@ -29,7 +29,7 @@ class CarRentInfoProvider extends ChangeNotifier {
   bool _isLoadingTrims = false;
   bool get isLoadingModels => _isLoadingModels;
   bool get isLoadingTrims => _isLoadingTrims;
-  
+
   // --- بيانات أفضل المعلنين ---
   List<BestAdvertiser> _topDealerAds = [];
   bool _isLoadingTopDealers = false;
@@ -38,18 +38,18 @@ class CarRentInfoProvider extends ChangeNotifier {
   List<BestAdvertiser> get topDealerAds => _topDealerAds;
   bool get isLoadingTopDealers => _isLoadingTopDealers;
   String? get topDealersError => _topDealersError;
-  
+
   // --- خصائص إضافية لأفضل المعلنين (للتوافق مع car_rent_screen) ---
   List<BestAdvertiser> get bestAdvertiserAds => _topDealerAds;
   bool get isLoadingBestAdvertisers => _isLoadingTopDealers;
   String? get bestAdvertisersError => _topDealersError;
-  
+
   // --- بيانات الفلاتر الديناميكية ---
   List<EmirateModel> _emirates = [];
   List<MakeModel> _makes = [];
   List<CarModel> _models = [];
   List<TrimModel> _trims = [];
-  
+
   // --- بيانات المواصفات الديناميكية (بدلاً من الثابتة) ---
   List<String> _carTypes = [];
   List<String> _transmissionTypes = [];
@@ -57,38 +57,50 @@ class CarRentInfoProvider extends ChangeNotifier {
   List<String> _colors = [];
   List<String> _interiorColors = [];
   List<String> _seatNumbers = [];
-  final List<String> _years = List.generate(30, (index) => (DateTime.now().year - index).toString());
-  
+  final List<String> _years =
+      List.generate(30, (index) => (DateTime.now().year - index).toString());
+
   // بيانات جهات الاتصال (مشتركة)
   List<String> _advertiserNames = [];
   List<String> _phoneNumbers = [];
   List<String> _whatsappNumbers = [];
   List<String> _advertiserLocations = [];
-  
+
   // --- Getters ---
   List<MakeModel> get makes => _makes;
   List<CarModel> get models => _models;
   List<TrimModel> get trims => _trims;
-  
+
   List<String> get emirateDisplayNames => _emirates.map((e) => e.name).toList();
   List<String> get makeNames {
-    List<String> names = ['All', ..._makes.map((e) => e.name).toList(), 'Other'];
+    List<String> names = [
+      'All',
+      ..._makes.map((e) => e.name).toList(),
+      'Other'
+    ];
     return names;
   }
+
   List<String> get modelNames {
-    List<String> names = ['All', ..._models.map((e) => e.name).toList(), 'Other'];
+    List<String> names = [
+      'All',
+      ..._models.map((e) => e.name).toList(),
+      'Other'
+    ];
     return names;
   }
-  
+
   // Getters for ads screen without "All" option
   List<String> get makeNamesForAds {
     List<String> names = [..._makes.map((e) => e.name).toList(), 'Other'];
     return names;
   }
+
   List<String> get modelNamesForAds {
     List<String> names = [..._models.map((e) => e.name).toList(), 'Other'];
     return names;
   }
+
   List<String> get trimNames {
     List<String> names = [..._trims.map((e) => e.name).toList()];
     // إضافة خيار 'Other' إذا كان هناك موديل محدد
@@ -97,6 +109,7 @@ class CarRentInfoProvider extends ChangeNotifier {
     }
     return names;
   }
+
   List<String> get years => _years;
   List<String> get carTypes => _carTypes;
   List<String> get transmissionTypes => _transmissionTypes;
@@ -127,8 +140,7 @@ class CarRentInfoProvider extends ChangeNotifier {
         // تحليل المواصفات وتعبئة القوائم
         _parseSpecsFromApi(results[2] as List<CarSpecField>);
       });
-
-    } catch(e) {
+    } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -177,8 +189,10 @@ class CarRentInfoProvider extends ChangeNotifier {
     _trims.clear();
     notifyListeners();
     try {
-      _models = await _repository.getModels(makeId: make.id, );
-    } catch(e) {
+      _models = await _repository.getModels(
+        makeId: make.id,
+      );
+    } catch (e) {
       // print("Error fetching models for ${make.name}: $e");
     } finally {
       _isLoadingModels = false;
@@ -194,7 +208,7 @@ class CarRentInfoProvider extends ChangeNotifier {
     notifyListeners();
     try {
       _models = await _repository.getAllModels();
-    } catch(e) {
+    } catch (e) {
       // print("Error fetching all models: $e");
     } finally {
       _isLoadingModels = false;
@@ -207,7 +221,9 @@ class CarRentInfoProvider extends ChangeNotifier {
     _trims.clear();
     notifyListeners();
     try {
-      _trims = await _repository.getTrims(modelId: model.id, );
+      _trims = await _repository.getTrims(
+        modelId: model.id,
+      );
     } catch (e) {
       // print("Error fetching trims for ${model.name}: $e");
     } finally {
@@ -215,26 +231,37 @@ class CarRentInfoProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> fetchContactInfo({String? token}) async {
     try {
       final authToken = token ?? await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/contact-info', token: authToken);
+      final response =
+          await _apiService.get('/api/contact-info', token: authToken);
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        _advertiserNames = data['advertiser_names'] != null ? List<String>.from(data['advertiser_names']) : [];
-        _phoneNumbers = data['phone_numbers'] != null ? List<String>.from(data['phone_numbers']) : [];
-        _whatsappNumbers = data['whatsapp_numbers'] != null ? List<String>.from(data['whatsapp_numbers']) : [];
-        _advertiserLocations = data['advertiser_locations'] != null ? List<String>.from(data['advertiser_locations']) : [];
+        _advertiserNames = data['advertiser_names'] != null
+            ? List<String>.from(data['advertiser_names'])
+            : [];
+        _phoneNumbers = data['phone_numbers'] != null
+            ? List<String>.from(data['phone_numbers'])
+            : [];
+        _whatsappNumbers = data['whatsapp_numbers'] != null
+            ? List<String>.from(data['whatsapp_numbers'])
+            : [];
+        _advertiserLocations = data['advertiser_locations'] != null
+            ? List<String>.from(data['advertiser_locations'])
+            : [];
       }
     } catch (e) {
       // print("Could not fetch contact info: $e");
     }
   }
 
-  Future<bool> addContactItem(String field, String value, {required String token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {required String token}) async {
     try {
-      final response = await _apiService.post('/api/contact-info/add-item', data: {'field': field, 'value': value}, token: token);
+      final response = await _apiService.post('/api/contact-info/add-item',
+          data: {'field': field, 'value': value}, token: token);
       if (response['success'] == true) {
         await fetchContactInfo();
         notifyListeners();
@@ -242,16 +269,17 @@ class CarRentInfoProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-       _error = e.toString();
-       notifyListeners();
-       return false;
+      rethrow;
     }
   }
-  
+
   String? getEmirateNameFromDisplayName(String? displayName) {
     if (displayName == null) return null;
-    try { return _emirates.firstWhere((e) => e.name == displayName).name; }
-    catch(e) { return null; }
+    try {
+      return _emirates.firstWhere((e) => e.name == displayName).name;
+    } catch (e) {
+      return null;
+    }
   }
 
   void clearModelsAndTrims() {
@@ -263,14 +291,15 @@ class CarRentInfoProvider extends ChangeNotifier {
   // دالة لجلب أفضل المعلنين لفئة تأجير السيارات
   Future<void> fetchTopDealerAds({bool forceRefresh = false}) async {
     if (!forceRefresh && _topDealerAds.isNotEmpty) return;
-    
+
     _isLoadingTopDealers = true;
     _topDealersError = null;
     notifyListeners();
-    
+
     try {
       // Public data - no token required
-      _topDealerAds = await _repository.getBestAdvertiserAds(category: 'car_rent');
+      _topDealerAds =
+          await _repository.getBestAdvertiserAds(category: 'car_rent');
     } catch (e) {
       // print("Error fetching top dealer ads: $e");
       _topDealersError = e.toString();
@@ -279,7 +308,7 @@ class CarRentInfoProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   // دالة إضافية للتوافق مع car_rent_screen
   Future<void> fetchBestAdvertiserAds({bool forceRefresh = false}) async {
     await fetchTopDealerAds(forceRefresh: forceRefresh);

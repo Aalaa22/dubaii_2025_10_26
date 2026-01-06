@@ -31,19 +31,25 @@ class CarRentRepository {
       if (response.containsKey('ads')) {
         final transformed = {
           'data': response['ads'],
-          'total': response['total'] ?? response['total_ads'] ?? response['count'] ?? (response['ads'] as List?)?.length ?? 0,
+          'total': response['total'] ??
+              response['total_ads'] ??
+              response['count'] ??
+              (response['ads'] as List?)?.length ??
+              0,
         };
         return CarRentAdResponse.fromJson(transformed);
       }
 
       // في حال كان هناك رسالة خطأ
       if (response.containsKey('error') || response.containsKey('message')) {
-        final errorMessage = response['error'] ?? response['message'] ?? 'Unknown API error';
+        final errorMessage =
+            response['error'] ?? response['message'] ?? 'Unknown API error';
         throw Exception('API Error: $errorMessage');
       }
 
       // fallback: إذا وجدنا أي قيمة من نوع List ضمن الماب، اعتبرها البيانات
-      final listValue = response.values.firstWhere((v) => v is List, orElse: () => null);
+      final listValue =
+          response.values.firstWhere((v) => v is List, orElse: () => null);
       if (listValue is List) {
         final transformed = {
           'data': listValue,
@@ -92,17 +98,44 @@ class CarRentRepository {
     // print('Raw API response: $response');
 
     if (response is Map<String, dynamic>) {
-      // Check if the response has a 'data' field or is the ad data directly
-      if (response.containsKey('data') && response['data'] is Map<String, dynamic>) {
-        return CarRentAdModel.fromJson(response['data']);
-      } else if (response.containsKey('id')) {
-        // Direct ad data without wrapper
-        return CarRentAdModel.fromJson(response);
-      } else {
-        throw Exception('Invalid response format for car rent ad details');
+      // 1. Check 'data' field
+      final dynamic dataField = response['data'];
+      if (dataField is Map<String, dynamic>) {
+        return CarRentAdModel.fromJson(dataField);
       }
+      if (dataField is List &&
+          dataField.isNotEmpty &&
+          dataField.first is Map<String, dynamic>) {
+        return CarRentAdModel.fromJson(dataField.first as Map<String, dynamic>);
+      }
+
+      // 2. Check alternative keys
+      final altKeys = ['car_rent', 'car_rent_ad', 'ad', 'item', 'result'];
+      for (final key in altKeys) {
+        final val = response[key];
+        if (val is Map<String, dynamic>) {
+          return CarRentAdModel.fromJson(val);
+        }
+      }
+
+      // 3. Check if response itself is the object
+      if (response.containsKey('id')) {
+        return CarRentAdModel.fromJson(response);
+      }
+
+      throw Exception(
+          'Failed to parse car rent ad details. Keys: ${response.keys}');
     }
-    throw Exception('API response format is not as expected for CarRentAdModel.');
+
+    if (response is List) {
+      if (response.isNotEmpty && response.first is Map<String, dynamic>) {
+        return CarRentAdModel.fromJson(response.first as Map<String, dynamic>);
+      }
+      throw Exception('Empty list returned for car rent details.');
+    }
+
+    throw Exception(
+        'API response format is not as expected for CarRentAdModel.');
   }
 
   // --- دوال لجلب بيانات الفلاتر لشاشة الإضافة ---
@@ -251,6 +284,7 @@ class CarRentRepository {
       }
       return null;
     }
+
     final latStr = _fmt(lat);
     final lngStr = _fmt(lng);
     if (latStr != null) requestData['latitude'] = latStr;

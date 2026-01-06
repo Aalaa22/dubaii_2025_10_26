@@ -48,7 +48,7 @@ class CustomPhoneField extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
-          hintText: S.of(context).phoneNumberHint,
+          hintText: S.of(context)!.phoneNumberHint,
           hintStyle: const TextStyle(
               color: Color.fromRGBO(129, 126, 126, 1),
               fontSize: 14,
@@ -86,7 +86,7 @@ class CustomPhoneField extends StatelessWidget {
         ),
         pickerDialogStyle: PickerDialogStyle(
           searchFieldInputDecoration: InputDecoration(
-            labelText: S.of(context).searchCountry,
+            labelText: S.of(context)!.searchCountry,
           ),
           countryNameStyle: const TextStyle(color: KTextColor),
         ),

@@ -19,7 +19,7 @@ class OtherServicesInfoProvider extends ChangeNotifier {
   String? _error;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  
+
   List<EmirateModel> _emirates = [];
   List<String> _sectionTypes = [];
 
@@ -32,12 +32,16 @@ class OtherServicesInfoProvider extends ChangeNotifier {
   List<String> get advertiserNames => _advertiserNames;
   List<String> get phoneNumbers => _phoneNumbers;
   List<String> get whatsappNumbers => _whatsappNumbers;
-  
+
   List<String> getDistrictsForEmirate(String? emirateDisplayName) {
     if (emirateDisplayName == null) return [];
     try {
-      return _emirates.firstWhere((e) => e.name == emirateDisplayName).districts;
-    } catch(e) { return []; }
+      return _emirates
+          .firstWhere((e) => e.name == emirateDisplayName)
+          .districts;
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<void> fetchAllData({String? token}) async {
@@ -53,7 +57,7 @@ class OtherServicesInfoProvider extends ChangeNotifier {
         _emirates = results[0] as List<EmirateModel>;
         _sectionTypes = results[1] as List<String>;
       });
-    } catch(e) {
+    } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -67,16 +71,26 @@ class OtherServicesInfoProvider extends ChangeNotifier {
       final response = await _apiService.get('/api/contact-info', token: token);
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        _advertiserNames = data['advertiser_names'] != null ? List<String>.from(data['advertiser_names']) : [];
-        _phoneNumbers = data['phone_numbers'] != null ? List<String>.from(data['phone_numbers']) : [];
-        _whatsappNumbers = data['whatsapp_numbers'] != null ? List<String>.from(data['whatsapp_numbers']) : [];
+        _advertiserNames = data['advertiser_names'] != null
+            ? List<String>.from(data['advertiser_names'])
+            : [];
+        _phoneNumbers = data['phone_numbers'] != null
+            ? List<String>.from(data['phone_numbers'])
+            : [];
+        _whatsappNumbers = data['whatsapp_numbers'] != null
+            ? List<String>.from(data['whatsapp_numbers'])
+            : [];
       }
-    } catch (e) { print("Could not fetch contact info: $e"); }
+    } catch (e) {
+      print("Could not fetch contact info: $e");
+    }
   }
 
-  Future<bool> addContactItem(String field, String value, {required String token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {required String token}) async {
     try {
-      final response = await _apiService.post('/api/contact-info/add-item', data: {'field': field, 'value': value}, token: token);
+      final response = await _apiService.post('/api/contact-info/add-item',
+          data: {'field': field, 'value': value}, token: token);
       if (response['success'] == true) {
         await fetchContactInfo(token: token);
         notifyListeners();
@@ -84,22 +98,25 @@ class OtherServicesInfoProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-       _error = e.toString();
-       notifyListeners();
-       return false;
+      rethrow;
     }
   }
 
   String? getEmirateNameFromDisplayName(String? displayName) {
     if (displayName == null) return null;
-    try { return _emirates.firstWhere((e) => e.name == displayName).name; }
-    catch(e) { return null; }
+    try {
+      return _emirates.firstWhere((e) => e.name == displayName).name;
+    } catch (e) {
+      return null;
+    }
   }
 
   // إضافة دالة لجلب أفضل المعلنين
   Future<List<Map<String, dynamic>>> getBestDealers() async {
     try {
-      final response = await _apiService.get('/api/best-advertisers/other_services', );
+      final response = await _apiService.get(
+        '/api/best-advertisers/other_services',
+      );
       if (response is List) {
         return List<Map<String, dynamic>>.from(response);
       } else if (response is Map && response['data'] is List) {

@@ -80,7 +80,7 @@ class _JobOfferBoxState extends State<JobOfferBox> with FavoritesHelper<JobOffer
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -133,7 +133,7 @@ class _JobOfferBoxState extends State<JobOfferBox> with FavoritesHelper<JobOffer
                                             Expanded(
                                               child: _buildMultiSelectField(
                                                 context,
-                                                S.of(context).category,
+                                                S.of(context)!.category,
                                                 _selectedCategories,
                                                 categoryItems.isNotEmpty ? categoryItems : const <String>[],
                                                 (selection) {
@@ -147,7 +147,7 @@ class _JobOfferBoxState extends State<JobOfferBox> with FavoritesHelper<JobOffer
                                             Expanded(
                                               child: _buildMultiSelectField(
                                                 context,
-                                                S.of(context).section,
+                                                S.of(context)!.section,
                                                 _selectedSections,
                                                 sectionItems.isNotEmpty ? sectionItems : const <String>[],
                                                 (selection) {
@@ -183,7 +183,7 @@ class _JobOfferBoxState extends State<JobOfferBox> with FavoritesHelper<JobOffer
                                   Consumer<JobOfferAdsProvider>(
                                     builder: (context, provider, _) {
                                       return Text(
-                                        '${S.of(context).ad} ${provider.offerAds.length}',
+                                        '${S.of(context)!.ad} ${provider.offerAds.length}',
                                         style: TextStyle(
                                           fontSize: 12.sp,
                                           color: KTextColor,
@@ -214,7 +214,7 @@ class _JobOfferBoxState extends State<JobOfferBox> with FavoritesHelper<JobOffer
                                           SizedBox(width: 12.w),
                                           Expanded(
                                             child: Text(
-                                              S.of(context).sort,
+                                              S.of(context)!.sort,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w600,
@@ -509,7 +509,7 @@ class _MultiSelectBottomSheetState extends State<_MultiSelectBottomSheet> {
                 const SizedBox(height: 8), const Divider(),
                 Expanded(
                   child: _filteredItems.isEmpty 
-                    ? Center(child: Text(s.noResultsFound, style: TextStyle(color: KTextColor)))
+                    ? Center(child: Text(s!.noResultsFound, style: TextStyle(color: KTextColor)))
                     : ListView.builder(
                         itemCount: _filteredItems.length,
                         itemBuilder: (context, index) {

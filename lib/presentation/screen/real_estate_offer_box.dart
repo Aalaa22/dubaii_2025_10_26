@@ -83,7 +83,7 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                         Transform.translate(
                           offset: Offset(-3.w, 0),
                           child: Text(
-                            S.of(context).back,
+                            S.of(context)!.back,
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
@@ -137,7 +137,7 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                                   children: [
                                     Expanded(
                                       child: _buildMultiSelectField(
-                                        context, S.of(context).type, _selectedTypes, 
+                                        context, S.of(context)!.type, _selectedTypes, 
                                         infoProvider.propertyTypes, // استخدام بيانات حقيقية
                                         (selection) {
                                           setState(() => _selectedTypes = selection);
@@ -150,7 +150,7 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                                     SizedBox(width: 5.w),
                                     Expanded(
                                       child: _buildMultiSelectField(
-                                        context, S.of(context).district, _selectedDistricts, 
+                                        context, S.of(context)!.district, _selectedDistricts, 
                                         allDistricts, // استخدام بيانات حقيقية
                                         (selection) {
                                           setState(() => _selectedDistricts = selection);
@@ -163,7 +163,7 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                                     SizedBox(width: 5.w),
                                     Expanded(
                                       child: _buildMultiSelectField(
-                                        context, S.of(context).contract, _selectedContracts, 
+                                        context, S.of(context)!.contract, _selectedContracts, 
                                         infoProvider.contractTypes, // استخدام بيانات حقيقية
                                         (selection) {
                                           setState(() => _selectedContracts = selection);
@@ -176,9 +176,9 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                                     SizedBox(width: 5.w),
                                     Expanded(
                                       child: _buildRangePickerField(
-                                        context, title: S.of(context).price, fromValue: _priceFrom, toValue: _priceTo, unit: "AED", isFilter: true,
+                                        context, title: S.of(context)!.price, fromValue: _priceFrom, toValue: _priceTo, unit: "AED", isFilter: true,
                                         onTap: () async {
-                                          final result = await _showRangePicker(context, title: S.of(context).price, initialFrom: _priceFrom, initialTo: _priceTo, unit: "AED");
+                                          final result = await _showRangePicker(context, title: S.of(context)!.price, initialFrom: _priceFrom, initialTo: _priceTo, unit: "AED");
                                           if (result != null) {
                                             setState(() { 
                                               _priceFrom = result['from']; 
@@ -215,7 +215,7 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                               builder: (context, provider, child) {
                                 final adsCount = provider.ads.length;
                                 return Text(
-                                  ' ${S.of(context).ad} $adsCount',
+                                  ' ${S.of(context)!.ad} $adsCount',
                                   style: TextStyle(
                                     fontSize: 12.sp,
                                     color: KTextColor,
@@ -239,7 +239,7 @@ class _RealEstateOfferBOXState extends State<RealEstateOfferBOX> with FavoritesH
                                     SizedBox(width: 12.w),
                                     Expanded(
                                       child: Text(
-                                        S.of(context).sort,
+                                        S.of(context)!.sort,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,

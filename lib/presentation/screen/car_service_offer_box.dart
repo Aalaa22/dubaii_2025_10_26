@@ -163,7 +163,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
                         Transform.translate(
                           offset: Offset(-3.w, 0),
                           child: Text(
-                            S.of(context).back,
+                            S.of(context)!.back,
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
@@ -213,7 +213,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
                                       final serviceNames = provider.getUniqueServiceNames();
                                       return _buildMultiSelectField(
                                         context, 
-                                        S.of(context).service_type, 
+                                        S.of(context)!.service_type, 
                                         _selectedServiceTypes, 
                                         serviceNames, 
                                         (selection) {
@@ -232,7 +232,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
                                       final districts = provider.getUniqueDistricts();
                                       return _buildMultiSelectField(
                                         context, 
-                                        S.of(context).district, 
+                                        S.of(context)!.district, 
                                         _selectedDistricts, 
                                         districts, 
                                         (selection) {
@@ -248,13 +248,13 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
                                 Expanded(
                                   child: _buildRangePickerField(
                                     context, 
-                                    title: S.of(context).price, 
+                                    title: S.of(context)!.price, 
                                     fromValue: _priceFrom, 
                                     toValue: _priceTo,
                                     unit: "AED", 
                                     isFilter: true,
                                     onTap: () async {
-                                      final result = await _showRangePicker(context, title: S.of(context).price, initialFrom: _priceFrom, initialTo: _priceTo, unit: "AED");
+                                      final result = await _showRangePicker(context, title: S.of(context)!.price, initialFrom: _priceFrom, initialTo: _priceTo, unit: "AED");
                                       if (result != null) {
                                         setState(() { 
                                           _priceFrom = result['from']; 
@@ -284,7 +284,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
                             Consumer<CarServicesOffersProvider>(
                               builder: (context, provider, child) {
                                 return Text(
-                                  '${S.of(context).ad} ${provider.offerAds.length}',
+                                  '${S.of(context)!.ad} ${provider.offerAds.length}',
                                   style: TextStyle(
                                     fontSize: 12.sp,
                                     color: KTextColor,
@@ -314,7 +314,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
                                     SizedBox(width: 12.w),
                                     Expanded(
                                       child: Text(
-                                        S.of(context).sort,
+                                        S.of(context)!.sort,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
@@ -609,7 +609,7 @@ Widget _buildRangePickerField(BuildContext context, {required String title, Stri
     String displayText;
       displayText = (fromValue == null || fromValue.isEmpty) && (toValue == null || toValue.isEmpty) 
           ? title
-          : '${fromValue ?? s.from} - ${toValue ?? s.to} ${unit}'.trim();
+          : '${fromValue ?? s!.from} - ${toValue ?? s!.to} ${unit}'.trim();
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -704,7 +704,7 @@ class _MultiSelectBottomSheetState extends State<_MultiSelectBottomSheet> {
                   controller: _searchController,
                   style: TextStyle(color: KTextColor), 
                   decoration: InputDecoration(
-                    hintText: s.search, prefixIcon: Icon(Icons.search, color: KTextColor),
+                    hintText: s!.search, prefixIcon: Icon(Icons.search, color: KTextColor),
                     hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: borderColor)),
                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: KPrimaryColor, width: 2)),
@@ -806,12 +806,12 @@ class __RangeSelectionBottomSheetState extends State<_RangeSelectionBottomSheet>
             Text(widget.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp, color: KTextColor)),
             TextButton(
               onPressed: () { _fromController.clear(); _toController.clear(); setState(() {}); }, 
-              child: Text(s.reset, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14.sp))),
+              child: Text(s!.reset, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14.sp))),
           ]),
           SizedBox(height: 16.h),
           Row(children: [
-            buildTextField(s.from, widget.unit, _fromController),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0), child: Text(s.to, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14))),
+            buildTextField(s!.from, widget.unit, _fromController),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0), child: Text(s!.to, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14))),
             buildTextField(s.to, widget.unit, _toController),
           ]),
           SizedBox(height: 24.h),

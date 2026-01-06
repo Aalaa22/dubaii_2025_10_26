@@ -50,25 +50,25 @@ class _ElectronicScreenState extends State<ElectronicScreen>
   List<SmartSearchItem> _suggestions = [];
 
   List<String> get categories => [
-        S.of(context).carsales,
-        S.of(context).realestate,
-        S.of(context).electronics,
-        S.of(context).jobs,
-        S.of(context).carrent,
-        S.of(context).carservices,
-        S.of(context).restaurants,
-        S.of(context).otherservices,
+        S.of(context)!.carsales,
+        S.of(context)!.realestate,
+        S.of(context)!.electronics,
+        S.of(context)!.jobs,
+        S.of(context)!.carrent,
+        S.of(context)!.carservices,
+        S.of(context)!.restaurants,
+        S.of(context)!.otherservices,
       ];
 
   Map<String, String> get categoryRoutes => {
-        S.of(context).carsales: "/home",
-        S.of(context).realestate: "/realEstate",
-        S.of(context).electronics: "/electronics",
-        S.of(context).jobs: "/jobs",
-        S.of(context).carrent: "/car_rent",
-        S.of(context).carservices: "/carServices",
-        S.of(context).restaurants: "/restaurants",
-        S.of(context).otherservices: "/otherServices",
+        S.of(context)!.carsales: "/home",
+        S.of(context)!.realestate: "/realEstate",
+        S.of(context)!.electronics: "/electronics",
+        S.of(context)!.jobs: "/jobs",
+        S.of(context)!.carrent: "/car_rent",
+        S.of(context)!.carservices: "/carServices",
+        S.of(context)!.restaurants: "/restaurants",
+        S.of(context)!.otherservices: "/otherServices",
       };
 
   @override
@@ -168,7 +168,7 @@ class _ElectronicScreenState extends State<ElectronicScreen>
                               }
                             },
                             decoration: InputDecoration(
-                              hintText: s.smart_search,
+                              hintText: s!.smart_search,
                               hintStyle: TextStyle(
                                   color: const Color.fromRGBO(129, 126, 126, 1),
                                   fontSize: 14.sp,
@@ -235,7 +235,7 @@ class _ElectronicScreenState extends State<ElectronicScreen>
                           return ListTile(
                             dense: true,
                             title: Text(
-                              '${S.of(context).category} ${item.itemType}',
+                              '${S.of(context)!.category} ${item.itemType}',
                               style: TextStyle(color: KTextColor, fontSize: 13.sp),
                             ),
                             trailing: Text(
@@ -364,44 +364,42 @@ class _ElectronicScreenState extends State<ElectronicScreen>
                                   extra: filters);
                             },
                           ),
-                          SizedBox(height: 7.h),
-                          Padding(
-                            padding: EdgeInsetsDirectional.symmetric(
-                                horizontal: 8.w),
-                            child: GestureDetector(
-                              onTap: () => context.push('/electronicofferbox'),
-                              child: Container(
-                                padding: EdgeInsetsDirectional.symmetric(
-                                    horizontal: 8.w),
-                                height: 68.h,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFE4F8F6),
-                                      Color(0xFFC9F8FE)
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        s.click_for_deals_elect,
-                                        style: TextStyle(
-                                            fontSize: 13.sp,
-                                            color: KTextColor,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ),
-                                    SizedBox(width: 10.w),
-                                    Icon(Icons.arrow_forward_ios,
-                                        size: 22.sp, color: KTextColor),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+    // Hiding offer box as per user request
+// Padding(
+//   padding:
+//       EdgeInsetsDirectional.symmetric(horizontal: 8.w),
+//   child: GestureDetector(
+//     onTap: () => context.push('/electronicofferbox'),
+//     child: Container(
+//       padding: EdgeInsetsDirectional.symmetric(
+//           horizontal: 8.w),
+//       height: 68.h,
+//       decoration: BoxDecoration(
+//         gradient: const LinearGradient(
+//           colors: [Color(0xFFE4F8F6), Color(0xFFC9F8FE)],
+//         ),
+//         borderRadius: BorderRadius.circular(8.r),
+//       ),
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: Text(
+//               s.click_for_deals_elect,
+//               style: TextStyle(
+//                 fontSize: 13.sp,
+//                 color: KTextColor,
+//                 fontWeight: FontWeight.w500,
+//               ),
+//             ),
+//           ),
+//           SizedBox(width: 10.w),
+//           Icon(Icons.arrow_forward_ios,
+//               size: 22.sp, color: KTextColor),
+//         ],
+//       ),
+//     ),
+//   ),
+// ),
                           SizedBox(height: 5.h),
                           Row(
                             children: [

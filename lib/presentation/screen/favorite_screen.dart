@@ -254,7 +254,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           errorMessage = null; // لا نعرض رسالة خطأ، بل رسالة ودية
           isUnauthenticated = true;
         } else {
-          errorMessage = S.of(context).favoritesLoadFailed(e.toString());
+          errorMessage = S.of(context)!.favoritesLoadFailed(e.toString());
           isUnauthenticated = false;
         }
       });
@@ -309,7 +309,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).favoriteRemovedSuccess),
+            content: Text(S.of(context)!.favoriteRemovedSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -319,7 +319,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).favoriteRemoveFailed(e.toString())),
+            content: Text(S.of(context)!.favoriteRemoveFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -334,14 +334,14 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     // قائمة التصنيفات النصية
     final List<String> categories = [
-      S.of(context).carsales, // index 0
-      S.of(context).realestate, // index 1
-      S.of(context).electronics, // index 2
-      S.of(context).jobs, // index 3
-      S.of(context).carrent, // index 4
-      S.of(context).carservices, // index 5
-      S.of(context).restaurants, // index 6
-      S.of(context).otherservices // index 7
+      S.of(context)!.carsales, // index 0
+      S.of(context)!.realestate, // index 1
+      S.of(context)!.electronics, // index 2
+      S.of(context)!.jobs, // index 3
+      S.of(context)!.carrent, // index 4
+      S.of(context)!.carservices, // index 5
+      S.of(context)!.restaurants, // index 6
+      S.of(context)!.otherservices // index 7
     ];
 
     return Directionality(
@@ -352,7 +352,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           children: [
             SizedBox(height: 60),
             Text(
-              S.of(context).favorites,
+              S.of(context)!.favorites,
               style: TextStyle(
                 color: Color(0xFF001E5B),
                 fontWeight: FontWeight.w500,
@@ -416,7 +416,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadFavoritesData,
-              child: Text(S.of(context).retry),
+              child: Text(S.of(context)!.retry),
             ),
           ],
         ),
@@ -442,7 +442,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             SizedBox(height: 24),
             Text(
-              S.of(context).loginRequiredTitle,
+              S.of(context)!.loginRequiredTitle,
               style: TextStyle(
                 color: Colors.grey[700],
                 fontSize: 20.sp,
@@ -451,7 +451,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             SizedBox(height: 12),
             Text(
-              S.of(context).loginRequiredDescription,
+              S.of(context)!.loginRequiredDescription,
               style: TextStyle(
                 color: Colors.grey[500],
                 fontSize: 16.sp,
@@ -479,7 +479,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   GestureDetector(
                     onTap: () => context.push("/login"),
                     child: Text(
-                      S.of(context).loginAction,
+                      S.of(context)!.loginAction,
                       style: TextStyle(
                         color: Colors.blue[600],
                         fontSize: 16.sp,
@@ -508,7 +508,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              S.of(context).favoritesEmptySection,
+              S.of(context)!.favoritesEmptySection,
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: 18.sp,
@@ -542,20 +542,20 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
               title: Text(
-                S.of(context).removeFromFavoritesTitle,
+                S.of(context)!.removeFromFavoritesTitle,
                 style: TextStyle(
                     color: Color(0xFF001E5B),
                     fontSize: 18,
                     fontWeight: FontWeight.w600),
               ),
               content: Text(
-                S.of(context).removeFromFavoritesMessage,
+                S.of(context)!.removeFromFavoritesMessage,
                 style: TextStyle(color: Color(0xFF001E5B), fontSize: 15),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(false),
-                  child: Text(S.of(context).cancel),
+                  child: Text(S.of(context)!.cancel),
                   style:
                       TextButton.styleFrom(foregroundColor: Color(0xFF001E5B)),
                 ),
@@ -564,7 +564,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     backgroundColor: Color.fromRGBO(1, 84, 126, 1),
                   ),
                   onPressed: () => Navigator.of(ctx).pop(true),
-                  child: Text(S.of(context).remove,
+                  child: Text(S.of(context)!.remove,
                       style: TextStyle(
                         color: Colors.white,
                       )),
@@ -582,7 +582,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (userId == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.of(context).pleaseLoginFirst)),
+            SnackBar(content: Text(S.of(context)!.pleaseLoginFirst)),
           );
         }
         return;
@@ -605,7 +605,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       if (adId == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.of(context).adIdNotAvailable)),
+            SnackBar(content: Text(S.of(context)!.adIdNotAvailable)),
           );
         }
         return;
@@ -634,7 +634,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(S.of(context).favoriteRemovedSuccess),
+              content: Text(S.of(context)!.favoriteRemovedSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -655,7 +655,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(S.of(context).favoriteRemovedSuccess),
+                content: Text(S.of(context)!.favoriteRemovedSuccess),
                 backgroundColor: Colors.green,
               ),
             );
@@ -664,7 +664,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(S.of(context).favoriteRemoveFailed(e.toString())),
+                content: Text(S.of(context)!.favoriteRemoveFailed(e.toString())),
                 backgroundColor: Colors.red,
               ),
             );
@@ -725,9 +725,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildLabelWithValue(S.of(context).dayRent, dayRent),
+                  _buildLabelWithValue(S.of(context)!.dayRent, dayRent),
                   const SizedBox(width: 16),
-                  _buildLabelWithValue(S.of(context).monthRent, monthRent),
+                  _buildLabelWithValue(S.of(context)!.monthRent, monthRent),
                 ],
               ),
             ),
@@ -930,10 +930,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     final phone = _getPhoneNumber(item).trim();
     final parts = <String>[];
     if (whatsapp.isNotEmpty && whatsapp.toLowerCase() != 'null' && whatsapp.toLowerCase() != 'nullnow') {
-      parts.add(S.of(context).whatsappLabel(whatsapp));
+      parts.add(S.of(context)!.whatsappLabel(whatsapp));
     }
     if (phone.isNotEmpty && phone.toLowerCase() != 'null' && phone.toLowerCase() != 'nullnow') {
-      parts.add(S.of(context).phoneLabel(phone));
+      parts.add(S.of(context)!.phoneLabel(phone));
     }
     return parts.join(' | ');
   }
@@ -943,7 +943,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).couldNotLaunch(urlString))),
+          SnackBar(content: Text(S.of(context)!.couldNotLaunch(urlString))),
         );
       }
     }
@@ -967,12 +967,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               _launchUrl(url);
             } catch (_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(S.of(context).whatsappInvalid)),
+                SnackBar(content: Text(S.of(context)!.whatsappInvalid)),
               );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.of(context).whatsappNotAvailable)),
+              SnackBar(content: Text(S.of(context)!.whatsappNotAvailable)),
             );
           }
         },
@@ -1002,12 +1002,12 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               _launchUrl(url);
             } catch (_) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(S.of(context).phoneInvalid)),
+                SnackBar(content: Text(S.of(context)!.phoneInvalid)),
               );
             }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.of(context).phoneNotAvailable)),
+              SnackBar(content: Text(S.of(context)!.phoneNotAvailable)),
             );
           }
         },

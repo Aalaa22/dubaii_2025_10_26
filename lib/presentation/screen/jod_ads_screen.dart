@@ -15,6 +15,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/auth_repository.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:advertising_app/presentation/widget/titled_select_or_add_field.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -90,11 +91,12 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
     try {
       final hasCoords = user.latitude != null && user.longitude != null;
       if (hasCoords) {
-        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        final latLng =
+            LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
         setState(() => selectedLatLng = latLng);
-        await context
-            .read<GoogleMapsProvider>()
-            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+        await context.read<GoogleMapsProvider>().moveCameraToLocation(
+            latLng.latitude, latLng.longitude,
+            zoom: 16.0);
       } else if (selectedLocation.isNotEmpty) {
         await _applySelectedLocationAddress();
       }
@@ -141,108 +143,113 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
             ? 'يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:'
             : 'You must complete the following fields in your profile before adding the advertisement:';
         return WillPopScope(
-          onWillPop: () async {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            return false;
-          },
-          child: Directionality(
-            textDirection: textDirection,
-            child: AlertDialog(
-            backgroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Text(
-              s.warning,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, color: KTextColor, fontSize: 18),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 16, color: KTextColor),
+            onWillPop: () async {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              return false;
+            },
+            child: Directionality(
+              textDirection: textDirection,
+              child: AlertDialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                title: Text(
+                  s.warning,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: KTextColor,
+                      fontSize: 18),
                 ),
-                const SizedBox(height: 8),
-                ...localizedMissingFields.map((f) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Row(children: [
-                        const Icon(Icons.error_outline, color: Colors.red,size: 18,),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            f,
-                            style: const TextStyle(
-                                      color: Color(0xFFE74C3C),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                          ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      style: const TextStyle(fontSize: 16, color: KTextColor),
+                    ),
+                    const SizedBox(height: 8),
+                    ...localizedMissingFields.map((f) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                f,
+                                style: const TextStyle(
+                                  color: Color(0xFFE74C3C),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ]),
+                        )),
+                  ],
+                ),
+                actions: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        context.push('/profile');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(1, 84, 126, 1),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ]),
-                    )),
-              ],
-              
-            ),
-            actions: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.push('/profile');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Text(
-                    s.myProfile,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        s.myProfile,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(1, 84, 126, 1),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Text(
-                    s.cancel,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ));
+            ));
       },
     );
   }
@@ -379,14 +386,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               const SizedBox(height: 7),
 
               // Title field with multi-line support and car_sales validation
-              _buildTitledTextFormField(
-                  s.title,
-                  'Enter your title',
-                  _titleController,
-                  borderColor,
-                  currentLocale,
-                  minLines: 3,
-                  maxLines: 4),
+              _buildTitledTextFormField(s.title, 'Enter your title',
+                  _titleController, borderColor, currentLocale,
+                  minLines: 3, maxLines: 4),
               const SizedBox(height: 7),
 
               TitledSelectOrAddField(
@@ -410,12 +412,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               const SizedBox(height: 7),
 
               // Contact Details field replacing phone/whatsapp
-              _buildTitledTextFormField(
-                  'Contact Details',
-                  s.enterContactInfo,
-                  _contactDetailsController,
-                  borderColor,
-                  currentLocale),
+              _buildTitledTextFormField('Contact Details', s.enterContactInfo,
+                  _contactDetailsController, borderColor, currentLocale),
               const SizedBox(height: 7),
 
               // Description with hint
@@ -445,7 +443,7 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                         child: Text(
                             selectedLocation.isNotEmpty
                                 ? selectedLocation
-                                : S.of(context).advertiserLocation,
+                                : S.of(context)!.advertiserLocation,
                             style: TextStyle(
                                 fontSize: 14.sp,
                                 color: KTextColor,
@@ -458,7 +456,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () { _validateAndProceedToNext(); },
+                  onPressed: () {
+                    _validateAndProceedToNext();
+                  },
                   child: Text(s.next,
                       style: TextStyle(
                           fontSize: 16.sp,
@@ -677,7 +677,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
         final isArabic = Localizations.localeOf(context).languageCode == 'ar';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(isArabic ? 'تم تحديد الموقع بنجاح' : 'Location found'),
+              content:
+                  Text(isArabic ? 'تم تحديد الموقع بنجاح' : 'Location found'),
               backgroundColor: Colors.green),
         );
       }
@@ -685,7 +686,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(isArabic ? 'فشل في تحديد الموقع: $e' : 'Failed to get location: $e'),
+            content: Text(isArabic
+                ? 'فشل في تحديد الموقع: $e'
+                : 'Failed to get location: $e'),
             backgroundColor: Colors.red),
       );
     } finally {
@@ -725,7 +728,9 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(isArabic ? 'حدث خطأ أثناء اختيار الموقع: $e' : 'Error picking location: $e'),
+            content: Text(isArabic
+                ? 'حدث خطأ أثناء اختيار الموقع: $e'
+                : 'Error picking location: $e'),
             backgroundColor: Colors.red),
       );
     }
@@ -744,13 +749,16 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
     if (selectedEmirate == null || (selectedEmirate?.trim().isEmpty ?? true)) {
       missing.add(s.emirate);
     }
-    if (selectedDistrict == null || (selectedDistrict?.trim().isEmpty ?? true)) {
+    if (selectedDistrict == null ||
+        (selectedDistrict?.trim().isEmpty ?? true)) {
       missing.add(s.district);
     }
-    if (selectedCategoryType == null || (selectedCategoryType?.trim().isEmpty ?? true)) {
+    if (selectedCategoryType == null ||
+        (selectedCategoryType?.trim().isEmpty ?? true)) {
       missing.add(s.categoryType);
     }
-    if (selectedSectionType == null || (selectedSectionType?.trim().isEmpty ?? true)) {
+    if (selectedSectionType == null ||
+        (selectedSectionType?.trim().isEmpty ?? true)) {
       missing.add(s.sectionType);
     }
 
@@ -772,7 +780,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
       }
     }
 
-    if (selectedAdvertiserName == null || (selectedAdvertiserName?.trim().isEmpty ?? true)) {
+    if (selectedAdvertiserName == null ||
+        (selectedAdvertiserName?.trim().isEmpty ?? true)) {
       missing.add(s.advertiserName);
     }
     if (_contactDetailsController.text.trim().isEmpty) {
@@ -885,8 +894,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          :  Text(
-                              S.of(context).locateMe,
+                          : Text(
+                              S.of(context)!.locateMe,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -906,8 +915,8 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child:Text(
-                        S.of(context).pickLocation,
+                      child: Text(
+                        S.of(context)!.pickLocation,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -947,248 +956,6 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
     } catch (e) {
       debugPrint('Error geocoding selectedLocation: $e');
     }
-  }
-}
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++        الودجت المساعدة المنقولة من الشاشات الأخرى    ++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-class TitledSelectOrAddField extends StatelessWidget {
-  final String title;
-  final String? value;
-  final List<String> items;
-  final Function(String) onChanged;
-  final bool isNumeric;
-  final Future<void> Function(String)? onAddNew;
-  const TitledSelectOrAddField(
-      {Key? key,
-      required this.title,
-      required this.value,
-      required this.items,
-      required this.onChanged,
-      this.isNumeric = false,
-      this.onAddNew})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final borderColor = Color.fromRGBO(8, 194, 201, 1);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title,
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: KTextColor,
-                fontSize: 14.sp)),
-        const SizedBox(height: 4),
-        GestureDetector(
-          onTap: () async {
-            final result = await showModalBottomSheet<String>(
-              context: context,
-              backgroundColor: Colors.white,
-              isScrollControlled: true,
-              shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(20))),
-              builder: (_) => _SearchableSelectOrAddBottomSheet(
-                  title: title,
-                  items: items,
-                  isNumeric: isNumeric,
-                  onAddNew: onAddNew),
-            );
-            if (result != null && result.isNotEmpty) {
-              onChanged(result);
-            }
-          },
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: borderColor),
-                borderRadius: BorderRadius.circular(8)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text(value ?? s.chooseAnOption,
-                        style: TextStyle(
-                            fontWeight: value == null
-                                ? FontWeight.normal
-                                : FontWeight.w500,
-                            color: value == null
-                                ? Colors.grey.shade500
-                                : KTextColor,
-                            fontSize: 12.sp))),
-              ],
-            ),
-          ),
-        )
-      ],
-    );
-  }
-}
-
-class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final bool isNumeric;
-  final Future<void> Function(String)? onAddNew;
-  const _SearchableSelectOrAddBottomSheet(
-      {Key? key,
-      required this.title,
-      required this.items,
-      this.isNumeric = false,
-      this.onAddNew})
-      : super(key: key);
-  @override
-  _SearchableSelectOrAddBottomSheetState createState() =>
-      _SearchableSelectOrAddBottomSheetState();
-}
-
-class _SearchableSelectOrAddBottomSheetState
-    extends State<_SearchableSelectOrAddBottomSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _addController = TextEditingController();
-  List<String> _filteredItems = [];
-  @override
-  void initState() {
-    super.initState();
-    _filteredItems = List.from(widget.items);
-    _searchController.addListener(_filterItems);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _addController.dispose();
-    super.dispose();
-  }
-
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredItems = widget.items
-          .where((item) => item.toLowerCase().contains(query))
-          .toList();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final borderColor = Color.fromRGBO(8, 194, 201, 1);
-    return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          top: 16,
-          left: 16,
-          right: 16),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.75),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(widget.title,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.sp,
-                    color: KTextColor)),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _searchController,
-              style: TextStyle(color: KTextColor),
-              decoration: InputDecoration(
-                hintText: s.search,
-                prefixIcon: Icon(Icons.search, color: KTextColor),
-                hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: borderColor)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(color: KPrimaryColor, width: 2)),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Divider(),
-            Expanded(
-              child: _filteredItems.isEmpty
-                  ? Center(
-                      child: Text(s.noResultsFound,
-                          style: TextStyle(color: KTextColor)))
-                  : ListView.builder(
-                      itemCount: _filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _filteredItems[index];
-                        return ListTile(
-                            title:
-                                Text(item, style: TextStyle(color: KTextColor)),
-                            onTap: () => Navigator.pop(context, item));
-                      },
-                    ),
-            ),
-            const Divider(),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _addController,
-                    keyboardType: widget.isNumeric
-                        ? TextInputType.number
-                        : TextInputType.text,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: KTextColor,
-                        fontSize: 12.sp),
-                    decoration: InputDecoration(
-                      hintText: s.addNew,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: borderColor)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: borderColor)),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: KPrimaryColor, width: 2)),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    final text = _addController.text.trim();
-                    if (text.isEmpty) return;
-                    if (widget.onAddNew != null) {
-                      await widget.onAddNew!(text);
-                    }
-                    Navigator.pop(context, text);
-                  },
-                  child: Text(s.add,
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: KPrimaryColor,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 14),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -1369,15 +1136,6 @@ class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
                     hintText: widget.hintText,
                     hintStyle: TextStyle(color: Colors.grey)),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-              //   child: Align(
-              //     alignment: Alignment.bottomRight,
-              //     child: Text('${_controller.text.length}/${widget.maxLength}',
-              //         style: TextStyle(color: Colors.grey, fontSize: 12),
-              //         textDirection: TextDirection.ltr),
-              //   ),
-              // )
             ],
           ),
         ),

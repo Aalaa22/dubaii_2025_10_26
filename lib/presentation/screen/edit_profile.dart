@@ -46,13 +46,16 @@ class _EditProfileState extends State<EditProfile> {
   LatLng? _userLocation;
   String? _userAddress;
   bool _isLoadingLocation = false;
-  
+
   // FlutterSecureStorage instance for saving location data
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
+    // Add listener to AuthProvider to keep controllers updated
+    context.read<AuthProvider>().addListener(_refreshFromProvider);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = context.read<AuthProvider>();
       // Always fetch fresh profile data to avoid stale placeholders
@@ -63,12 +66,20 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
+  void _refreshFromProvider() {
+    if (mounted) {
+      _updateTextFields(context.read<AuthProvider>().user);
+    }
+  }
+
   // Save location data to FlutterSecureStorage
   Future<void> _saveLocationToStorage() async {
     if (_userLocation != null && _userAddress != null) {
       try {
-        await _storage.write(key: 'user_latitude', value: _userLocation!.latitude.toString());
-        await _storage.write(key: 'user_longitude', value: _userLocation!.longitude.toString());
+        await _storage.write(
+            key: 'user_latitude', value: _userLocation!.latitude.toString());
+        await _storage.write(
+            key: 'user_longitude', value: _userLocation!.longitude.toString());
         await _storage.write(key: 'user_address', value: _userAddress!);
         print('Location saved to secure storage successfully');
       } catch (e) {
@@ -83,14 +94,15 @@ class _EditProfileState extends State<EditProfile> {
       final latitude = await _storage.read(key: 'user_latitude');
       final longitude = await _storage.read(key: 'user_longitude');
       final address = await _storage.read(key: 'user_address');
-      
+
       if (latitude != null && longitude != null && address != null) {
-        final location = LatLng(double.parse(latitude), double.parse(longitude));
+        final location =
+            LatLng(double.parse(latitude), double.parse(longitude));
         setState(() {
           _userLocation = location;
           _userAddress = address;
         });
-        
+
         // Move camera to the saved location after map is ready
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           final mapsProvider = context.read<GoogleMapsProvider>();
@@ -98,13 +110,11 @@ class _EditProfileState extends State<EditProfile> {
           await _waitForMapController(mapsProvider);
           if (mapsProvider.mapController != null) {
             await mapsProvider.moveCameraToLocation(
-              location.latitude, 
-              location.longitude,
-              zoom: 15.0
-            );
+                location.latitude, location.longitude,
+                zoom: 15.0);
           }
         });
-        
+
         print('Location loaded from secure storage: $address');
       }
     } catch (e) {
@@ -116,7 +126,7 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> _waitForMapController(GoogleMapsProvider mapsProvider) async {
     int attempts = 0;
     const maxAttempts = 20; // Wait up to 2 seconds (20 * 100ms)
-    
+
     while (mapsProvider.mapController == null && attempts < maxAttempts) {
       await Future.delayed(const Duration(milliseconds: 100));
       attempts++;
@@ -126,24 +136,23 @@ class _EditProfileState extends State<EditProfile> {
   // Initialize user location automatically
   Future<void> _initializeUserLocation() async {
     if (_userLocation != null) return; // Already initialized
-    
+
     setState(() {
       _isLoadingLocation = true;
     });
-    
+
     try {
       final mapsProvider = context.read<GoogleMapsProvider>();
       await mapsProvider.getCurrentLocation();
-      
+
       if (mapsProvider.currentLocationData != null) {
         final locationData = mapsProvider.currentLocationData!;
         final address = await mapsProvider.getAddressFromCoordinates(
-          locationData.latitude!, 
-          locationData.longitude!
-        );
-        
+            locationData.latitude!, locationData.longitude!);
+
         setState(() {
-          _userLocation = LatLng(locationData.latitude!, locationData.longitude!);
+          _userLocation =
+              LatLng(locationData.latitude!, locationData.longitude!);
           _userAddress = address ?? 'Unknown location';
         });
       }
@@ -165,30 +174,32 @@ class _EditProfileState extends State<EditProfile> {
   void _updateTextFields(UserModel? user) {
     if (user != null) {
       final s = S.of(context);
-      _userNameController.text = (user.username.isNotEmpty)
-          ? user.username
-          : 'add ${s.userName}';
+      _userNameController.text =
+          (user.username.isNotEmpty) ? user.username : 'add ${s!.userName}';
       _emailController.text = user.email;
       _phoneController.text = user.phone;
       _whatsAppController.text = user.whatsapp ?? '';
-      _userIdController.text = (user.id != 0) ? user.id.toString() : 'add User Id';
-      _referralCodeController.text = (user.referral_code != null && user.referral_code!.isNotEmpty)
-          ? user.referral_code!
-          : 'add ${s.referralCode}';
+      _userIdController.text =
+          (user.id != 0) ? user.id.toString() : 'add User Id';
+      _referralCodeController.text =
+          (user.referral_code != null && user.referral_code!.isNotEmpty)
+              ? user.referral_code!
+              : 'add ${s!.referralCode}';
       _advertiserNameController.text = user.advertiserName ?? '';
       _advertiserTypeController.text = user.advertiserType ?? '';
       _passwordController.text = "••••••••"; // Placeholder for password
       // advertiser_logo is a relative path from API, not a local file path
       // _logoImageFile should only be set when user selects a new image
-      
+
       // Update location data from user model if available
       if (user.latitude != null && user.longitude != null) {
         final location = LatLng(user.latitude!, user.longitude!);
         setState(() {
           _userLocation = location;
-          _userAddress = user.advertiserLocation ?? user.address ?? 'Unknown location';
+          _userAddress =
+              user.advertiserLocation ?? user.address ?? 'Unknown location';
         });
-        
+
         // Move camera to the user's location from database after map is ready
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           final mapsProvider = context.read<GoogleMapsProvider>();
@@ -196,49 +207,54 @@ class _EditProfileState extends State<EditProfile> {
           await _waitForMapController(mapsProvider);
           if (mapsProvider.mapController != null) {
             await mapsProvider.moveCameraToLocation(
-              location.latitude, 
-              location.longitude,
-              zoom: 15.0
-            );
+                location.latitude, location.longitude,
+                zoom: 15.0);
           }
         });
-      } else if (user.advertiserLocation != null && user.advertiserLocation!.isNotEmpty) {
+      } else if (user.advertiserLocation != null &&
+          user.advertiserLocation!.isNotEmpty) {
         setState(() {
           _userAddress = user.advertiserLocation!;
         });
       }
     }
-
-    
   }
 
   // Opens the image gallery to pick a logo and upload it
   Future<void> _pickLogoImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final authProvider = context.read<AuthProvider>();
       final newLogoFile = File(pickedFile.path);
       // Validate extension locally to avoid 422 from backend
       final ext = pickedFile.path.split('.').last.toLowerCase();
-      const allowed = ['jpg','jpeg','png','gif'];
+      const allowed = ['jpg', 'jpeg', 'png', 'gif'];
       if (!allowed.contains(ext)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(S.of(context)!.unsupportedImageFormat),
+              backgroundColor: Colors.red),
         );
         return;
       }
-      
+
       final success = await authProvider.uploadLogo(newLogoFile.path);
       if (success) {
         setState(() {
           _logoImageFile = newLogoFile;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Logo uploaded successfully!'), backgroundColor: Colors.green),
+          SnackBar(
+              content: Text(S.of(context)!.logoUploadedSuccessfully),
+              backgroundColor: Colors.green),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authProvider.updateError ?? 'Failed to upload logo'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(authProvider.updateError ??
+                  S.of(context)!.failedToUploadLogo),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -247,18 +263,23 @@ class _EditProfileState extends State<EditProfile> {
   // Deletes the currently selected logo image
   Future<void> _deleteLogoImage() async {
     final authProvider = context.read<AuthProvider>();
-    
+
     final success = await authProvider.deleteLogo();
     if (success) {
       setState(() {
         _logoImageFile = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logo deleted successfully!'), backgroundColor: Colors.green),
+        SnackBar(
+            content: Text(S.of(context)!.logoDeletedSuccessfully),
+            backgroundColor: Colors.green),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.updateError ?? 'Failed to delete logo'), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text(
+                authProvider.updateError ?? S.of(context)!.failedToDeleteLogo),
+            backgroundColor: Colors.red),
       );
     }
   }
@@ -267,33 +288,33 @@ class _EditProfileState extends State<EditProfile> {
   Future<void> _saveLocationData() async {
     if (_userLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('الرجاء تحديد الموقع أولاً'),
+        SnackBar(
+          content: Text(S.of(context)!.pleaseSelectLocationFirst),
           backgroundColor: Colors.orange,
         ),
       );
       return;
     }
-    
+
     final authProvider = context.read<AuthProvider>();
     final user = authProvider.user;
-    
+
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('الرجاء تسجيل الدخول أولاً'),
+        SnackBar(
+          content: Text(S.of(context)!.pleaseLoginFirst2),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
-    
+
     // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Row(
           children: [
-            SizedBox(
+            const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
@@ -301,16 +322,17 @@ class _EditProfileState extends State<EditProfile> {
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ),
-            SizedBox(width: 16),
-            Text('جاري حفظ الموقع...'),
+            const SizedBox(width: 16),
+            Text(S.of(context)!.savingLocation),
           ],
         ),
         backgroundColor: Colors.blue,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
     // ignore: avoid_print
-    print('DEBUG(edit_profile): Sending location lat=${_userLocation!.latitude}, lng=${_userLocation!.longitude}, address=${_userAddress}');
+    print(
+        'DEBUG(edit_profile): Sending location lat=${_userLocation!.latitude}, lng=${_userLocation!.longitude}, address=${_userAddress}');
     final success = await authProvider.updateUserProfile(
       username: user.username,
       email: user.email,
@@ -323,26 +345,27 @@ class _EditProfileState extends State<EditProfile> {
       address: _userAddress,
       advertiserLocation: _userAddress, // إرسال الموقع كـ advertiser_location
     );
-    
+
     // Hide loading and show result
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    
+
     if (success) {
       // ignore: avoid_print
-      print('DEBUG(edit_profile): Server user lat=${authProvider.user?.latitude}, lng=${authProvider.user?.longitude}');
+      print(
+          'DEBUG(edit_profile): Server user lat=${authProvider.user?.latitude}, lng=${authProvider.user?.longitude}');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
-              Text("Location saved successfully!"),
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(S.of(context)!.locationSavedSuccessfully),
             ],
           ),
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Force refresh the UI to show updated location
       setState(() {});
     } else {
@@ -356,7 +379,7 @@ class _EditProfileState extends State<EditProfile> {
           errorMessage = 'حدث خطأ، الرجاء المحاولة مرة أخرى';
         }
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -400,17 +423,22 @@ class _EditProfileState extends State<EditProfile> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 const SizedBox(height: 12),
-                _buildHelpStep('Chrome:', '1. اضغط على أيقونة القفل 🔒 أو الموقع 📍 بجانب العنوان\n2. اختر "السماح" أو "Allow" للموقع\n3. أعد تحميل الصفحة'),
+                _buildHelpStep('Chrome:',
+                    '1. اضغط على أيقونة القفل 🔒 أو الموقع 📍 بجانب العنوان\n2. اختر "السماح" أو "Allow" للموقع\n3. أعد تحميل الصفحة'),
                 const SizedBox(height: 8),
-                _buildHelpStep('Firefox:', '1. اضغط على أيقونة الدرع أو القفل\n2. اختر "إيقاف الحماية" أو "Allow Location"\n3. أعد تحميل الصفحة'),
+                _buildHelpStep('Firefox:',
+                    '1. اضغط على أيقونة الدرع أو القفل\n2. اختر "إيقاف الحماية" أو "Allow Location"\n3. أعد تحميل الصفحة'),
                 const SizedBox(height: 8),
-                _buildHelpStep('Safari:', '1. اذهب إلى Safari > Preferences > Websites\n2. اختر Location من القائمة\n3. اختر "Allow" للموقع'),
+                _buildHelpStep('Safari:',
+                    '1. اذهب إلى Safari > Preferences > Websites\n2. اختر Location من القائمة\n3. اختر "Allow" للموقع'),
                 const SizedBox(height: 8),
-                _buildHelpStep('Edge:', '1. اضغط على أيقونة القفل بجانب العنوان\n2. اختر "السماح" للموقع\n3. أعد تحميل الصفحة'),
+                _buildHelpStep('Edge:',
+                    '1. اضغط على أيقونة القفل بجانب العنوان\n2. اختر "السماح" للموقع\n3. أعد تحميل الصفحة'),
                 const SizedBox(height: 12),
                 const Text(
                   'إذا لم تنجح الطرق السابقة:',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.orange),
                 ),
                 const SizedBox(height: 8),
                 const Text(
@@ -451,12 +479,13 @@ class _EditProfileState extends State<EditProfile> {
         children: [
           Text(
             browser,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           const SizedBox(height: 4),
           Text(
             steps,
-            style: const TextStyle(fontSize: 13,color:KTextColor),
+            style: const TextStyle(fontSize: 13, color: KTextColor),
           ),
         ],
       ),
@@ -468,21 +497,21 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       _isLoadingLocation = true;
     });
-    
+
     try {
       final mapsProvider = context.read<GoogleMapsProvider>();
       await mapsProvider.getCurrentLocation();
 
       if (mapsProvider.currentLocationData != null) {
         final locationData = mapsProvider.currentLocationData!;
-        
+
         // Convert coordinates to address
         final address = await mapsProvider.getAddressFromCoordinates(
             locationData.latitude!, locationData.longitude!);
-        
+
         setState(() {
-          _userLocation = LatLng(
-              locationData.latitude!, locationData.longitude!);
+          _userLocation =
+              LatLng(locationData.latitude!, locationData.longitude!);
           _userAddress = address ?? 'موقع غير معروف';
         });
 
@@ -496,25 +525,25 @@ class _EditProfileState extends State<EditProfile> {
         await _saveLocationToStorage();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم تحديت الموقع بنجاح!'),
+          SnackBar(
+            content: Text(S.of(context)!.locationUpdateSuccess),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('فشل في تحديد الموقع'),
+          SnackBar(
+            content: Text(S.of(context)!.failedToLocate),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في تحديد الموقع: ${e.toString()}'),
+          content: Text(S.of(context)!.locationError(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -532,26 +561,27 @@ class _EditProfileState extends State<EditProfile> {
       // Get current location if available, otherwise use Dubai coordinates
       double lat = _userLocation?.latitude ?? 25.2048;
       double lng = _userLocation?.longitude ?? 55.2708;
-      
+
       // Save current location data before opening maps
       if (_userLocation != null && _userAddress != null) {
         await _saveLocationData();
         await _saveLocationToStorage();
       }
-      
+
       // Create Google Maps URL with better parameters
-      final String googleMapsUrl = 'https://www.google.com/maps/place/$lat,$lng/@$lat,$lng,15z';
+      final String googleMapsUrl =
+          'https://www.google.com/maps/place/$lat,$lng/@$lat,$lng,15z';
       final Uri url = Uri.parse(googleMapsUrl);
-      
+
       // Try to launch Google Maps
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم فتح خرائط جوجل وحفظ الموقع'),
+          SnackBar(
+            content: Text(S.of(context)!.googleMapsOpenedAndLocationSaved),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       } else {
@@ -559,12 +589,12 @@ class _EditProfileState extends State<EditProfile> {
         final String webUrl = 'https://maps.google.com/?q=$lat,$lng&z=15';
         final Uri webUri = Uri.parse(webUrl);
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم فتح خرائط جوجل (نسخة الويب) وحفظ الموقع'),
+          SnackBar(
+            content: Text(S.of(context)!.googleMapsWebOpenedAndLocationSaved),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -572,7 +602,7 @@ class _EditProfileState extends State<EditProfile> {
       print('Error opening Google Maps: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('فشل في فتح خرائط جوجل: $e'),
+          content: Text(S.of(context)!.failedToOpenGoogleMaps(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 4),
         ),
@@ -587,7 +617,7 @@ class _EditProfileState extends State<EditProfile> {
       double? initialLat = _userLocation?.latitude;
       double? initialLng = _userLocation?.longitude;
       String? initialAddress = _userAddress;
-      
+
       // Build the route with query parameters
       String route = '/location_picker';
       if (initialLat != null && initialLng != null) {
@@ -596,15 +626,15 @@ class _EditProfileState extends State<EditProfile> {
           route += '&address=${Uri.encodeComponent(initialAddress)}';
         }
       }
-      
+
       // Navigate to location picker and wait for result
       final result = await context.push(route);
-      
+
       // Handle the returned location data
       if (result != null && result is Map<String, dynamic>) {
         final LatLng? location = result['location'] as LatLng?;
         final String? address = result['address'] as String?;
-        
+
         if (location != null) {
           setState(() {
             _userLocation = location;
@@ -612,14 +642,14 @@ class _EditProfileState extends State<EditProfile> {
               _userAddress = address;
             }
           });
-          
+
           // Save the new location data to database and secure storage
           await _saveLocationData();
           await _saveLocationToStorage();
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم تحديث الموقع بنجاح'),
+            SnackBar(
+              content: Text(S.of(context)!.locationUpdateSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -628,7 +658,7 @@ class _EditProfileState extends State<EditProfile> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في اختيار الموقع: $e'),
+          content: Text(S.of(context)!.locationPickerError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -637,6 +667,8 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   void dispose() {
+    // Remove listener
+    context.read<AuthProvider>().removeListener(_refreshFromProvider);
     _userNameController.dispose();
     _phoneController.dispose();
     _whatsAppController.dispose();
@@ -647,6 +679,15 @@ class _EditProfileState extends State<EditProfile> {
     _userIdController.dispose();
     _referralCodeController.dispose();
     super.dispose();
+  }
+
+  Future<void> _goToEditProfile() async {
+    final result = await context.push('/profile');
+    if (result == true) {
+      final authProvider = context.read<AuthProvider>();
+      await authProvider.fetchUserProfile();
+      _updateTextFields(authProvider.user);
+    }
   }
 
   @override
@@ -666,11 +707,14 @@ class _EditProfileState extends State<EditProfile> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Error: ${authProvider.profileError}", style: const TextStyle(color: Colors.red)),
+                            Text(
+                                S.of(context)!.errorLabel(
+                                    authProvider.profileError ?? ''),
+                                style: const TextStyle(color: Colors.red)),
                             const SizedBox(height: 10),
                             ElevatedButton(
                               onPressed: () => authProvider.fetchUserProfile(),
-                              child: const Text("Try Again"),
+                              child: Text(S.of(context)!.tryAgain),
                             ),
                           ],
                         ),
@@ -686,12 +730,16 @@ class _EditProfileState extends State<EditProfile> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.arrow_back_ios, color: KTextColor, size: 17.sp),
+                                  Icon(Icons.arrow_back_ios,
+                                      color: KTextColor, size: 17.sp),
                                   Transform.translate(
                                     offset: Offset(-3.w, 0),
                                     child: Text(
-                                      S.of(context).back,
-                                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor),
+                                      S.of(context)!.back,
+                                      style: TextStyle(
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: KTextColor),
                                     ),
                                   ),
                                 ],
@@ -700,24 +748,30 @@ class _EditProfileState extends State<EditProfile> {
                             const SizedBox(height: 10),
                             Center(
                               child: Text(
-                                S.of(context).myProfile,
-                                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w500, color: KTextColor),
+                                S.of(context)!.myProfile,
+                                style: TextStyle(
+                                    fontSize: 24.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: KTextColor),
                               ),
                             ),
                             const SizedBox(height: 10),
-                            
-                            _buildLabel(S.of(context).userId),
-                            _buildEditableField(_userIdController, () => context.push('/profile')),
-                            
+
+                            _buildLabel(S.of(context)!.userId),
+                            _buildEditableField(
+                                _userIdController, _goToEditProfile),
+
                             // Display-only fields
-                            _buildLabel(S.of(context).userName),
-                            _buildEditableField(_userNameController, () => context.push('/profile')),
-                            
-                            _buildLabel(S.of(context).phone),
+                            _buildLabel(S.of(context)!.userName),
+                            _buildEditableField(
+                                _userNameController, _goToEditProfile),
+
+                            _buildLabel(S.of(context)!.phone),
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildPhoneField(_phoneController, () => context.push('/profile')),
+                                  child: _buildPhoneField(
+                                      _phoneController, _goToEditProfile),
                                 ),
                                 // const SizedBox(width: 8),
                                 // Consumer<AuthProvider>(
@@ -747,41 +801,47 @@ class _EditProfileState extends State<EditProfile> {
                                 //     );
                                 //   },
                                 // ),
-                             
-                             
                               ],
                             ),
-                            
-                            _buildLabel(S.of(context).referralCode),
-                            _buildEditableField(_referralCodeController, () => context.push('/profile')),
-                            
-                            // _buildLabel(S.of(context).password),
+
+                            _buildLabel(S.of(context)!.referralCode),
+                            _buildEditableField(
+                                _referralCodeController, _goToEditProfile),
+
+                            // _buildLabel(S.of(context)!.password),
                             // _buildEditableField(_passwordController, () => context.push('/profile'), isPassword: true),
-                            
-                            // _buildLabel(S.of(context).email),
+
+                            // _buildLabel(S.of(context)!.email),
                             // _buildEditableField(_emailController, () => context.push('/profile')),
-                            
-                            // _buildLabel(S.of(context).advertiserName),
+
+                            // _buildLabel(S.of(context)!.advertiserName),
                             // _buildEditableField(_advertiserNameController, () => context.push('/profile')),
-                            
-                            // _buildLabel(S.of(context).advertiserType),
+
+                            // _buildLabel(S.of(context)!.advertiserType),
                             // _buildEditableField(_advertiserTypeController, () => context.push('/profile')),
-                            
+
                             // Interactive Logo Section
-                            _buildLabel(S.of(context).advertiserLogo),
+                            _buildLabel(S.of(context)!.advertiserLogo),
                             // Show existing network logo if available; otherwise show upload with placeholder
                             Builder(
                               builder: (context) {
-                                final hasNetworkLogo = authProvider.user?.advertiserLogo != null && (authProvider.user!.advertiserLogo!.isNotEmpty);
+                                final hasNetworkLogo =
+                                    authProvider.user?.advertiserLogo != null &&
+                                        (authProvider
+                                            .user!.advertiserLogo!.isNotEmpty);
                                 if (_logoImageFile == null && !hasNetworkLogo) {
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       _buildUploadButton(),
                                       const SizedBox(height: 6),
                                       Text(
-                                        'add ${S.of(context).advertiserLogo}',
-                                        style: TextStyle(color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
+                                        'add ${S.of(context)!.advertiserLogo}',
+                                        style: TextStyle(
+                                            color: KTextColor,
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                     ],
                                   );
@@ -790,43 +850,31 @@ class _EditProfileState extends State<EditProfile> {
                                 return _buildImagePreview();
                               },
                             ),
-                            
+
                             const SizedBox(height: 10),
-                            
-                            Text(S.of(context).advertiserLocation, style: TextStyle(color: KTextColor, fontSize: 16.sp, fontWeight: FontWeight.w500)),
-                            const SizedBox(height: 5),
-                            
-                            // MODIFICATION 1: Display prompt if location is not set
-                            Text(
-                              (_userAddress == null || _userAddress!.isEmpty)
-                                  ?"You haven't location yet,select it."
-                                  : _userAddress!,
-                              style: TextStyle(
-                                color:  KTextColor,
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w500
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 5),
-                            
-                            _buildMapSection(context),
-                            
-                            const SizedBox(height: 10),
-                            
+
                             // Go to Edit Page button
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () => context.push('/profile'),
+                                onPressed: () async {
+                                  // Navigate to edit page using the helper method
+                                  await _goToEditProfile();
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF01547E),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                  textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16),
                                 ),
-                                child: Text(S.of(context).editprof4), // "Go to Edit Page"
+                                child: Text(S
+                                    .of(context)!
+                                    .editprof4), // "Go to Edit Page"
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -861,8 +909,11 @@ class _EditProfileState extends State<EditProfile> {
             const SizedBox(width: 5),
             Flexible(
               child: Text(
-                S.of(context).uploadYourLogo,
-                style: const TextStyle(color: KTextColor, fontSize: 15, fontWeight: FontWeight.w500),
+                S.of(context)!.uploadYourLogo,
+                style: const TextStyle(
+                    color: KTextColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -874,7 +925,7 @@ class _EditProfileState extends State<EditProfile> {
   /// Builds the image preview with overlay buttons (Edit/Delete).
   Widget _buildImagePreview() {
     final user = context.watch<AuthProvider>().user;
-    
+
     return SizedBox(
       height: 200.h,
       width: double.infinity,
@@ -886,17 +937,24 @@ class _EditProfileState extends State<EditProfile> {
             borderRadius: BorderRadius.circular(12),
             child: _logoImageFile != null
                 ? Image.file(_logoImageFile!, fit: BoxFit.cover)
-                : (user?.advertiserLogo != null && user!.advertiserLogo!.isNotEmpty
+                : (user?.advertiserLogo != null &&
+                        user!.advertiserLogo!.isNotEmpty
                     ? CachedNetworkImage(
-                        imageUrl: ImageUrlHelper.getFullImageUrl(user.advertiserLogo!),
+                        imageUrl: ImageUrlHelper.getFullImageUrl(
+                            user.advertiserLogo!),
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
                           color: Colors.grey[300],
-                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 2)),
                         ),
-                        errorWidget: (context, url, error) => const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+                        errorWidget: (context, url, error) => const Center(
+                            child: Icon(Icons.broken_image,
+                                size: 50, color: Colors.grey)),
                       )
-                    : const Center(child: Icon(Icons.person, size: 50, color: Colors.grey))),
+                    : const Center(
+                        child:
+                            Icon(Icons.person, size: 50, color: Colors.grey))),
           ),
           // A semi-transparent overlay to make buttons more visible
           Container(
@@ -912,7 +970,7 @@ class _EditProfileState extends State<EditProfile> {
               children: [
                 _buildImageActionButton(
                   icon: Icons.edit,
-                  label: S.of(context).edit, // "Edit"
+                  label: S.of(context)!.edit, // "Edit"
                   onTap: _pickLogoImage,
                   color: Colors.white,
                 ),
@@ -931,7 +989,11 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   /// Builds a single action button for the image preview.
-  Widget _buildImageActionButton({required IconData icon, required String label, required VoidCallback onTap, required Color color}) {
+  Widget _buildImageActionButton(
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap,
+      required Color color}) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -941,7 +1003,8 @@ class _EditProfileState extends State<EditProfile> {
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 14.sp),
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.bold, fontSize: 14.sp),
           ),
         ],
       ),
@@ -952,30 +1015,38 @@ class _EditProfileState extends State<EditProfile> {
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 6),
-      child: Text(text, style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
+      child: Text(text,
+          style: TextStyle(
+              color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp)),
     );
   }
 
   /// Builds a read-only text field that shows the edit popup on tap.
-  Widget _buildEditableField(TextEditingController controller, VoidCallback onEdit, {bool isPassword = false}) {
+  Widget _buildEditableField(
+      TextEditingController controller, VoidCallback onEdit,
+      {bool isPassword = false}) {
     return GestureDetector(
-     onTap: () => _showEditPopup(onEdit),
+      onTap: () => _showEditPopup(onEdit),
       child: AbsorbPointer(
         child: TextFormField(
           controller: controller,
           readOnly: true,
           obscureText: isPassword,
-          style: TextStyle(color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
+          style: TextStyle(
+              color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
           ),
         ),
       ),
@@ -983,24 +1054,29 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   /// Builds a read-only phone field that shows the edit popup on tap.
-  Widget _buildPhoneField(TextEditingController controller, VoidCallback onEdit) {
+  Widget _buildPhoneField(
+      TextEditingController controller, VoidCallback onEdit) {
     return GestureDetector(
       onTap: () => _showEditPopup(onEdit),
       child: AbsorbPointer(
         child: TextFormField(
           controller: controller,
           readOnly: true,
-          style: TextStyle(color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
+          style: TextStyle(
+              color: KTextColor, fontSize: 14.sp, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 7),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 12, horizontal: 7),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
+                borderSide:
+                    const BorderSide(color: Color.fromRGBO(8, 194, 201, 1))),
           ),
         ),
       ),
@@ -1018,14 +1094,20 @@ class _EditProfileState extends State<EditProfile> {
           children: [
             const Icon(Icons.edit, color: Color(0xFF01547E)),
             const SizedBox(width: 8),
-            Text(S.of(context).editing1, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color(0xFF01547E))),
+            Text(S.of(context)!.editing1,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF01547E))),
           ],
         ),
-        content: Text(S.of(context).editit2, style: TextStyle(fontSize: 16.sp, color: KTextColor)),
+        content: Text(S.of(context)!.editit2,
+            style: TextStyle(fontSize: 16.sp, color: KTextColor)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(S.of(context).cancel, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+            child: Text(S.of(context)!.cancel,
+                style: TextStyle(color: Colors.grey[700], fontSize: 14)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1035,9 +1117,10 @@ class _EditProfileState extends State<EditProfile> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF01547E),
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
             ),
-            child: Text(S.of(context).edit3),
+            child: Text(S.of(context)!.edit3),
           ),
         ],
       ),
@@ -1083,10 +1166,13 @@ class _EditProfileState extends State<EditProfile> {
                                     ),
                                     const SizedBox(height: 8),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20.0),
                                       child: Text(
                                         'لم يتم تحديد الموقع، اضغط على "حدد موقعي" أو اختر من الخريطة',
-                                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                        style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 14),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
@@ -1106,15 +1192,25 @@ class _EditProfileState extends State<EditProfile> {
                               // Locate Me button
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                                  onPressed: _isLoadingLocation
+                                      ? null
+                                      : _getCurrentLocation,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isLoadingLocation ? Colors.grey : const Color(0xFF01547E),
+                                    backgroundColor: _isLoadingLocation
+                                        ? Colors.grey
+                                        : const Color(0xFF01547E),
                                     minimumSize: const Size(0, 40),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
                                   ),
                                   child: Text(
-                                    _isLoadingLocation ? 'loading..' : s.locateMe,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 14),
+                                    _isLoadingLocation
+                                        ? 'loading..'
+                                        : s!.locateMe,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14),
                                   ),
                                 ),
                               ),
@@ -1126,11 +1222,15 @@ class _EditProfileState extends State<EditProfile> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF01547E),
                                     minimumSize: const Size(0, 40),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
                                   ),
-                                  child:  Text(
-                                    s.pickLocation,
-                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 12),
+                                  child: Text(
+                                    s!.pickLocation,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12),
                                   ),
                                 ),
                               ),
@@ -1162,52 +1262,55 @@ class _EditProfileState extends State<EditProfile> {
                               tiltGesturesEnabled: true,
                               rotateGesturesEnabled: true,
                               onTap: (LatLng position) async {
-                                 // Update user location when tapping on map
-                                 setState(() {
-                                   _userLocation = position;
-                                 });
-                                 
-                                 // Get address for the new location
-                                 final address = await mapsProvider.getAddressFromCoordinates(
-                                   position.latitude,
-                                   position.longitude,
-                                 );
-                                 
-                                 if (address != null) {
-                                   setState(() {
-                                     _userAddress = address;
-                                   });
-                                 }
-                                 
-                                 // Save location data automatically
-                                 await _saveLocationData();
-                               },
+                                // Update user location when tapping on map
+                                setState(() {
+                                  _userLocation = position;
+                                });
+
+                                // Get address for the new location
+                                final address = await mapsProvider
+                                    .getAddressFromCoordinates(
+                                  position.latitude,
+                                  position.longitude,
+                                );
+
+                                if (address != null) {
+                                  setState(() {
+                                    _userAddress = address;
+                                  });
+                                }
+
+                                // Save location data automatically
+                                await _saveLocationData();
+                              },
                               markers: _userLocation != null
                                   ? {
                                       Marker(
-                                        markerId: const MarkerId('user_location'),
+                                        markerId:
+                                            const MarkerId('user_location'),
                                         position: _userLocation!,
                                         draggable: true,
                                         onDragEnd: (LatLng position) async {
-                                           setState(() {
-                                             _userLocation = position;
-                                           });
-                                           
-                                           // Get address for the new location
-                                           final address = await mapsProvider.getAddressFromCoordinates(
-                                             position.latitude,
-                                             position.longitude,
-                                           );
-                                           
-                                           if (address != null) {
-                                             setState(() {
-                                               _userAddress = address;
-                                             });
-                                           }
-                                           
-                                           // Save location data automatically
-                                           await _saveLocationData();
-                                         },
+                                          setState(() {
+                                            _userLocation = position;
+                                          });
+
+                                          // Get address for the new location
+                                          final address = await mapsProvider
+                                              .getAddressFromCoordinates(
+                                            position.latitude,
+                                            position.longitude,
+                                          );
+
+                                          if (address != null) {
+                                            setState(() {
+                                              _userAddress = address;
+                                            });
+                                          }
+
+                                          // Save location data automatically
+                                          await _saveLocationData();
+                                        },
                                       ),
                                     }
                                   : {},
@@ -1224,11 +1327,17 @@ class _EditProfileState extends State<EditProfile> {
                               // Locate Me button
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                                  onPressed: _isLoadingLocation
+                                      ? null
+                                      : _getCurrentLocation,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isLoadingLocation ? Colors.grey : KPrimaryColor,
-                                    minimumSize: const Size(double.infinity, 43),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    backgroundColor: _isLoadingLocation
+                                        ? Colors.grey
+                                        : KPrimaryColor,
+                                    minimumSize:
+                                        const Size(double.infinity, 43),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
                                   ),
                                   child: _isLoadingLocation
                                       ? const SizedBox(
@@ -1236,11 +1345,13 @@ class _EditProfileState extends State<EditProfile> {
                                           height: 20,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
                                           ),
                                         )
                                       : Text(
-                                          s.locateMe,
+                                          s!.locateMe,
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w500,
@@ -1255,12 +1366,13 @@ class _EditProfileState extends State<EditProfile> {
                                   onPressed: _navigateToLocationPicker,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF01547E),
-                                    minimumSize: const Size(double.infinity, 43),
+                                    minimumSize:
+                                        const Size(double.infinity, 43),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(8)),
                                   ),
                                   child: Text(
-                                    s.pickLocation,
+                                    s!.pickLocation,
                                     style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w500,

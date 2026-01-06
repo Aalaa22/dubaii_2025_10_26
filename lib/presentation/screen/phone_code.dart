@@ -165,7 +165,7 @@
 //                              Transform.translate(
 //                               offset: Offset(-5.w, 0), // قربنا النص من السهم
 //                               child: Text(
-//                                 S.of(context).back,
+//                                 S.of(context)!.back,
 //                                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor),
 //                               ),
 //                             ),
@@ -189,7 +189,7 @@
 //     },
 //                         child: Text(
 //                           locale.languageCode == 'ar'
-//                               ? S.of(context).arabic : S.of(context).english,
+//                               ? S.of(context)!.arabic : S.of(context)!.english,
 //                           style: const TextStyle(
 //                             fontSize: 16,
 //                             fontWeight: FontWeight.w500,
@@ -216,7 +216,7 @@
 
 //                   /// Title
 //                   Text(
-//                     S.of(context).verifnum,
+//                     S.of(context)!.verifnum,
 //                     textAlign: TextAlign.center,
 //                     style: const TextStyle(
 //                       color: KTextColor,
@@ -313,7 +313,7 @@
 //                     width: double.infinity,
 //                     child: CustomButton(
 //                       ontap: isLoading ? null : _verifyOTP,
-//                       text: isLoading ? S.of(context).loading ?? 'جاري التحميل...' : S.of(context).verify,
+//                       text: isLoading ? S.of(context)!.loading ?? 'جاري التحميل...' : S.of(context)!.verify,
 //                     ),
 //                   ),
                   

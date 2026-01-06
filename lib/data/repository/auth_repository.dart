@@ -12,13 +12,13 @@ class AuthRepository {
   AuthRepository(this._apiService);
 
   // 3. دالة تسجيل الدخول الجديدة: تستخدم endpoint جديد مع phone فقط
-   Future<Map<String, dynamic>> login({
+  Future<Map<String, dynamic>> login({
     required String phone, // يستقبل رقم الهاتف فقط
   }) async {
     final Map<String, dynamic> loginData = {
       'phone': phone,
     };
-    
+
     // استخدام الـ endpoint الجديد
     final response = await _apiService.post('/api/newSignin', data: loginData);
 
@@ -38,42 +38,43 @@ class AuthRepository {
       'phone': phone,
       'password': password,
     };
-    
+
     // استخدام نفس الـ endpoint مع إرسال كلمة المرور
     final response = await _apiService.post('/api/newSignin', data: loginData);
 
-    if (response is Map<String, dynamic> && response.containsKey('user') && response.containsKey('token')) {
+    if (response is Map<String, dynamic> &&
+        response.containsKey('user') &&
+        response.containsKey('token')) {
       return response;
     } else {
-      throw Exception('Advertiser login response is not valid or token is missing.');
+      throw Exception(
+          'Advertiser login response is not valid or token is missing.');
     }
   }
 
-  
-  
   // 4. دالة إنشاء حساب جديد - تم إزالتها لأنها لم تعد مطلوبة في النظام الجديد
 
-    // Future<void> signUp({
-    //   required String username,
-    //   required String email,
-    //   required String password,
-    //   required String phone,
-    //   required String whatsapp,
-    //   required String role,
-    // }) async {
-    //    final Map<String, dynamic> signUpData = {
-    //     'username': username,
-    //     'email': email,
-    //     'password': password,
-    //     'phone': phone,
-    //     'whatsapp': whatsapp,
-    //     'role': role,
-    //    };
-    //   
-    //   await _apiService.post('/api/signup', data: signUpData);
-    // }
+  // Future<void> signUp({
+  //   required String username,
+  //   required String email,
+  //   required String password,
+  //   required String phone,
+  //   required String whatsapp,
+  //   required String role,
+  // }) async {
+  //    final Map<String, dynamic> signUpData = {
+  //     'username': username,
+  //     'email': email,
+  //     'password': password,
+  //     'phone': phone,
+  //     'whatsapp': whatsapp,
+  //     'role': role,
+  //    };
+  //
+  //   await _apiService.post('/api/signup', data: signUpData);
+  // }
 
-   Future<void> logout({required String token}) async {
+  Future<void> logout({required String token}) async {
     // استدعاء endpoint تسجيل الخروج باستخدام POST وإرسال التوكن في الـ Header
     // ApiService سيقوم بإضافة "Bearer " تلقائيًا
     await _apiService.post(
@@ -83,17 +84,15 @@ class AuthRepository {
     );
   }
 
-  
-   Future<UserModel> getUserProfile({ String? token}) async {
+  Future<UserModel> getUserProfile({String? token}) async {
     // استخدمنا GET لأننا نجلب بيانات
     final response = await _apiService.get('/api/user', token: token);
-    
+
     if (response is Map<String, dynamic>) {
       return UserModel.fromJson(response);
     }
     throw Exception('Failed to parse user profile.');
   }
-
 
   Future<UserModel> updateProfile({
     required String token,
@@ -149,10 +148,6 @@ class AuthRepository {
       data['advertiser_location'] = advertiserLocation.trim();
     }
 
-    // تأكيد أن التحديث يُعالج كـ PUT في الـ Backend (Laravel-style)
-    // بعض السيرفرات تحدث الإحداثيات فقط عبر PUT
-    data['_method'] = 'PUT';
-
     dynamic response;
     // If a logo file is provided, upload it with additional form fields using the correct field name
     if (advertiserLogoFile != null) {
@@ -206,7 +201,7 @@ class AuthRepository {
       'longitude': longitude,
       'address': address,
     };
-    
+
     // تأكيد إرسال مفاتيح بديلة للإحداثيات للتوافق مع الـ Backend
     if (latitude != null) {
       data['lat'] = latitude;
@@ -214,7 +209,7 @@ class AuthRepository {
     if (longitude != null) {
       data['lng'] = longitude;
     }
-    
+
     // إضافة advertiser_location إذا كان متوفراً
     if (advertiserLocation != null) {
       data['advertiser_location'] = advertiserLocation;
@@ -223,10 +218,8 @@ class AuthRepository {
     // تأكيد استخدام PUT عبر _method عند التحديث باستخدام user_id
     data['_method'] = 'PUT';
 
-    final response = await _apiService.post(
-      '/api/profile/update-by-id',
-      data: data
-    );
+    final response =
+        await _apiService.post('/api/profile/update-by-id', data: data);
 
     // الـ API يرجع بيانات المستخدم المحدثة
     if (response is Map<String, dynamic>) {
@@ -268,7 +261,7 @@ class AuthRepository {
     }
     throw Exception('Failed to delete logo.');
   }
-  
+
   // --- الدالة الجديدة لتحديث كلمة المرور ---
   Future<void> updatePassword({
     required String token,
@@ -280,7 +273,7 @@ class AuthRepository {
       'new_password': newPassword,
       'new_password_confirmation': newPassword,
     };
-    
+
     await _apiService.post(
       '/api/profile/password',
       data: data,
@@ -302,13 +295,12 @@ class AuthRepository {
   //     'phone': phone,
   //     'otp': otp,
   //   };
-    
+
   //   final response = await _apiService.put('/api/verify', data: data);
-    
+
   //   if (response is Map<String, dynamic>) {
   //     return response;
   //   }
   //   throw Exception('Failed to verify OTP.');
   // }
-
 }

@@ -123,7 +123,7 @@ class _PlanSelectionScreenState extends State<PlanSelectionScreen> {
                         Transform.translate(
                           offset: Offset(-3.w, 0),
                           child: Text(
-                            s.back,
+                            s!.back,
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,

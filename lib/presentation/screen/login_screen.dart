@@ -44,7 +44,7 @@
 //       context.go('/home');
 //     } else {
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//         content: Text(authProvider.errorMessage ?? S.of(context).unknownError),
+//         content: Text(authProvider.errorMessage ?? S.of(context)!.unknownError),
 //         backgroundColor: Colors.red,
 //       ));
 //     }
@@ -89,8 +89,8 @@
 //     },
 //                   child: Text(
 //                     locale.languageCode == 'ar'
-//                         ? S.of(context).arabic
-//                         : S.of(context).english,
+//                         ? S.of(context)!.arabic
+//                         : S.of(context)!.english,
 //                     style: TextStyle(
 //                         fontSize: 16.sp,
 //                         fontWeight: FontWeight.w500,
@@ -101,14 +101,14 @@
 //               Image.asset('assets/images/logo.png',
 //                   fit: BoxFit.contain, height: 98.h, width: 125.w),
 //               SizedBox(height: 10.h),
-//               Text(S.of(context).login,
+//               Text(S.of(context)!.login,
 //                   textAlign: TextAlign.center,
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontSize: 24.sp,
 //                       fontWeight: FontWeight.w500)),
 //               SizedBox(height: 10.h),
-//               Text(S.of(context).phone,
+//               Text(S.of(context)!.phone,
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontWeight: FontWeight.w500,
@@ -128,7 +128,7 @@
 //                     child: TextFormField(
 //                       controller: _phoneController,
 //                       validator: (v) => v!.trim().isEmpty
-//                           ? S.of(context).pleaseEnterPhone
+//                           ? S.of(context)!.pleaseEnterPhone
 //                           : null,
 //                       decoration: const InputDecoration(
 //                           border: InputBorder.none,
@@ -147,7 +147,7 @@
 //                 ],
 //               ),
 //               SizedBox(height: 5.h),
-//               Text(S.of(context).password,
+//               Text(S.of(context)!.password,
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontWeight: FontWeight.w500,
@@ -157,18 +157,18 @@
 //                 hintText: '12345678',
 //                 isPassword: true,
 //                 validator: (v) => (v == null || v.length < 6)
-//                     ? S.of(context).passwordTooShort
+//                     ? S.of(context)!.passwordTooShort
 //                     : null,
 //               ),
 //               SizedBox(height: 20.h),
 //               if (authProvider.isLoading)
 //                 const Center(child: CircularProgressIndicator())
 //               else
-//                 CustomButton(ontap: _submitLogin, text: S.of(context).login),
+//                 CustomButton(ontap: _submitLogin, text: S.of(context)!.login),
 //               SizedBox(height: 8.h),
 //               GestureDetector(
 //                 onTap: () => context.push('/passphonelogin'),
-//                 child: Text(S.of(context).forgotPassword,
+//                 child: Text(S.of(context)!.forgotPassword,
 //                     textAlign: TextAlign.end,
 //                     style: TextStyle(
 //                         fontWeight: FontWeight.w500,
@@ -184,7 +184,7 @@
 //                       child: Divider(color: KTextColor, thickness: 2)),
 //                   Padding(
 //                       padding: EdgeInsets.symmetric(horizontal: 10.w),
-//                       child: Text(S.of(context).or,
+//                       child: Text(S.of(context)!.or,
 //                           style: TextStyle(
 //                               color: KTextColor,
 //                               fontWeight: FontWeight.w500,
@@ -199,26 +199,26 @@
 //                   Expanded(
 //                       child: CustomElevatedButton(
 //                           onpress: () => context.push('/emaillogin'),
-//                           text: S.of(context).emailLogin)),
+//                           text: S.of(context)!.emailLogin)),
 //                   SizedBox(width: 16.w),
 //                   Expanded(
 //                       child: CustomElevatedButton(
 //                           onpress: () {
 //                            // context.go('/home');
 //                           },
-//                           text: S.of(context).guestLogin)),
+//                           text: S.of(context)!.guestLogin)),
 //                 ],
 //               ),
 //               SizedBox(height: 16.h),
 //               Row(
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
-//                   Text(S.of(context).dontHaveAccount,
+//                   Text(S.of(context)!.dontHaveAccount,
 //                       style: TextStyle(color: KTextColor, fontSize: 13.sp)),
 //                   SizedBox(width: 4.w),
 //                   GestureDetector(
 //                     onTap: () => context.go('/signup'),
-//                     child: Text(S.of(context).createAccount,
+//                     child: Text(S.of(context)!.createAccount,
 //                         style: TextStyle(
 //                             decoration: TextDecoration.underline,
 //                             decorationColor: KTextColor,

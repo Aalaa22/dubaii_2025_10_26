@@ -55,7 +55,7 @@ class _VerifyEmailCodeState extends State<VerifyEmailCode> {
                              Transform.translate(
                               offset: Offset(-5.w, 0), // قربنا النص من السهم
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor),
                               ),
                             ),
@@ -79,8 +79,8 @@ class _VerifyEmailCodeState extends State<VerifyEmailCode> {
     },
                         child: Text(
                           locale.languageCode == 'ar'
-                              ? S.of(context).arabic
-                              : S.of(context).english,
+                              ? S.of(context)!.arabic
+                              : S.of(context)!.english,
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w500,
@@ -107,7 +107,7 @@ class _VerifyEmailCodeState extends State<VerifyEmailCode> {
 
                   /// Title
                   Text(
-                    S.of(context).verifnum,
+                    S.of(context)!.verifnum,
                     textAlign: TextAlign.center,
                     textDirection:
                         isArabic ? TextDirection.rtl : TextDirection.ltr,
@@ -122,7 +122,7 @@ class _VerifyEmailCodeState extends State<VerifyEmailCode> {
 
                   /// Sub Title
                   Text(
-                    S.of(context).emilverify,
+                    S.of(context)!.emilverify,
                     textAlign: TextAlign.center,
                     textDirection:
                         isArabic ? TextDirection.rtl : TextDirection.ltr,
@@ -158,7 +158,7 @@ class _VerifyEmailCodeState extends State<VerifyEmailCode> {
                   /// Verify Button
                   CustomButton(
                     ontap: () => context.push('/resetpass'),
-                    text: S.of(context).verify,
+                    text: S.of(context)!.verify,
                   ),
                 ],
               ),

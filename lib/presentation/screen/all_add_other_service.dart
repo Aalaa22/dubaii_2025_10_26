@@ -54,7 +54,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
           cursorColor: KTextColor,
           style: TextStyle(color: KTextColor, fontSize: 14.sp),
           decoration: InputDecoration(
-            hintText: s.search,
+            hintText: s!.search,
             contentPadding:
                 EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             enabledBorder: OutlineInputBorder(
@@ -69,7 +69,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
         ),
         emptyBuilder: (context, searchEntry) => Center(
           child: Text(
-            s.noResultsFound,
+            s!.noResultsFound,
             style: TextStyle(fontSize: 14.sp, color: KTextColor),
           ),
         ),
@@ -146,7 +146,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -194,7 +194,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //             children: [
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).section,
+                      //                   hint: S.of(context)!.section,
                       //                   items: const ["مقاولات", "نقل وتوصيل"],
                       //                   value: _selectedSection,
                       //                   onChanged: (val) => setState(
@@ -204,7 +204,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).service,
+                      //                   hint: S.of(context)!.service,
                       //                   items: const ["تنظيف", "صيانة", "تنسيق"],
                       //                   value: _selectedService,
                       //                   onChanged: (val) => setState(
@@ -214,7 +214,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).price,
+                      //                   hint: S.of(context)!.price,
                       //                   items: const ["< 100", "100 - 300", "> 300"],
                       //                   value: _selectedPrice,
                       //                   onChanged: (val) => setState(
@@ -244,7 +244,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -273,7 +273,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //                     SizedBox(width: 12.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -340,7 +340,7 @@ class _AllAddsOtherServiceState extends State<AllAddsOtherService> {
                       //                     SizedBox(width: 20.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,

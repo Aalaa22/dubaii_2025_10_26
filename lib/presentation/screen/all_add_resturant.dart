@@ -54,7 +54,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
           cursorColor: KTextColor,
           style: TextStyle(color: KTextColor, fontSize: 14.sp),
           decoration: InputDecoration(
-            hintText: s.search,
+            hintText: s!.search,
             contentPadding:
                 EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             enabledBorder: OutlineInputBorder(
@@ -69,7 +69,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
         ),
         emptyBuilder: (context, searchEntry) => Center(
           child: Text(
-            s.noResultsFound,
+            s!.noResultsFound,
             style: TextStyle(fontSize: 14.sp, color: KTextColor),
           ),
         ),
@@ -146,7 +146,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -194,7 +194,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //             children: [
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).district,
+                      //                   hint: S.of(context)!.district,
                       //                   items: const ["الرياض", "جدة", "الخبر"],
                       //                   value: _selectedDistrict,
                       //                   onChanged: (val) => setState(
@@ -204,7 +204,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).price,
+                      //                   hint: S.of(context)!.price,
                       //                   items: const ["رخيص", "متوسط", "غالي"],
                       //                   value: _selectedPrice,
                       //                   onChanged: (val) => setState(
@@ -214,7 +214,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).category,
+                      //                   hint: S.of(context)!.category,
                       //                   items: const ["سعودي", "إيطالي", "آسيوي"],
                       //                   value: _selectedCategory,
                       //                   onChanged: (val) => setState(
@@ -244,7 +244,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -273,7 +273,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //                     SizedBox(width: 12.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -340,7 +340,7 @@ class _AllAddsRestaurantState extends State<AllAddsRestaurant> {
                       //                     SizedBox(width: 20.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,

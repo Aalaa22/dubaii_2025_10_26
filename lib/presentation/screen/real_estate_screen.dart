@@ -78,24 +78,24 @@ class _RealEstateScreenState extends State<RealEstateScreen> with FavoritesHelpe
   }
 
   List<String> get categories => [
-        S.of(context).carsales,
-        S.of(context).realestate,
-        S.of(context).electronics,
-        S.of(context).jobs,
-        S.of(context).carrent,
-        S.of(context).carservices,
-        S.of(context).restaurants,
-        S.of(context).otherservices
+        S.of(context)!.carsales,
+        S.of(context)!.realestate,
+        S.of(context)!.electronics,
+        S.of(context)!.jobs,
+        S.of(context)!.carrent,
+        S.of(context)!.carservices,
+        S.of(context)!.restaurants,
+        S.of(context)!.otherservices
       ];
   Map<String, String> get categoryRoutes => {
-        S.of(context).carsales: "/home",
-        S.of(context).realestate: "/realEstate",
-        S.of(context).electronics: "/electronics",
-        S.of(context).jobs: "/jobs",
-        S.of(context).carrent: "/car_rent",
-        S.of(context).carservices: "/carServices",
-        S.of(context).restaurants: "/restaurants",
-        S.of(context).otherservices: "/otherServices"
+        S.of(context)!.carsales: "/home",
+        S.of(context)!.realestate: "/realEstate",
+        S.of(context)!.electronics: "/electronics",
+        S.of(context)!.jobs: "/jobs",
+        S.of(context)!.carrent: "/car_rent",
+        S.of(context)!.carservices: "/carServices",
+        S.of(context)!.restaurants: "/restaurants",
+        S.of(context)!.otherservices: "/otherServices"
       };
 
   List<String> _getDistrictsForSelectedEmirates() {
@@ -290,7 +290,7 @@ class _RealEstateScreenState extends State<RealEstateScreen> with FavoritesHelpe
                                       contentPadding: EdgeInsets.zero,
                                       leading: Icon(Icons.search, color: KPrimaryColor, size: 18.sp),
                                       title: Text(
-                                        '${S.of(context).category} ${item.itemType}',
+                                        '${S.of(context)!.category} ${item.itemType}',
                                         style: TextStyle(color: KTextColor, fontSize: 13.sp, fontWeight: FontWeight.w500),
                                       ),
                                       trailing: Text(
@@ -427,53 +427,44 @@ class _RealEstateScreenState extends State<RealEstateScreen> with FavoritesHelpe
                             ),
                           ),
                           SizedBox(height: 7.h),
-                          Padding(
-                            padding: EdgeInsetsDirectional.symmetric(
-                                horizontal: 8.w),
-                            child: GestureDetector(
-                              onTap: () => context.push('/realestateofeerbox'),
-                              child: Container(
-                                  padding: EdgeInsetsDirectional.symmetric(
-                                      horizontal: 8.w),
-                                  height: 68.h,
-                                  decoration: BoxDecoration(
-                                      gradient: const LinearGradient(colors: [
-                                        Color(0xFFE4F8F6),
-                                        Color(0xFFC9F8FE)
-                                      ]),
-                                      borderRadius: BorderRadius.circular(8.r)),
-                                  child: Row(children: [
-                                    SvgPicture.asset('assets/icons/home.svg',
-                                        colorFilter: const ColorFilter.mode(
-                                            KTextColor, BlendMode.srcIn),
-                                        height: 18.sp,
-                                        width: 18.sp),
-                                    SizedBox(width: 16.w),
-                                    Expanded(
-                                        child: Text(
-                                            s.click_for_deals_real_estate,
-                                            style: TextStyle(
-                                                fontSize: 13.sp,
-                                                color: KTextColor,
-                                                fontWeight: FontWeight.w500))),
-                                    SizedBox(width: 12.w),
-                                    Icon(Icons.arrow_forward_ios,
-                                        size: 22.sp, color: KTextColor)
-                                  ])),
-                            ),
-                          ),
+// Hiding offer box as per user request
+// Padding(
+//   padding: EdgeInsetsDirectional.symmetric(
+//       horizontal: 8.w),
+//   child: GestureDetector(
+//     onTap: () => context.push('/realestateofeerbox'),
+//     child: Container(
+//         padding: EdgeInsetsDirectional.symmetric(
+//             horizontal: 8.w),
+//         height: 68.h,
+//         decoration: BoxDecoration(
+//             gradient: const LinearGradient(colors: [
+//               Color(0xFFE4F8F6),
+//               Color(0xFFC9F8FE)
+//             ]),
+//             borderRadius: BorderRadius.circular(8.r)),
+//         child: Row(children: [
+//           SvgPicture.asset('assets/icons/home.svg',
+//               colorFilter: const ColorFilter.mode(
+//                   KTextColor, BlendMode.srcIn),
+//               height: 18.sp,
+//               width: 18.sp),
+//           SizedBox(width: 16.w),
+//           Expanded(
+//               child: Text(
+//                   s.click_for_deals_real_estate,
+//                   style: TextStyle(
+//                       fontSize: 13.sp,
+//                       color: KTextColor,
+//                       fontWeight: FontWeight.w500))),
+//           SizedBox(width: 12.w),
+//           Icon(Icons.arrow_forward_ios,
+//               size: 22.sp, color: KTextColor)
+//         ])),
+//   ),
+// ),
                           SizedBox(height: 5.h),
-                          Row(children: [
-                            SizedBox(width: 4.w),
-                            Icon(Icons.star, color: Colors.amber, size: 20.sp),
-                            SizedBox(width: 4.w),
-                            Text(s.top_premium_dealers,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16.sp,
-                                    color: KTextColor))
-                          ]),
-                          SizedBox(height: 1.h),
+
                           // Real API Data Section
                           _buildBestAdvertisersSection(infoProvider, s),
                           SizedBox(height: 16.h),
@@ -586,7 +577,22 @@ class _RealEstateScreenState extends State<RealEstateScreen> with FavoritesHelpe
     }
 
     return Column(
-      children: infoProvider.bestAdvertisers.map((advertiser) {
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsetsDirectional.only(bottom: 8.h),
+          child: Row(children: [
+            SizedBox(width: 4.w),
+            Icon(Icons.star, color: Colors.amber, size: 20.sp),
+            SizedBox(width: 4.w),
+            Text(s.top_premium_dealers,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                    color: KTextColor))
+          ]),
+        ),
+        ...infoProvider.bestAdvertisers.map((advertiser) {
         print('🏢 Processing advertiser: ${advertiser.name}');
         print('📊 Total ads for ${advertiser.name}: ${advertiser.ads.length}');
 
@@ -782,7 +788,8 @@ class _RealEstateScreenState extends State<RealEstateScreen> with FavoritesHelpe
             SizedBox(height: 8.h),
           ],
         );
-      }).toList(),
+      }),
+      ],
     );
   }
 

@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:advertising_app/data/model/car_sales_filter_options_model.dart';
-import 'package:advertising_app/data/model/best_advertiser_model.dart';
+
 import 'package:advertising_app/presentation/providers/car_sales_ad_provider.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/widget/custom_bottom_nav.dart';
@@ -36,7 +36,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with FavoritesHelper<HomeScreen> {
   int _selectedIndex = 0;
   bool _showValidationError = false;
   String _validationMessage = "";
@@ -48,23 +49,20 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
 
   // initState merged below
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Always refresh data when dependencies change
-    _refreshData();
-  }
-
   void _refreshData() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<CarAdProvider>(context, listen: false);
       provider.fetchMakes();
-      provider.fetchTopDealerAds(forceRefresh: true);
+      // Match CarRentScreen logic: do not force refresh if data exists
+      provider.fetchTopDealerAds(forceRefresh: false);
     });
   }
 
   bool _localeIsAr(BuildContext context) {
-    return Localizations.localeOf(context).languageCode.toLowerCase().startsWith('ar');
+    return Localizations.localeOf(context)
+        .languageCode
+        .toLowerCase()
+        .startsWith('ar');
   }
 
   @override
@@ -131,25 +129,25 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
   }
 
   List<String> get categories => [
-        S.of(context).carsales,
-        S.of(context).realestate,
-        S.of(context).electronics,
-        S.of(context).jobs,
-        S.of(context).carrent,
-        S.of(context).carservices,
-        S.of(context).restaurants,
-        S.of(context).otherservices
+        S.of(context)!.carsales,
+        S.of(context)!.realestate,
+        S.of(context)!.electronics,
+        S.of(context)!.jobs,
+        S.of(context)!.carrent,
+        S.of(context)!.carservices,
+        S.of(context)!.restaurants,
+        S.of(context)!.otherservices
       ];
 
   Map<String, String> get categoryRoutes => {
-        S.of(context).carsales: "/home",
-        S.of(context).realestate: "/realEstate",
-        S.of(context).electronics: "/electronics",
-        S.of(context).jobs: "/jobs",
-        S.of(context).carrent: "/car_rent",
-        S.of(context).carservices: "/carServices",
-        S.of(context).restaurants: "/restaurants",
-        S.of(context).otherservices: "/otherServices",
+        S.of(context)!.carsales: "/home",
+        S.of(context)!.realestate: "/realEstate",
+        S.of(context)!.electronics: "/electronics",
+        S.of(context)!.jobs: "/jobs",
+        S.of(context)!.carrent: "/car_rent",
+        S.of(context)!.carservices: "/carServices",
+        S.of(context)!.restaurants: "/restaurants",
+        S.of(context)!.otherservices: "/otherServices",
       };
 
   @override
@@ -192,18 +190,21 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
                                     }
                                   },
                                   decoration: InputDecoration(
-                                      hintText: s.smart_search,
+                                      hintText: s!.smart_search,
                                       hintStyle: TextStyle(
                                           color:
                                               Color.fromRGBO(129, 126, 126, 1),
                                           fontSize: 14.sp,
                                           fontWeight: FontWeight.w500),
                                       //prefixIcon: Icon(Icons.search,
-                                        //  color: borderColor, size: 25.sp),
+                                      //  color: borderColor, size: 25.sp),
                                       prefixIcon: IconButton(
-                                        icon: Icon(Icons.search, color: borderColor, size: 22.sp),
+                                        icon: Icon(Icons.search,
+                                            color: borderColor, size: 22.sp),
                                         onPressed: () {
-                                          final text = _smartSearchController.text.trim();
+                                          final text = _smartSearchController
+                                              .text
+                                              .trim();
                                           if (text.isNotEmpty) {
                                             _performSmartSearch(text);
                                           }
@@ -239,7 +240,8 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(color: borderColor.withOpacity(0.4)),
+                          border:
+                              Border.all(color: borderColor.withOpacity(0.4)),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black12,
@@ -252,25 +254,31 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: _suggestions.length,
-                          separatorBuilder: (_, __) => Divider(height: 1, color: Colors.grey.shade200),
+                          separatorBuilder: (_, __) =>
+                              Divider(height: 1, color: Colors.grey.shade200),
                           itemBuilder: (context, index) {
                             final item = _suggestions[index];
                             return ListTile(
                               dense: true,
                               title: Text(
-                                '${S.of(context).category} ${item.itemType}',
-                                style: TextStyle(color: KTextColor, fontSize: 13.sp),
+                                '${S.of(context)!.category} ${item.itemType}',
+                                style: TextStyle(
+                                    color: KTextColor, fontSize: 13.sp),
                               ),
                               trailing: Text(
                                 '${_localeIsAr(context) ? 'إجمالي الإعلانات' : 'Total Ads'} ${item.totalAds}',
-                                style: TextStyle(color: KPrimaryColor, fontSize: 12.sp, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    color: KPrimaryColor,
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w600),
                               ),
                               onTap: () {
                                 final current = _smartSearchResponse;
                                 if (current != null) {
                                   context.push('/smart_search', extra: current);
                                 } else {
-                                  final text = _smartSearchController.text.trim();
+                                  final text =
+                                      _smartSearchController.text.trim();
                                   if (text.isNotEmpty) {
                                     _performSmartSearch(text);
                                   }
@@ -386,52 +394,42 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
                           },
                         ),
                         SizedBox(height: 5.h),
-                        Padding(
-                          padding:
-                              EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-                          child: GestureDetector(
-                            onTap: () => context.push('/offer_box'),
-                            child: Container(
-                                padding: EdgeInsetsDirectional.symmetric(
-                                    horizontal: 8.w),
-                                height: 68.h,
-                                decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [
-                                      Color(0xFFE4F8F6),
-                                      Color(0xFFC9F8FE)
-                                    ]),
-                                    borderRadius: BorderRadius.circular(8.r)),
-                                child: Row(children: [
-                                  SvgPicture.asset('assets/icons/cardolar.svg',
-                                      height: 25.sp, width: 24.sp),
-                                  SizedBox(width: 16.w),
-                                  Expanded(
-                                      child: Text(
-                                          s.click_for_amazing_daily_cars_deals,
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                              fontSize: 13.sp,
-                                              color: KTextColor,
-                                              fontWeight: FontWeight.w500))),
-                                  SizedBox(width: 12.w),
-                                  Icon(Icons.arrow_forward_ios,
-                                      size: 22.sp, color: KTextColor)
-                                ])),
-                          ),
-                        ),
-                        SizedBox(height: 10.h),
-                        Row(children: [
-                          SizedBox(width: 4.w),
-                          Icon(Icons.star, color: Colors.amber, size: 20.sp),
-                          SizedBox(width: 4.w),
-                          Text(s.top_premium_dealers,
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16.sp,
-                                  color: KTextColor))
-                        ]),
-                        SizedBox(height: 1.h),
+                        // Hiding offer box as per user request
+                        // Padding(
+                        //   padding:
+                        //       EdgeInsetsDirectional.symmetric(horizontal: 8.w),
+                        //   child: GestureDetector(
+                        //     onTap: () => context.push('/offer_box'),
+                        //     child: Container(
+                        //         padding: EdgeInsetsDirectional.symmetric(
+                        //             horizontal: 8.w),
+                        //         height: 68.h,
+                        //         decoration: BoxDecoration(
+                        //             gradient: const LinearGradient(colors: [
+                        //               Color(0xFFE4F8F6),
+                        //               Color(0xFFC9F8FE)
+                        //             ]),
+                        //             borderRadius: BorderRadius.circular(8.r)),
+                        //         child: Row(children: [
+                        //           SvgPicture.asset('assets/icons/cardolar.svg',
+                        //               height: 25.sp, width: 24.sp),
+                        //           SizedBox(width: 16.w),
+                        //           Expanded(
+                        //               child: Text(
+                        //                   s.click_for_amazing_daily_cars_deals,
+                        //                   textAlign: TextAlign.start,
+                        //                   style: TextStyle(
+                        //                       fontSize: 13.sp,
+                        //                       color: KTextColor,
+                        //                       fontWeight: FontWeight.w500))),
+                        //           SizedBox(width: 12.w),
+                        //           Icon(Icons.arrow_forward_ios,
+                        //               size: 22.sp, color: KTextColor)
+                        //         ])),
+                        //   ),
+                        // ),
+                        // SizedBox(height: 10.h),
+
                         _buildTopDealersSection(carAdProvider),
                         SizedBox(height: 16.h),
                       ],
@@ -446,167 +444,193 @@ class _HomeScreenState extends State<HomeScreen> with FavoritesHelper<HomeScreen
 
   Widget _buildTopDealersSection(CarAdProvider provider) {
     final s = S.of(context);
-    if (provider.isLoadingTopDealers && provider.topDealerAds.isEmpty)
-      return const Center(heightFactor: 5, child: CircularProgressIndicator());
+
+    // Use the same loading logic as CarRentScreen to ensure consistency and prevent "shaky" UI
+    if (provider.isLoadingTopDealers && provider.topDealerAds.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.h),
+          child: CircularProgressIndicator(color: KPrimaryColor),
+        ),
+      );
+    }
 
     if (provider.topDealersError != null) {
-      return Center(
-          child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(provider.topDealersError!)));
+      return const SizedBox.shrink();
     }
 
     final dealersWithAds =
         provider.topDealerAds.where((dealer) => dealer.ads.isNotEmpty).toList();
+
     if (dealersWithAds.isEmpty) return const SizedBox.shrink();
 
     return Column(
-      children: dealersWithAds.map((dealer) {
-        return Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                // ننتقل إلى صفحة تفاصيل السيارة باستخدام الـ ID
-                //     context.push('/car-details/$dealer.id}');
-              },
-              child: Padding(
-                padding: EdgeInsetsDirectional.symmetric(
-                    horizontal: 16.w, vertical: 8.h),
-                child: Row(children: [
-                  Text(dealer.name,
-                      style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                          color: KTextColor)),
-                  const Spacer(),
-                  InkWell(
-                      onTap: () {
-                        // تمرير معرف المعلن عند النقر على "عرض كل الإعلانات"
-                        final advertiserId = dealer.id.toString();
-                        debugPrint(
-                            'Navigating to all ads with advertiser ID: $advertiserId');
-                        context.push('/all_ad_car_sales/$advertiserId');
-                      },
-                      child: Text(s.see_all_ads,
-                          style: TextStyle(
-                              fontSize: 14.sp,
-                              decoration: TextDecoration.underline,
-                              decorationColor: borderColor,
-                              color: borderColor,
-                              fontWeight: FontWeight.w500))),
-                ]),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsetsDirectional.only(bottom: 8.h),
+          child: Row(children: [
+            SizedBox(width: 4.w),
+            Icon(Icons.star, color: Colors.amber, size: 20.sp),
+            SizedBox(width: 4.w),
+            Text(s?.top_premium_dealers ?? 'Top Premium Dealers',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                    color: KTextColor))
+          ]),
+        ),
+        ...dealersWithAds.map((dealer) {
+          return Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  // Navigate to advertiser ads
+                  final advertiserId = dealer.id.toString();
+                  debugPrint(
+                      'Navigating to all ads with advertiser ID: $advertiserId');
+                  context.push('/all_ad_car_sales/$advertiserId');
+                },
+                child: Padding(
+                  padding: EdgeInsetsDirectional.symmetric(
+                      horizontal: 16.w, vertical: 8.h),
+                  child: Row(children: [
+                    Text(dealer.name,
+                        style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: KTextColor)),
+                    const Spacer(),
+                    InkWell(
+                        onTap: () {
+                          // Navigate to advertiser ads
+                          final advertiserId = dealer.id.toString();
+                          debugPrint(
+                              'Navigating to all ads with advertiser ID: $advertiserId');
+                          context.push('/all_ad_car_sales/$advertiserId');
+                        },
+                        child: Text(s?.see_all_ads ?? 'See all',
+                            style: TextStyle(
+                                fontSize: 14.sp,
+                                decoration: TextDecoration.underline,
+                                decorationColor: borderColor,
+                                color: borderColor,
+                                fontWeight: FontWeight.w500))),
+                  ]),
+                ),
               ),
-            ),
-            SizedBox(
-              height: 170,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: dealer.ads.length,
-                padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
-                itemBuilder: (context, index) {
-                  final car = dealer.ads[index];
-                  final cardTitle =
-                      "${car.make} ${car.model} ${car.trim ?? ''}".trim();
-                  return GestureDetector(
-                    onTap: () => context.push('/car-details/${car.id}'),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.only(end: 4),
-                      child: Container(
-                        width: 145,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4.r),
-                            border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey.withOpacity(0.15),
-                                  blurRadius: 5.r,
-                                  offset: Offset(0, 2.h))
-                            ]),
-                        child: Column(
-                          children: [
-                            Stack(children: [
-                              ClipRRect(
-                                  borderRadius: BorderRadius.circular(4.r),
-                                  child: CachedNetworkImage(
-                                    imageUrl: ImageUrlHelper.getFullImageUrl(
-                                        car.mainImage),
-                                    height: (94).h,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => Container(
-                                        color: Colors.grey[300],
-                                        child: Center(
-                                            child: CircularProgressIndicator(
-                                                strokeWidth: 2))),
-                                    errorWidget: (context, url, error) =>
-                                        Image.asset('assets/images/car.jpg',
-                                            fit: BoxFit.cover),
-                                  )),
-
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: buildFavoriteIcon(
-                                      BestAdvertiserCarSalesItemAdapter(car),
-                                      onAddToFavorite: () {},
-                                    ),
+              SizedBox(
+                height: 170,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: dealer.ads.length,
+                  padding: EdgeInsetsDirectional.symmetric(horizontal: 8.w),
+                  itemBuilder: (context, index) {
+                    final car = dealer.ads[index];
+                    final cardTitle =
+                        "${car.make} ${car.model} ${car.trim ?? ''}".trim();
+                    return GestureDetector(
+                      onTap: () => context.push('/car-details/${car.id}'),
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(end: 4),
+                        child: Container(
+                          width: 145,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4.r),
+                              border: Border.all(color: Colors.grey.shade300),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.withOpacity(0.15),
+                                    blurRadius: 5.r,
+                                    offset: Offset(0, 2.h))
+                              ]),
+                          child: Column(
+                            children: [
+                              Stack(children: [
+                                ClipRRect(
+                                    borderRadius: BorderRadius.circular(4.r),
+                                    child: CachedNetworkImage(
+                                      imageUrl: ImageUrlHelper.getFullImageUrl(
+                                          car.mainImage),
+                                      height: (94).h,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                          color: Colors.grey[300],
+                                          child: Center(
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2))),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset('assets/images/car.jpg',
+                                              fit: BoxFit.cover),
+                                    )),
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: buildFavoriteIcon(
+                                    BestAdvertiserCarSalesItemAdapter(car),
+                                    onAddToFavorite: () {},
                                   ),
-                            ]),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 6),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text(
-                                        "${NumberFormatter.formatPrice(car.price)} ",
-                                        style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 11.5.sp)),
-                                    Text(cardTitle,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 11.5.sp,
-                                            color: KTextColor),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis),
-                                    Row(
-                                      children: [
-                                        Text(car.year,
-                                            style: TextStyle(
-                                                fontSize: 11.5.sp,
-                                                color: const Color.fromRGBO(
-                                                    165, 164, 162, 1),
-                                                fontWeight: FontWeight.w600)),
-                                        SizedBox(width: 8.w),
-                                        Text(
-                                            "${NumberFormatter.formatKilometers(car.km)}",
-                                            style: TextStyle(
-                                                fontSize: 11.5.sp,
-                                                color: const Color.fromRGBO(
-                                                    165, 164, 162, 1),
-                                                fontWeight: FontWeight.w600)),
-                                      ],
-                                    ),
-                                  ],
+                                ),
+                              ]),
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text(
+                                          "${NumberFormatter.formatPrice(car.price)} ",
+                                          style: TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 11.5.sp)),
+                                      Text(cardTitle,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 11.5.sp,
+                                              color: KTextColor),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis),
+                                      Row(
+                                        children: [
+                                          Text(car.year,
+                                              style: TextStyle(
+                                                  fontSize: 11.5.sp,
+                                                  color: const Color.fromRGBO(
+                                                      165, 164, 162, 1),
+                                                  fontWeight: FontWeight.w600)),
+                                          SizedBox(width: 8.w),
+                                          Text(
+                                              "${NumberFormatter.formatKilometers(car.km)}",
+                                              style: TextStyle(
+                                                  fontSize: 11.5.sp,
+                                                  color: const Color.fromRGBO(
+                                                      165, 164, 162, 1),
+                                                  fontWeight: FontWeight.w600)),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-      }).toList(),
+            ],
+          );
+        }).toList(),
+      ],
     );
   }
 }

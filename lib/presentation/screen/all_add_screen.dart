@@ -351,14 +351,14 @@ class _AllAddScreenState extends State<AllAddScreen> {
 
     // قائمة التصنيفات النصية
     final List<String> categories = [
-      S.of(context).carsales, // index 0
-      S.of(context).realestate, // index 1
-      S.of(context).electronics, // index 2
-      S.of(context).jobs, // index 3
-      S.of(context).carrent, // index 4
-      S.of(context).carservices, // index 5
-      S.of(context).restaurants, // index 6
-      S.of(context).otherservices // index 7
+      S.of(context)!.carsales, // index 0
+      S.of(context)!.realestate, // index 1
+      S.of(context)!.electronics, // index 2
+      S.of(context)!.jobs, // index 3
+      S.of(context)!.carrent, // index 4
+      S.of(context)!.carservices, // index 5
+      S.of(context)!.restaurants, // index 6
+      S.of(context)!.otherservices // index 7
     ];
 
     return Directionality(
@@ -369,7 +369,7 @@ class _AllAddScreenState extends State<AllAddScreen> {
           children: [
             SizedBox(height: 60),
             Text(
-              S.of(context).see_all_ads,
+              S.of(context)!.see_all_ads,
               style: TextStyle(
                 color: Color(0xFF001E5B),
                 fontWeight: FontWeight.w500,

@@ -127,7 +127,7 @@ class _OtherServiceSearchScreenState extends State<OtherServiceSearchScreen>
                       flex: 3,
                       child: _buildMultiSelectField(
                           context,
-                          S.of(context).section,
+                          S.of(context)!.section,
                           _selectedSections,
                           infoProvider.sectionTypes, (selection) {
                         setState(() => _selectedSections = selection);
@@ -139,7 +139,7 @@ class _OtherServiceSearchScreenState extends State<OtherServiceSearchScreen>
                       child: Consumer<OtherServicesAdProvider>(
                         builder: (context, adProvider, _) => _buildMultiSelectField(
                             context,
-                            S.of(context).service,
+                            S.of(context)!.service,
                             _selectedServices,
                             adProvider.serviceNames,
                             (selection) {
@@ -153,13 +153,13 @@ class _OtherServiceSearchScreenState extends State<OtherServiceSearchScreen>
                   Flexible(
                       flex: 3,
                       child: _buildRangePickerField(context,
-                          title: S.of(context).price,
+                          title: S.of(context)!.price,
                           fromValue: _priceFrom,
                           toValue: _priceTo,
                           unit: "AED",
                           isFilter: true, onTap: () async {
                         final result = await _showRangePicker(context,
-                            title: S.of(context).price,
+                            title: S.of(context)!.price,
                             initialFrom: _priceFrom,
                             initialTo: _priceTo,
                             unit: "AED");
@@ -345,7 +345,7 @@ class _OtherServiceSearchScreenState extends State<OtherServiceSearchScreen>
       padding: EdgeInsets.symmetric(horizontal: 18.w),
       child: Row(
         children: [
-          Text('${S.of(context).ad} $totalAds',
+          Text('${S.of(context)!.ad} $totalAds',
               style: TextStyle(
                   fontSize: 12.sp,
                   color: KTextColor,
@@ -365,7 +365,7 @@ class _OtherServiceSearchScreenState extends State<OtherServiceSearchScreen>
                       width: 18.w, height: 18.h),
                   SizedBox(width: isSmallScreen ? 12.w : 15.w),
                   Expanded(
-                    child: Text(S.of(context).sort,
+                    child: Text(S.of(context)!.sort,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontWeight: FontWeight.w600,

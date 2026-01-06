@@ -241,7 +241,7 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
               flex: 3,
               child: _buildMultiSelectField(
                   context,
-                  S.of(context).type,
+                  S.of(context)!.type,
                   _selectedTypes,
                   infoProvider.propertyTypes, // ++ استخدام بيانات حقيقية
                   (selection) {
@@ -252,7 +252,7 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
             SizedBox(width: 1.w),
             Flexible(
               flex: 3,
-              child: _buildMultiSelectField(context, S.of(context).district,
+              child: _buildMultiSelectField(context, S.of(context)!.district,
                   _selectedDistricts, allDistricts, // ++ استخدام بيانات حقيقية
                   (selection) {
                 setState(() => _selectedDistricts = selection);
@@ -264,7 +264,7 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
               flex: 3,
               child: _buildMultiSelectField(
                   context,
-                  S.of(context).contract,
+                  S.of(context)!.contract,
                   _selectedContracts,
                   infoProvider.contractTypes, // ++ استخدام بيانات حقيقية
                   (selection) {
@@ -276,13 +276,13 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
             Flexible(
               flex: 3,
               child: _buildRangePickerField(context,
-                  title: S.of(context).price,
+                  title: S.of(context)!.price,
                   fromValue: _priceFrom,
                   toValue: _priceTo,
                   unit: "AED",
                   isFilter: true, onTap: () async {
                 final result = await _showRangePicker(context,
-                    title: S.of(context).price,
+                    title: S.of(context)!.price,
                     initialFrom: _priceFrom,
                     initialTo: _priceTo,
                     unit: "AED");
@@ -511,7 +511,7 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
                           Center(
                               child: Padding(
                                   padding: const EdgeInsets.all(32.0),
-                                  child: Text(S.of(context).noResultsFound)))
+                                  child: Text(S.of(context)!.noResultsFound)))
                         else ...[
                           _buildAdList(
                               s.priority_first_premium, premiumStarAds),

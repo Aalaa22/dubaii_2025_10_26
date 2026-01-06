@@ -398,13 +398,51 @@
    "adDataIncomplete": "بيانات الإعلان غير كاملة",
    "adPublishedSuccessfully": "تم نشر الإعلان بنجاح!",
    "planExpiredOrInactivePleasePay": "انتهت الباقة أو لا توجد باقة نشطة. يرجى الدفع لإكمال النشر",
-   "errorOccurredWithMessage": "حدث خطأ: {message}"
-
-
-
-
-  
-
-
-
+   "errorOccurredWithMessage": "حدث خطأ: {message}",
+   
+   "usernameRequired": "اسم المستخدم مطلوب",
+   "invalidPhoneFormat": "صيغة رقم الهاتف غير صحيحة",
+   "profileSavedSuccessfully": "تم حفظ الملف الشخصي بنجاح!",
+   "failedToSaveProfile": "فشل في حفظ الملف الشخصي",
+   
+   "unsupportedImageFormat": "صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF",
+   "logoUploadedSuccessfully": "تم رفع الشعار بنجاح!",
+   "failedToUploadLogo": "فشل في رفع الشعار",
+   "logoDeletedSuccessfully": "تم حذف الشعار بنجاح!",
+   "failedToDeleteLogo": "فشل في حذف الشعار",
+   "pleaseSelectLocationFirst": "الرجاء تحديد الموقع أولاً",
+   "pleaseLoginFirst2": "الرجاء تسجيل الدخول أولاً",
+   "savingLocation": "جاري حفظ الموقع...",
+   "locationSavedSuccessfully": "تم حفظ الموقع بنجاح!",
+   "locationUpdateSuccess": "تم تحديث الموقع بنجاح",
+   "failedToLocate": "فشل في تحديد الموقع",
+   "locationError": "خطأ في تحديد الموقع: {error}",
+   "googleMapsOpenedAndLocationSaved": "تم فتح خرائط جوجل وحفظ الموقع",
+   "googleMapsWebOpenedAndLocationSaved": "تم فتح خرائط جوجل (نسخة الويب) وحفظ الموقع",
+   "failedToOpenGoogleMaps": "فشل في فتح خرائط جوجل: {error}",
+   "locationPickerError": "خطأ في اختيار الموقع: {error}",
+   "errorLabel": "خطأ: {error}",
+   "tryAgain": "حاول مرة أخرى",
+   "howToEnableLocationService": "كيفية تفعيل خدمة الموقع",
+   "locationInstructionsAndroid": "للأندرويد:\n1. اذهب إلى الإعدادات\n2. اضغط على الخصوصية أو الموقع\n3. قم بتفعيل خدمة الموقع\n4. تأكد من أن التطبيق لديه إذن الموقع",
+   "locationInstructionsIOS": "للآيفون:\n1. اذهب إلى الإعدادات\n2. اضغط على الخصوصية\n3. اضغط على خدمة الموقع وفعّلها\n4. ابحث عن هذا التطبيق واختر 'أثناء استخدام التطبيق'",
+   "locationNote": "ملاحظة: قد تختلف هذه الخطوات قليلاً حسب طراز جهازك وإصدار نظام التشغيل.",
+   "understood": "فهمت",
+   "tryNow": "جرب الآن",
+   "selectAdvertiserType": "اختر نوع المعلن",
+   "individual": "فرد",
+   "company": "شركة",
+   "editing1": "تحرير",
+   "editit2": "لإجراء التعديلات، يرجى الضغط على زر التحرير أدناه",
+   "edit3": "تعديل",
+   
+   "offerBoxActivating": "جاري تفعيل {boxName}...",
+   "offerBoxActivatedSuccess": "تم تفعيل صندوق العروض لهذا الإعلان",
+   "offerBoxActivationFailed": "فشل تفعيل صندوق العروض",
+   "activeOffersBox": "تفعيل صندوق العروض",
+   "deleteAdTitle": "حذف الإعلان",
+   "deleteAdConfirmation": "هل أنت متأكد من حذف هذا الإعلان؟",
+   "yesDelete": "نعم، احذف",
+   "adDeletedSuccess": "تم حذف الإعلان",
+   "adDeletedFailed": "فشل في حذف الإعلان"
 }

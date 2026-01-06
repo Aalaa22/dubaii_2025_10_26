@@ -108,24 +108,24 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
   Future<void> _setPassword() async {
     // Validate passwords
     if (_passwordController.text.trim().isEmpty) {
-      _showTopMessage(S.of(context).pleaseEnterPassword, backgroundColor: Colors.red);
+      _showTopMessage(S.of(context)!.pleaseEnterPassword, backgroundColor: Colors.red);
       return;
     }
 
     if (_confirmPasswordController.text.trim().isEmpty) {
-      _showTopMessage(S.of(context).pleaseConfirmPassword, backgroundColor: Colors.red);
+      _showTopMessage(S.of(context)!.pleaseConfirmPassword, backgroundColor: Colors.red);
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
-      _showTopMessage(S.of(context).passwordsDoNotMatch, backgroundColor: Colors.red);
+      _showTopMessage(S.of(context)!.passwordsDoNotMatch, backgroundColor: Colors.red);
       return;
     }
 
     // Password strength validation
     final password = _passwordController.text;
     if (password.length < 8) {
-      _showTopMessage(S.of(context).passwordTooShort, backgroundColor: Colors.red);
+      _showTopMessage(S.of(context)!.passwordTooShort, backgroundColor: Colors.red);
       return;
     }
 
@@ -165,7 +165,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       }
       
       Navigator.of(context).pop(); // Close dialog
-      _showTopMessage(S.of(context).passwordSetSuccessUpgraded, backgroundColor: Colors.green, duration: const Duration(seconds: 3));
+      _showTopMessage(S.of(context)!.passwordSetSuccessUpgraded, backgroundColor: Colors.green, duration: const Duration(seconds: 3));
 
       // تحديث حالة AuthProvider من التخزين لضمان قراءة userType الجديد فوراً
       await context.read<AuthProvider>().checkStoredSession();
@@ -183,7 +183,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
       _confirmPasswordController.clear();
 
     } catch (e) {
-      _showTopMessage('${S.of(context).errorSettingPassword}: ${e.toString()}', backgroundColor: Colors.red, duration: const Duration(seconds: 3));
+      _showTopMessage('${S.of(context)!.errorSettingPassword}: ${e.toString()}', backgroundColor: Colors.red, duration: const Duration(seconds: 3));
     } finally {
       setState(() {
         _isLoading = false;
@@ -205,7 +205,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                 borderRadius: BorderRadius.circular(15),
               ),
               title: Text(
-                S.of(context).secureYourAccount,
+                S.of(context)!.secureYourAccount,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -218,7 +218,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      S.of(context).setPasswordToUpgradeDescription,
+                      S.of(context)!.setPasswordToUpgradeDescription,
                       style: const TextStyle(
                         fontSize: 16,
                         color: Color(0xFF666666),
@@ -231,14 +231,14 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                     // Password field
                   CustomTextField(
                     controller: _passwordController,
-                    hintText: S.of(context).enterpassword,
+                    hintText: S.of(context)!.enterpassword,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return S.of(context).passwordRequiredToCompleteLogin;
+                        return S.of(context)!.passwordRequiredToCompleteLogin;
                       }
                       if (value.length < 8) {
-                        return S.of(context).passwordTooShort;
+                        return S.of(context)!.passwordTooShort;
                       }
                       return null;
                     },
@@ -248,14 +248,14 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                     // Confirm password field
                   CustomTextField(
                     controller: _confirmPasswordController,
-                    hintText: S.of(context).confirmpass,
+                    hintText: S.of(context)!.confirmpass,
                     isPassword: true,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return S.of(context).pleaseConfirmPassword;
+                        return S.of(context)!.pleaseConfirmPassword;
                       }
                       if (value != _passwordController.text) {
-                        return S.of(context).passwordsDoNotMatch;
+                        return S.of(context)!.passwordsDoNotMatch;
                       }
                       return null;
                     },
@@ -284,7 +284,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                           ),
                         ),
                         child:  Text(
-                          S.of(context).cancel,
+                          S.of(context)!.cancel,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -314,7 +314,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
                                 ),
                               )
                             :  Text(
-                                S.of(context).setPassword, 
+                                S.of(context)!.setPassword, 
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -412,11 +412,11 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
         : const Color.fromRGBO(5, 194, 201, 1), // لون غير المختار
   
                  ),
-        label:S.of(context).home,
+        label:S.of(context)!.home,
         ),
          BottomNavigationBarItem(
           icon: FaIcon(FontAwesomeIcons.heart),
-          label:S.of(context).favorites,
+          label:S.of(context)!.favorites,
         ),
 
        
@@ -445,7 +445,7 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
               ),
             ),
           ),
-          label: S.of(context).post,
+          label: S.of(context)!.post,
         ),
 
          BottomNavigationBarItem(
@@ -458,11 +458,11 @@ class _CustomBottomNavState extends State<CustomBottomNav> {
         : const Color.fromRGBO(5, 194, 201, 1),
   
                  ),
-                 label:S.of(context).manage,
+                 label:S.of(context)!.manage,
         ),
         BottomNavigationBarItem(
           icon: FaIcon(FontAwesomeIcons.gear),
-          label:S.of(context).srtting,
+          label:S.of(context)!.srtting,
         ),
       ],
     );

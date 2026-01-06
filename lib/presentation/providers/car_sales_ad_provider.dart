@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:dio/dio.dart';
+import 'package:advertising_app/utils/location_helper.dart'; // Add this import
+import 'package:location/location.dart'; // Add this import
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -18,7 +20,8 @@ class CarAdProvider with ChangeNotifier {
   final CarAdRepository _carAdRepository;
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  
+  final LocationHelper _locationHelper = LocationHelper(); // helper instance
+
   CarAdProvider(this._carAdRepository);
 
   // --- SECTION 1: Ad List State (for Search & Manage Screens) ---
@@ -87,11 +90,13 @@ class CarAdProvider with ChangeNotifier {
     try {
       final String fullUrl = ImageUrlHelper.getFullImageUrl(url);
       final dio = Dio();
-      final response = await dio.get(fullUrl, options: Options(responseType: ResponseType.bytes));
+      final response = await dio.get(fullUrl,
+          options: Options(responseType: ResponseType.bytes));
       final List<int> bytes = (response.data as List<int>);
       final tempDir = await getTemporaryDirectory();
       final filename = p.basename(Uri.parse(fullUrl).path);
-      final file = File(p.join(tempDir.path, '${DateTime.now().millisecondsSinceEpoch}_$filename'));
+      final file = File(p.join(
+          tempDir.path, '${DateTime.now().millisecondsSinceEpoch}_$filename'));
       await file.writeAsBytes(bytes);
       return file;
     } catch (e) {
@@ -138,6 +143,72 @@ class CarAdProvider with ChangeNotifier {
   List<BestAdvertiser> get topDealerAds => _topDealerAds;
   bool get isLoadingTopDealers => _isLoadingTopDealers;
   String? get topDealersError => _topDealersError;
+
+  // --- Sorting & Location State ---
+  bool _isSortedByNearest = false;
+  bool _isLoadingLocation = false;
+  LocationData? _userLocation;
+
+  bool get isSortedByNearest => _isSortedByNearest;
+  bool get isLoadingLocation => _isLoadingLocation;
+  LocationData? get userLocation => _userLocation;
+
+  Future<void> toggleSortByNearest() async {
+    if (_isSortedByNearest) {
+      _isSortedByNearest = false;
+      safeNotifyListeners();
+      return;
+    }
+
+    _isLoadingLocation = true;
+    safeNotifyListeners();
+
+    try {
+      final loc = await _locationHelper.getCurrentLocation();
+      if (loc != null) {
+        _userLocation = loc;
+        _isSortedByNearest = true;
+      } else {
+        // Handle permission toggling or failures
+        debugPrint("Could not fetch location or permission denied.");
+      }
+    } catch (e) {
+      debugPrint("Error fetching location: $e");
+    } finally {
+      _isLoadingLocation = false;
+      safeNotifyListeners();
+    }
+  }
+
+  List<CarAdModel> get sortedCarAds {
+    List<CarAdModel> ads = List.from(_carAds);
+
+    // Default sort: Newest first (Date)
+    ads.sort((a, b) {
+      if (a.createdAt == null && b.createdAt == null) return 0;
+      if (a.createdAt == null) return 1;
+      if (b.createdAt == null) return -1;
+      return DateTime.parse(b.createdAt!)
+          .compareTo(DateTime.parse(a.createdAt!));
+    });
+
+    if (_isSortedByNearest && _userLocation != null) {
+      ads.sort((a, b) {
+        final double distA = _locationHelper.calculateDistance(
+            _userLocation!.latitude!,
+            _userLocation!.longitude!,
+            a.latitude ?? 0,
+            a.longitude ?? 0);
+        final double distB = _locationHelper.calculateDistance(
+            _userLocation!.latitude!,
+            _userLocation!.longitude!,
+            b.latitude ?? 0,
+            b.longitude ?? 0);
+        return distA.compareTo(distB);
+      });
+    }
+    return ads;
+  }
 
   bool _disposed = false;
 
@@ -556,22 +627,25 @@ class CarAdProvider with ChangeNotifier {
         mainImageFile = adData['mainImage'] as File;
       } else if (adData['main_image'] is File) {
         mainImageFile = adData['main_image'] as File;
-      } else if (adData['main_image'] is String && (adData['main_image'] as String).trim().isNotEmpty) {
-        mainImageFile = await _downloadImageToTempFile(adData['main_image'] as String);
+      } else if (adData['main_image'] is String &&
+          (adData['main_image'] as String).trim().isNotEmpty) {
+        mainImageFile =
+            await _downloadImageToTempFile(adData['main_image'] as String);
       }
 
       // Handle thumbnail images - check both possible key names
       List<File>? thumbnailImages;
-      final thumbsData = adData['thumbnailImages'] ?? adData['thumbnail_images'];
+      final thumbsData =
+          adData['thumbnailImages'] ?? adData['thumbnail_images'];
       if (thumbsData is List) {
         final List<File> files = [];
-        
+
         for (final thumb in thumbsData) {
           if (thumb is File) {
             files.add(thumb);
           }
         }
-        
+
         if (files.isNotEmpty) {
           thumbnailImages = files;
         }
@@ -590,7 +664,8 @@ class CarAdProvider with ChangeNotifier {
             if (file != null) {
               thumbnailImages.add(file);
             } else {
-              debugPrint('Skipping existing thumbnail "$url" due to download failure');
+              debugPrint(
+                  'Skipping existing thumbnail "$url" due to download failure');
             }
           }
         }
@@ -599,10 +674,11 @@ class CarAdProvider with ChangeNotifier {
       // Build form data payload with all fields
       final Map<String, dynamic> formData = {
         '_method': 'PUT', // Required for Laravel method spoofing
-        
+
         // Basic fields
         if (adData['title'] != null) 'title': adData['title'].toString(),
-        if (adData['description'] != null) 'description': adData['description'].toString(),
+        if (adData['description'] != null)
+          'description': adData['description'].toString(),
         if (adData['make'] != null) 'make': adData['make'].toString(),
         if (adData['model'] != null) 'model': adData['model'].toString(),
         if (adData['trim'] != null) 'trim': adData['trim'].toString(),
@@ -610,64 +686,89 @@ class CarAdProvider with ChangeNotifier {
         if (adData['km'] != null) 'km': adData['km'].toString(),
         if (adData['price'] != null) 'price': adData['price'].toString(),
         if (adData['specs'] != null) 'specs': adData['specs'].toString(),
-        
+
         // Car details
         if (adData['car_type'] != null || adData['carType'] != null)
           'car_type': (adData['car_type'] ?? adData['carType']).toString(),
         if (adData['trans_type'] != null || adData['transType'] != null)
-          'trans_type': (adData['trans_type'] ?? adData['transType']).toString(),
+          'trans_type':
+              (adData['trans_type'] ?? adData['transType']).toString(),
         if (adData['fuel_type'] != null || adData['fuelType'] != null)
           'fuel_type': (adData['fuel_type'] ?? adData['fuelType']).toString(),
         if (adData['color'] != null) 'color': adData['color'].toString(),
         if (adData['interior_color'] != null || adData['interiorColor'] != null)
-          'interior_color': (adData['interior_color'] ?? adData['interiorColor']).toString(),
-        if (adData['warranty'] != null) 'warranty': adData['warranty'].toString(),
-        if (adData['engine_capacity'] != null || adData['engineCapacity'] != null)
-          'engine_capacity': (adData['engine_capacity'] ?? adData['engineCapacity']).toString(),
-        if (adData['cylinders'] != null) 'cylinders': adData['cylinders'].toString(),
-        if (adData['horsepower'] != null) 'horsepower': adData['horsepower'].toString(),
+          'interior_color':
+              (adData['interior_color'] ?? adData['interiorColor']).toString(),
+        if (adData['warranty'] != null)
+          'warranty': adData['warranty'].toString(),
+        if (adData['engine_capacity'] != null ||
+            adData['engineCapacity'] != null)
+          'engine_capacity':
+              (adData['engine_capacity'] ?? adData['engineCapacity'])
+                  .toString(),
+        if (adData['cylinders'] != null)
+          'cylinders': adData['cylinders'].toString(),
+        if (adData['horsepower'] != null)
+          'horsepower': adData['horsepower'].toString(),
         if (adData['doors_no'] != null || adData['doorsNo'] != null)
           'doors_no': (adData['doors_no'] ?? adData['doorsNo']).toString(),
         if (adData['seats_no'] != null || adData['seatsNo'] != null)
           'seats_no': (adData['seats_no'] ?? adData['seatsNo']).toString(),
         if (adData['steering_side'] != null || adData['steeringSide'] != null)
-          'steering_side': (adData['steering_side'] ?? adData['steeringSide']).toString(),
-        
+          'steering_side':
+              (adData['steering_side'] ?? adData['steeringSide']).toString(),
+
         // Contact information
-        if (adData['advertiser_name'] != null || adData['advertiserName'] != null)
-          'advertiser_name': (adData['advertiser_name'] ?? adData['advertiserName']).toString(),
+        if (adData['advertiser_name'] != null ||
+            adData['advertiserName'] != null)
+          'advertiser_name':
+              (adData['advertiser_name'] ?? adData['advertiserName'])
+                  .toString(),
         if (adData['phone_number'] != null || adData['phoneNumber'] != null)
-          'phone_number': (adData['phone_number'] ?? adData['phoneNumber']).toString(),
-        if (adData['whatsapp'] != null) 'whatsapp': adData['whatsapp'].toString(),
-        
+          'phone_number':
+              (adData['phone_number'] ?? adData['phoneNumber']).toString(),
+        if (adData['whatsapp'] != null)
+          'whatsapp': adData['whatsapp'].toString(),
+
         // Location
         if (adData['emirate'] != null) 'emirate': adData['emirate'].toString(),
         if (adData['selectedarea'] != null || adData['area'] != null)
           'area': (adData['selectedarea'] ?? adData['area']).toString(),
-        if (adData['location'] != null || adData['advertiser_location'] != null || adData['advertiserLocation'] != null)
-          'location': (adData['location'] ?? adData['advertiser_location'] ?? adData['advertiserLocation']).toString(),
-        
+        if (adData['location'] != null ||
+            adData['advertiser_location'] != null ||
+            adData['advertiserLocation'] != null)
+          'location': (adData['location'] ??
+                  adData['advertiser_location'] ??
+                  adData['advertiserLocation'])
+              .toString(),
+
         // Plan details
         if (adData['plan_type'] != null || adData['planType'] != null)
           'plan_type': (adData['plan_type'] ?? adData['planType']).toString(),
         if (adData['plan_days'] != null || adData['planDays'] != null)
           'plan_days': (adData['plan_days'] ?? adData['planDays']).toString(),
-        if (adData['plan_expires_at'] != null || adData['planExpiresAt'] != null)
-          'plan_expires_at': (adData['plan_expires_at'] ?? adData['planExpiresAt']).toString(),
-
+        if (adData['plan_expires_at'] != null ||
+            adData['planExpiresAt'] != null)
+          'plan_expires_at':
+              (adData['plan_expires_at'] ?? adData['planExpiresAt']).toString(),
       };
 
       print('=== CarAdProvider.updateAd: POST with form-data ===');
       print('Endpoint: /api/car-sales-ads/$adId');
       print('Method: POST with _method=PUT');
       print('Input data keys: ${adData.keys.toList()}');
-      print('Main image file: ${mainImageFile != null} (from key: ${adData['mainImage'] != null ? 'mainImage' : adData['main_image'] != null ? 'main_image' : 'none'})');
-      print('Thumbnail files count: ${thumbnailImages?.length ?? 0} (from key: ${adData['thumbnailImages'] != null ? 'thumbnailImages' : adData['thumbnail_images'] != null ? 'thumbnail_images' : 'none'})');
+      print(
+          'Main image file: ${mainImageFile != null} (from key: ${adData['mainImage'] != null ? 'mainImage' : adData['main_image'] != null ? 'main_image' : 'none'})');
+      print(
+          'Thumbnail files count: ${thumbnailImages?.length ?? 0} (from key: ${adData['thumbnailImages'] != null ? 'thumbnailImages' : adData['thumbnail_images'] != null ? 'thumbnail_images' : 'none'})');
       final existingThumbsCount = (adData['existing_thumbnail_images'] is List)
-          ? (adData['existing_thumbnail_images'] as List).whereType<String>().length
+          ? (adData['existing_thumbnail_images'] as List)
+              .whereType<String>()
+              .length
           : 0;
       if (existingThumbsCount > 0) {
-        print('Existing thumbnail URLs provided: $existingThumbsCount (downloaded into files)');
+        print(
+            'Existing thumbnail URLs provided: $existingThumbsCount (downloaded into files)');
       }
       print('Form fields: ${formData.keys.toList()}');
       print('===============================================');
@@ -682,7 +783,8 @@ class CarAdProvider with ChangeNotifier {
       );
 
       // Consider success if API returns success flag or id
-      final bool updated = (response is Map && (response['success'] == true || response.containsKey('id')));
+      final bool updated = (response is Map &&
+          (response['success'] == true || response.containsKey('id')));
 
       // Fetch latest details and verify expected changes applied
       await fetchAdDetails(int.tryParse(adId) ?? 0);
@@ -705,24 +807,26 @@ class CarAdProvider with ChangeNotifier {
             unchangedFields.add('price');
           }
         }
-        
+
         // Check description
         if (formData.containsKey('description')) {
           final beforeDesc = before?.description;
           final afterDesc = after.description;
-          if (!equalsNormalized(formData['description']?.toString(), afterDesc)) {
+          if (!equalsNormalized(
+              formData['description']?.toString(), afterDesc)) {
             unchangedFields.add('description');
           }
         }
-        
+
         // Check phone number
         if (formData.containsKey('phone_number')) {
           final afterPhone = after.phoneNumber;
-          if (!equalsNormalized(formData['phone_number']?.toString(), afterPhone)) {
+          if (!equalsNormalized(
+              formData['phone_number']?.toString(), afterPhone)) {
             unchangedFields.add('phone_number');
           }
         }
-        
+
         // Check WhatsApp
         if (formData.containsKey('whatsapp')) {
           final afterWa = after.whatsapp;
@@ -730,19 +834,21 @@ class CarAdProvider with ChangeNotifier {
             unchangedFields.add('whatsapp');
           }
         }
-        
+
         // Check main image (if file was uploaded)
         if (mainImageFile != null) {
-          if (before != null && before.mainImage.isNotEmpty && after.mainImage == before.mainImage) {
+          if (before != null &&
+              before.mainImage.isNotEmpty &&
+              after.mainImage == before.mainImage) {
             unchangedFields.add('main_image');
           }
         }
-        
+
         // Check thumbnail images (if files were uploaded)
         if (thumbnailImages != null && thumbnailImages.isNotEmpty) {
           final beforeThumbs = before?.thumbnailImages ?? [];
           final afterThumbs = after.thumbnailImages ?? [];
-          if (beforeThumbs.length == afterThumbs.length && 
+          if (beforeThumbs.length == afterThumbs.length &&
               beforeThumbs.every((thumb) => afterThumbs.contains(thumb))) {
             unchangedFields.add('thumbnail_images');
           }
@@ -760,7 +866,8 @@ class CarAdProvider with ChangeNotifier {
       hints.add('تحقق من صحة أرقام الهاتف والواتساب');
       hints.add('تأكد من أن الصور بالصيغة المطلوبة');
 
-      _updateAdError = 'الطلب ${updated ? 'مقبول' : 'مرفوض'} لكن لم تُحدّث الحقول: ${unchangedFields.join(', ')}. الأسباب المحتملة: ${hints.join(' | ')}';
+      _updateAdError =
+          'الطلب ${updated ? 'مقبول' : 'مرفوض'} لكن لم تُحدّث الحقول: ${unchangedFields.join(', ')}. الأسباب المحتملة: ${hints.join(' | ')}';
       return false;
     } catch (e) {
       _updateAdError = e.toString();
@@ -785,11 +892,13 @@ class CarAdProvider with ChangeNotifier {
         final s = v.toString().replaceAll('L', '').trim();
         return s.isEmpty ? null : s;
       }
+
       String? digitsOnly(dynamic v) {
         if (v == null) return null;
         final m = RegExp(r'\d+').firstMatch(v.toString());
         return m?.group(0);
       }
+
       String? firstNumber(dynamic v) {
         if (v == null) return null;
         final s = v.toString();
@@ -799,8 +908,11 @@ class CarAdProvider with ChangeNotifier {
         }
         return RegExp(r'\d+').firstMatch(s)?.group(0);
       }
+
       String warrantyToApi(dynamic v) {
-        return (v == true || (v is String && (v == 'true' || v == '1'))) ? '1' : '0';
+        return (v == true || (v is String && (v == 'true' || v == '1')))
+            ? '1'
+            : '0';
       }
 
       final Map<String, String> camelToSnake = {
@@ -845,13 +957,17 @@ class CarAdProvider with ChangeNotifier {
         'doors_no': digitsOnly(adData['doorsNo']),
         'seats_no': digitsOnly(adData['seatsNo']),
         'steering_side': adData['steering_side'] ?? adData['steeringSide'],
-        'advertiser_name': adData['advertiser_name'] ?? adData['advertiserName'],
+        'advertiser_name':
+            adData['advertiser_name'] ?? adData['advertiserName'],
         'phone_number': adData['phone_number'] ?? adData['phoneNumber'],
         'whatsapp': adData['whatsapp'],
         'emirate': adData['emirate'],
         'area': adData['area'],
-        'advertiser_type': adData['advertiser_type'] ?? adData['advertiserType'],
-        'location': adData['location'] ?? adData['advertiser_location'] ?? adData['advertiserLocation'],
+        'advertiser_type':
+            adData['advertiser_type'] ?? adData['advertiserType'],
+        'location': adData['location'] ??
+            adData['advertiser_location'] ??
+            adData['advertiserLocation'],
         'plan_type': adData['plan_type'] ?? adData['planType'],
         'plan_days': adData['plan_days'] ?? adData['planDays'],
         'plan_expires_at': adData['plan_expires_at'] ?? adData['planExpiresAt'],
@@ -863,7 +979,8 @@ class CarAdProvider with ChangeNotifier {
       }
 
       final File? mainImage = adData['mainImage'] as File?;
-      final List<File>? thumbnailImages = adData['thumbnailImages'] as List<File>?;
+      final List<File>? thumbnailImages =
+          adData['thumbnailImages'] as List<File>?;
 
       // Diagnostics: compare client vs server payload
       final List<String> mismatches = [];
@@ -883,9 +1000,11 @@ class CarAdProvider with ChangeNotifier {
 
       print('=== Client vs Server payload comparison ===');
       print('Endpoint client: /api/car-sales-ads');
-      print('Files: mainImage: ${mainImage != null ? 'File' : 'null'}, thumbnails: ${thumbnailImages?.length ?? 0}');
+      print(
+          'Files: mainImage: ${mainImage != null ? 'File' : 'null'}, thumbnails: ${thumbnailImages?.length ?? 0}');
       print('Client keys (sample): ${adData.keys.take(8).toList()} ...');
-      print('Server expected keys (sample): ${textData.keys.take(8).toList()} ...');
+      print(
+          'Server expected keys (sample): ${textData.keys.take(8).toList()} ...');
       if (mismatches.isNotEmpty) {
         print('Mismatched/missing keys: ${mismatches.join(', ')}');
       } else {
@@ -910,14 +1029,17 @@ class CarAdProvider with ChangeNotifier {
           return true;
         }
       }
-      final message = (response is Map) ? (response['message'] ?? 'Failed to submit ad') : 'Failed to submit ad';
+      final message = (response is Map)
+          ? (response['message'] ?? 'Failed to submit ad')
+          : 'Failed to submit ad';
       throw Exception(message);
     } catch (e) {
       _submitAdError = e.toString();
       // Extra diagnostics for JSON-vs-File issues
       print('=== Submit Car Ad Error ===');
       print('Error: $e');
-      print('Hint: Ensure files are sent with multipart/form-data and no File objects are included in JSON payload.');
+      print(
+          'Hint: Ensure files are sent with multipart/form-data and no File objects are included in JSON payload.');
       print('================================');
       return false;
     } finally {
@@ -933,8 +1055,8 @@ class CarAdProvider with ChangeNotifier {
     safeNotifyListeners();
     try {
       // Public data - no token required
-      _topDealerAds = await _carAdRepository.getBestAdvertiserAds(
-          category: 'car_sales');
+      _topDealerAds =
+          await _carAdRepository.getBestAdvertiserAds(category: 'car_sales');
     } catch (e) {
       if (kDebugMode) print("Error fetching top dealer ads: $e");
       _topDealersError = e.toString();
@@ -978,8 +1100,6 @@ class CarAdProvider with ChangeNotifier {
       offerKmTo,
       offerPriceFrom,
       offerPriceTo;
-
-  
 
   Future<void> fetchOfferAds() async {
     _isLoadingOffers = true;
@@ -1051,7 +1171,3 @@ class CarAdProvider with ChangeNotifier {
     _performLocalOfferFilter();
   }
 }
-
-
-
-

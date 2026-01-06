@@ -56,7 +56,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
           cursorColor: KTextColor,
           style: TextStyle(color: KTextColor, fontSize: 14.sp),
           decoration: InputDecoration(
-            hintText: s.search,
+            hintText: s!.search,
             contentPadding:
                 EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             enabledBorder: OutlineInputBorder(
@@ -148,7 +148,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -196,7 +196,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //             children: [
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).service_type,
+                      //                   hint: S.of(context)!.service_type,
                       //                   items: const ["صيانة", "كهرباء", "سمكرة"],
                       //                   value: _selectedServiceType,
                       //                   onChanged: (val) => setState(
@@ -206,7 +206,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).district,
+                      //                   hint: S.of(context)!.district,
                       //                   items: const ["الرياض", "جدة", "الدمام"],
                       //                   value: _selectedDistrict,
                       //                   onChanged: (val) => setState(
@@ -216,7 +216,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).price,
+                      //                   hint: S.of(context)!.price,
                       //                   items: const ["< 200", "200 - 500", "> 500"],
                       //                   value: _selectedPrice,
                       //                   onChanged: (val) => setState(
@@ -246,7 +246,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -275,7 +275,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //                     SizedBox(width: 12.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,
@@ -313,7 +313,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -342,7 +342,7 @@ class _AllAddsCarServiceState extends State<AllAddsCarService> {
                       //                     SizedBox(width: 20.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,

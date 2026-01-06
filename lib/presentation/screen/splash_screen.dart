@@ -126,7 +126,7 @@ class _SplashGridScreenState extends State<SplashGridScreen> {
                    // SizedBox(width: screenWidth * 0.02),
                     Flexible(
                       child: Text(
-                        S.of(context).enjoyFreeAds,
+                        S.of(context)!.enjoyFreeAds,
                         style: TextStyle(
                           fontSize: screenWidth * 0.06,
                           fontWeight: FontWeight.bold,

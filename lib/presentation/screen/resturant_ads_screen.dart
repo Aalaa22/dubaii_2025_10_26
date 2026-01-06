@@ -18,6 +18,7 @@ import 'package:advertising_app/generated/l10n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:advertising_app/presentation/widget/titled_select_or_add_field.dart';
 
 // تعريف الثوابت المستخدمة في الألوان
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -101,11 +102,12 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
     try {
       final hasCoords = user.latitude != null && user.longitude != null;
       if (hasCoords) {
-        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        final latLng =
+            LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
         setState(() => selectedLatLng = latLng);
-        await context
-            .read<GoogleMapsProvider>()
-            .moveCameraToLocation(latLng.latitude, latLng.longitude, zoom: 16.0);
+        await context.read<GoogleMapsProvider>().moveCameraToLocation(
+            latLng.latitude, latLng.longitude,
+            zoom: 16.0);
       } else if (selectedLocation.isNotEmpty) {
         // قد يتم أيضاً استدعاؤها في initState، لكن الشرط يمنع التكرار غير الضروري
         if (selectedLatLng == null) {
@@ -115,7 +117,9 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
               final loc = locations.first;
               final mapsProvider = context.read<GoogleMapsProvider>();
               selectedLatLng = LatLng(loc.latitude, loc.longitude);
-              await mapsProvider.moveCameraToLocation(loc.latitude, loc.longitude, zoom: 14.0);
+              await mapsProvider.moveCameraToLocation(
+                  loc.latitude, loc.longitude,
+                  zoom: 14.0);
             }
           } catch (e) {
             debugPrint('Geocoding failed in profile check: $e');
@@ -169,123 +173,123 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
             ? 'يجب عليك إكمال الحقول التالية في ملفك الشخصي قبل إضافة الإعلان:'
             : 'You must complete the following fields in your profile before adding the advertisement:';
         return WillPopScope(
-          onWillPop: () async {
-            // عند الضغط على زر الرجوع، الخروج من الصفحة بالكامل
-            Navigator.of(context).pop(); // إغلاق الـ dialog
-            Navigator.of(context).pop(); // العودة إلى الشاشة السابقة
-            return false;
-          },
-          child: Directionality(
-            textDirection: textDirection,
-            child: AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Text(
-              s.warning,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: KTextColor,
-                fontSize: 18,
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  description,
+            onWillPop: () async {
+              // عند الضغط على زر الرجوع، الخروج من الصفحة بالكامل
+              Navigator.of(context).pop(); // إغلاق الـ dialog
+              Navigator.of(context).pop(); // العودة إلى الشاشة السابقة
+              return false;
+            },
+            child: Directionality(
+              textDirection: textDirection,
+              child: AlertDialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                title: Text(
+                  s.warning,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: KTextColor,
+                    fontSize: 18,
                   ),
                 ),
-                const SizedBox(height: 15),
-                ...localizedMissingFields
-                    .map((field) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Color(0xFFE74C3C),
-                                size: 18,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  field,
-                                  style: const TextStyle(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: KTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    ...localizedMissingFields
+                        .map((field) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
                                     color: Color(0xFFE74C3C),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                                    size: 18,
                                   ),
-                                ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      field,
+                                      style: const TextStyle(
+                                        color: Color(0xFFE74C3C),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ))
-                    .toList(),
-              ],
-            ),
-            actions: [
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Future.microtask(() => context.push('/editprofile'));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    elevation: 2,
-                  ),
-                  child: Text(
-                    s.myProfile,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                            ))
+                        .toList(),
+                  ],
                 ),
-              ),
-              SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(1, 84, 126, 1),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                actions: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Future.microtask(() => context.push('/editprofile'));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(1, 84, 126, 1),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        s.myProfile,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    elevation: 2,
                   ),
-                  child: Text(
-                    s.cancel,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                  SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(1, 84, 126, 1),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        s.cancel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ));
+            ));
       },
     );
   }
@@ -353,7 +357,9 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
     if (remainingSlots <= 0) {
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(isArabic ? 'لقد أضفت الحد الأقصى من الصور (3 صور)' : 'You have added the maximum number of images (3)'),
+        content: Text(isArabic
+            ? 'لقد أضفت الحد الأقصى من الصور (3 صور)'
+            : 'You have added the maximum number of images (3)'),
         backgroundColor: KPrimaryColor,
       ));
       return;
@@ -376,8 +382,9 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
       if (pickedImages.length > remainingSlots) {
         final isArabic = Localizations.localeOf(context).languageCode == 'ar';
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              isArabic ? 'تم اختيار أول $remainingSlots صور فقط. الحد الأقصى المسموح هو 3 صور' : 'Only the first $remainingSlots images were added. Maximum allowed is 3 images'),
+          content: Text(isArabic
+              ? 'تم اختيار أول $remainingSlots صور فقط. الحد الأقصى المسموح هو 3 صور'
+              : 'Only the first $remainingSlots images were added. Maximum allowed is 3 images'),
           backgroundColor: KPrimaryColor,
           duration: const Duration(seconds: 3),
         ));
@@ -471,21 +478,27 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
     if (!_formKey.currentState!.validate()) {
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isArabic ? 'يرجى تعبئة جميع الحقول المطلوبة.' : 'Please fill all required fields.'),
+          content: Text(isArabic
+              ? 'يرجى تعبئة جميع الحقول المطلوبة.'
+              : 'Please fill all required fields.'),
           backgroundColor: KPrimaryColor));
       return;
     }
     if (_mainImage == null) {
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isArabic ? 'الرجاء إضافة صورة رئيسية.' : 'Please add a main image.'),
+          content: Text(isArabic
+              ? 'الرجاء إضافة صورة رئيسية.'
+              : 'Please add a main image.'),
           backgroundColor: KPrimaryColor));
       return;
     }
     if (selectedLocation.isEmpty) {
       final isArabic = Localizations.localeOf(context).languageCode == 'ar';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(isArabic ? 'الرجاء تحديد موقع على الخريطة.' : 'Please select a location on the map.'),
+          content: Text(isArabic
+              ? 'الرجاء تحديد موقع على الخريطة.'
+              : 'Please select a location on the map.'),
           backgroundColor: KPrimaryColor));
       return;
     }
@@ -970,67 +983,67 @@ class _RestaurantsAdScreenState extends State<RestaurantsAdScreen> {
               },
             ),
           ),
-         Positioned(
-  bottom: 10,
-  left: 10,
-  right: 10,
-  child: Row(
-    children: [
-      Expanded(
-        child: ElevatedButton(
-          onPressed: _isLoadingLocation ? null : _getCurrentLocation,
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                _isLoadingLocation ? Colors.grey : KPrimaryColor,
-            minimumSize: const Size(double.infinity, 43),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: _isLoadingLocation
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              :  Text(
-                  S.of(context).locateMe,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
+          Positioned(
+            bottom: 10,
+            left: 10,
+            right: 10,
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isLoadingLocation ? null : _getCurrentLocation,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _isLoadingLocation ? Colors.grey : KPrimaryColor,
+                      minimumSize: const Size(double.infinity, 43),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: _isLoadingLocation
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            S.of(context)!.locateMe,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
                   ),
                 ),
-        ),
-      ),
-      const SizedBox(width: 10),
-      Expanded(
-        child: ElevatedButton(
-          onPressed: _navigateToLocationPicker,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF01547E),
-            minimumSize: const Size(double.infinity, 43),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _navigateToLocationPicker,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF01547E),
+                      minimumSize: const Size(double.infinity, 43),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      S.of(context)!.pickLocation,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          child: Text(
-            S.of(context).pickLocation,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 13.5,
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-),
-
         ]),
       ),
     );
@@ -1085,266 +1098,6 @@ class TitledDescriptionBox extends StatelessWidget {
                             textDirection: TextDirection.ltr))))
           ]))
     ]);
-  }
-}
-
-class TitledSelectOrAddField extends StatelessWidget {
-  final String title;
-  final String? value;
-  final List<String> items;
-  final Function(String) onChanged;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-  const TitledSelectOrAddField(
-      {Key? key,
-      required this.title,
-      required this.value,
-      required this.items,
-      required this.onChanged,
-      this.isNumeric = false,
-      this.onAddNew})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title,
-          style: TextStyle(
-              fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14.sp)),
-      const SizedBox(height: 4),
-      GestureDetector(
-        onTap: () async {
-          final result = await showModalBottomSheet<String>(
-            context: context,
-            backgroundColor: Colors.white,
-            isScrollControlled: true,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-            builder: (_) => _SearchableSelectOrAddBottomSheet(
-                title: title,
-                items: items,
-                isNumeric: isNumeric,
-                onAddNew: onAddNew),
-          );
-          if (result != null && result.isNotEmpty) {
-            onChanged(result);
-          }
-        },
-        child: Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: borderColor),
-              borderRadius: BorderRadius.circular(8)),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Expanded(
-                child: Text(
-              value ?? s.chooseAnOption,
-              style: TextStyle(
-                  fontWeight:
-                      value == null ? FontWeight.normal : FontWeight.w500,
-                  color: value == null ? Colors.grey.shade500 : KTextColor,
-                  fontSize: 12.sp),
-              overflow: TextOverflow.ellipsis,
-            ))
-          ]),
-        ),
-      )
-    ]);
-  }
-}
-
-class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-  const _SearchableSelectOrAddBottomSheet(
-      {required this.title,
-      required this.items,
-      this.isNumeric = false,
-      this.onAddNew});
-  @override
-  _SearchableSelectOrAddBottomSheetState createState() =>
-      _SearchableSelectOrAddBottomSheetState();
-}
-
-class _SearchableSelectOrAddBottomSheetState
-    extends State<_SearchableSelectOrAddBottomSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _addController = TextEditingController();
-  List<String> _filteredItems = [];
-  String _selectedCountryCode = '+971';
-  final Map<String, String> _countryCodes = PhoneNumberFormatter.countryCodes;
-  @override
-  void initState() {
-    super.initState();
-    _filteredItems = List.from(widget.items);
-    _searchController.addListener(_filterItems);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _addController.dispose();
-    super.dispose();
-  }
-
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase();
-    setState(() => _filteredItems =
-        widget.items.where((i) => i.toLowerCase().contains(query)).toList());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          top: 16,
-          left: 16,
-          right: 16),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.75),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(widget.title,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18.sp,
-                  color: KTextColor)),
-          const SizedBox(height: 16),
-          TextFormField(
-              controller: _searchController,
-              style: const TextStyle(color: KTextColor),
-              decoration: InputDecoration(
-                  hintText: s.search,
-                  prefixIcon: const Icon(Icons.search, color: KTextColor),
-                  hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: borderColor)),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide:
-                          const BorderSide(color: KPrimaryColor, width: 2)))),
-          const SizedBox(height: 8),
-          const Divider(),
-          Expanded(
-            child: _filteredItems.isEmpty
-                ? Center(
-                    child: Text(s.noResultsFound,
-                        style: const TextStyle(color: KTextColor)))
-                : ListView.builder(
-                    itemCount: _filteredItems.length,
-                    itemBuilder: (context, index) {
-                      final item = _filteredItems[index];
-                      return ListTile(
-                          title: Text(item,
-                              style: const TextStyle(color: KTextColor)),
-                          onTap: () => Navigator.pop(context, item));
-                    },
-                  ),
-          ),
-          const Divider(),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.isNumeric) ...[
-                SizedBox(
-                  width: 90,
-                  child: DropdownButtonFormField<String>(
-                      value: _selectedCountryCode,
-                      items: _countryCodes.entries
-                          .map((entry) => DropdownMenuItem<String>(
-                              value: entry.value,
-                              child: Text(entry.value,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: KTextColor,
-                                      fontSize: 12.sp))))
-                          .toList(),
-                      onChanged: (value) =>
-                          setState(() => _selectedCountryCode = value!),
-                      decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 12),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: borderColor)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: borderColor)),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                  color: KPrimaryColor, width: 2))),
-                      isDense: true,
-                      isExpanded: true),
-                ),
-                const SizedBox(width: 8),
-              ],
-              Expanded(
-                  child: TextFormField(
-                      controller: _addController,
-                      keyboardType: widget.isNumeric
-                          ? TextInputType.number
-                          : TextInputType.text,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: KTextColor,
-                          fontSize: 12.sp),
-                      decoration: InputDecoration(
-                          hintText: widget.isNumeric ? s.phoneNumber : s.addNew,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: borderColor)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: borderColor)),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                  color: KPrimaryColor, width: 2)),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12)))),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                  onPressed: () async {
-                    String result = _addController.text.trim();
-                    if (widget.isNumeric && result.isNotEmpty)
-                      result = '$_selectedCountryCode$result';
-                    if (result.isNotEmpty) {
-                      // أغلق الـ BottomSheet أولاً لتجنب تجمّد الواجهة ثم نفّذ الإضافة بدون انتظار
-                      Navigator.pop(context, result);
-                      if (widget.onAddNew != null) {
-                        // تنفيذ غير متزامن بعد الإغلاق
-                        Future.microtask(() => widget.onAddNew!(result));
-                      }
-                    }
-                  },
-                  child: Text(s.add,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12.sp)),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: KPrimaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      minimumSize: const Size(60, 48))),
-            ],
-          ),
-          const SizedBox(height: 16),
-        ]),
-      ),
-    );
   }
 }
 

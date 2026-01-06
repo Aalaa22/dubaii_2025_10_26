@@ -44,7 +44,8 @@ class CarRentAdModel {
     this.color,
     this.interior_color,
     this.seats_no,
-    this.description, this.addCategory, {
+    this.description,
+    this.addCategory, {
     required this.id,
     required this.title,
     required this.price,
@@ -95,7 +96,7 @@ class CarRentAdModel {
         json['seats_no']?.toString(),
         json['description']?.toString(),
         json['add_category']?.toString(),
-        id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+        id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
         price: json['price']?.toString() ?? '0',
         title: json['title']?.toString() ?? 'No Title',
         make: json['make']?.toString(),
@@ -108,9 +109,14 @@ class CarRentAdModel {
         advertiserName: json['advertiser_name']?.toString() ?? 'N/A',
         emirate: json['emirate']?.toString() ?? '',
         location: json['location']?.toString(),
-        latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
-        longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
-        mainImage: json['main_image_url']?.toString() ?? json['main_image']?.toString(),
+        latitude: json['latitude'] != null
+            ? double.tryParse(json['latitude'].toString())
+            : null,
+        longitude: json['longitude'] != null
+            ? double.tryParse(json['longitude'].toString())
+            : null,
+        mainImage: json['main_image_url']?.toString() ??
+            json['main_image']?.toString(),
         thumbnailImages: thumbs,
         planType: json['plan_type']?.toString(),
         createdAt: json['created_at']?.toString(),

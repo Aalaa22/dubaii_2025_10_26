@@ -225,7 +225,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                                 ),
                               ),
                               Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -393,7 +393,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                       
                       Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
                       Text(
-                        S.of(context).description,
+                        S.of(context)!.description,
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
@@ -412,13 +412,13 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                                 colorClickableText:
                                     Color.fromARGB(255, 9, 37, 108),
                                 trimMode: TrimMode.Line,
-                                trimCollapsedText: S.of(context).read_more,
+                                trimCollapsedText: S.of(context)!.read_more,
                                 lessStyle: TextStyle(
                                   fontSize: 15.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Color.fromARGB(255, 9, 37, 108),
                                 ),
-                                trimExpandedText: '  ${S.of(context).show_less}',
+                                trimExpandedText: '  ${S.of(context)!.show_less}',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -438,7 +438,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                       SizedBox(height: 2.h),
                       Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
                       Text(
-                        S.of(context).location,
+                        S.of(context)!.location,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16.sp,
@@ -510,7 +510,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                                 GestureDetector(
                                   onTap: () => context.push('/AllAdsRealEstate'),
                                   child: Text(
-                                    S.of(context).view_all_ads,
+                                    S.of(context)!.view_all_ads,
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w500,
@@ -570,7 +570,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                       SizedBox(height: 7.h),
                       Center(
                         child: Text(
-                          S.of(context).report_this_ad,
+                          S.of(context)!.report_this_ad,
                           style: TextStyle(
                             color: KTextColor,
                             fontSize: 16.sp,
@@ -599,7 +599,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                         ),
                         child: Center(
                           child: Text(
-                            S.of(context).use_this_space_for_ads,
+                            S.of(context)!.use_this_space_for_ads,
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,

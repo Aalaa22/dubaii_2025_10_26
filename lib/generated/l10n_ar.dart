@@ -1,12 +1,12 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
+import 'l10n.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for Arabic (`ar`).
-class AppLocalizationsAr extends AppLocalizations {
-  AppLocalizationsAr([String locale = 'ar']) : super(locale);
+class SAr extends S {
+  SAr([String locale = 'ar']) : super(locale);
 
   @override
   String get signUp => 'انشاء حساب';
@@ -293,10 +293,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get editprof4 => 'تعديل الملف الشخصي';
 
   @override
-  String get editing1 => 'جاري التعديل';
+  String get editing1 => 'تحرير';
 
   @override
-  String get editit2 => 'هل تريد تعديل ملفك الشخصي؟';
+  String get editit2 => 'لإجراء التعديلات، يرجى الضغط على زر التحرير أدناه';
 
   @override
   String get edit3 => 'تعديل';
@@ -822,7 +822,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get days => 'أيام';
 
   @override
-  String get activeOffersBox => 'Active Offers Box';
+  String get activeOffersBox => 'تفعيل صندوق العروض';
 
   @override
   String get pay => 'دفع';
@@ -1101,27 +1101,134 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String offerBoxActivating(Object boxName) {
-    return 'Activating $boxName...';
+    return 'جاري تفعيل $boxName...';
   }
 
   @override
-  String get offerBoxActivatedSuccess => 'Offer box activated for this ad';
+  String get offerBoxActivatedSuccess => 'تم تفعيل صندوق العروض لهذا الإعلان';
 
   @override
-  String get offerBoxActivationFailed => 'Offer box activation failed';
+  String get offerBoxActivationFailed => 'فشل تفعيل صندوق العروض';
 
   @override
-  String get deleteAdTitle => 'Delete Ad';
+  String get deleteAdTitle => 'حذف الإعلان';
 
   @override
-  String get deleteAdConfirmation => 'Are you sure you want to delete this ad?';
+  String get deleteAdConfirmation => 'هل أنت متأكد من حذف هذا الإعلان؟';
 
   @override
-  String get yesDelete => 'Yes, Delete';
+  String get yesDelete => 'نعم، احذف';
 
   @override
-  String get adDeletedSuccess => 'Ad deleted';
+  String get adDeletedSuccess => 'تم حذف الإعلان';
 
   @override
-  String get adDeletedFailed => 'Failed to delete ad';
+  String get adDeletedFailed => 'فشل في حذف الإعلان';
+
+  @override
+  String get usernameRequired => 'اسم المستخدم مطلوب';
+
+  @override
+  String get invalidPhoneFormat => 'صيغة رقم الهاتف غير صحيحة';
+
+  @override
+  String get profileSavedSuccessfully => 'تم حفظ الملف الشخصي بنجاح!';
+
+  @override
+  String get failedToSaveProfile => 'فشل في حفظ الملف الشخصي';
+
+  @override
+  String get unsupportedImageFormat =>
+      'صيغة الصورة غير مدعومة. اختر JPG/PNG/GIF';
+
+  @override
+  String get logoUploadedSuccessfully => 'تم رفع الشعار بنجاح!';
+
+  @override
+  String get failedToUploadLogo => 'فشل في رفع الشعار';
+
+  @override
+  String get logoDeletedSuccessfully => 'تم حذف الشعار بنجاح!';
+
+  @override
+  String get failedToDeleteLogo => 'فشل في حذف الشعار';
+
+  @override
+  String get pleaseSelectLocationFirst => 'الرجاء تحديد الموقع أولاً';
+
+  @override
+  String get pleaseLoginFirst2 => 'الرجاء تسجيل الدخول أولاً';
+
+  @override
+  String get savingLocation => 'جاري حفظ الموقع...';
+
+  @override
+  String get locationSavedSuccessfully => 'تم حفظ الموقع بنجاح!';
+
+  @override
+  String get locationUpdateSuccess => 'تم تحديث الموقع بنجاح';
+
+  @override
+  String get failedToLocate => 'فشل في تحديد الموقع';
+
+  @override
+  String locationError(Object error) {
+    return 'خطأ في تحديد الموقع: $error';
+  }
+
+  @override
+  String get googleMapsOpenedAndLocationSaved =>
+      'تم فتح خرائط جوجل وحفظ الموقع';
+
+  @override
+  String get googleMapsWebOpenedAndLocationSaved =>
+      'تم فتح خرائط جوجل (نسخة الويب) وحفظ الموقع';
+
+  @override
+  String failedToOpenGoogleMaps(Object error) {
+    return 'فشل في فتح خرائط جوجل: $error';
+  }
+
+  @override
+  String locationPickerError(Object error) {
+    return 'خطأ في اختيار الموقع: $error';
+  }
+
+  @override
+  String errorLabel(Object error) {
+    return 'خطأ: $error';
+  }
+
+  @override
+  String get tryAgain => 'حاول مرة أخرى';
+
+  @override
+  String get howToEnableLocationService => 'كيفية تفعيل خدمة الموقع';
+
+  @override
+  String get locationInstructionsAndroid =>
+      'للأندرويد:\n1. اذهب إلى الإعدادات\n2. اضغط على الخصوصية أو الموقع\n3. قم بتفعيل خدمة الموقع\n4. تأكد من أن التطبيق لديه إذن الموقع';
+
+  @override
+  String get locationInstructionsIOS =>
+      'للآيفون:\n1. اذهب إلى الإعدادات\n2. اضغط على الخصوصية\n3. اضغط على خدمة الموقع وفعّلها\n4. ابحث عن هذا التطبيق واختر \'أثناء استخدام التطبيق\'';
+
+  @override
+  String get locationNote =>
+      'ملاحظة: قد تختلف هذه الخطوات قليلاً حسب طراز جهازك وإصدار نظام التشغيل.';
+
+  @override
+  String get understood => 'فهمت';
+
+  @override
+  String get tryNow => 'جرب الآن';
+
+  @override
+  String get selectAdvertiserType => 'اختر نوع المعلن';
+
+  @override
+  String get individual => 'فرد';
+
+  @override
+  String get company => 'شركة';
 }

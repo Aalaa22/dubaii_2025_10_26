@@ -43,7 +43,7 @@ class _CarSalesScreenState extends State<CarSalesScreen>
   bool _showFloatingFilterBar = false;
   double _lastScrollOffset = 0.0;
   Timer? _debounce;
-  bool _isMapSortActive = false;
+
   final LocationService _locationService = LocationService();
   // Position? _currentPosition; // Temporarily disabled
   bool _isGettingLocation = false;
@@ -129,15 +129,9 @@ class _CarSalesScreenState extends State<CarSalesScreen>
           body: SafeArea(
             child: Consumer<CarAdProvider>(
               builder: (context, provider, child) {
-                // ترتيب الإعلانات من الأحدث للأقدم
-                final allAds = List<CarAdModel>.from(provider.carAds);
-                allAds.sort((a, b) {
-                  if (a.createdAt == null && b.createdAt == null) return 0;
-                  if (a.createdAt == null) return 1;
-                  if (b.createdAt == null) return -1;
-                  return DateTime.parse(b.createdAt!)
-                      .compareTo(DateTime.parse(a.createdAt!));
-                });
+                // Use sorted ads from provider (handles date sort by default, and distance sort if enabled)
+                final allAds = provider.sortedCarAds;
+
                 return Stack(
                   children: [
                     RefreshIndicator(
@@ -170,7 +164,7 @@ class _CarSalesScreenState extends State<CarSalesScreen>
                                             color: KTextColor, size: 17.sp),
                                         Transform.translate(
                                           offset: Offset(-3.w, 0),
-                                          child: Text(s.back,
+                                          child: Text(s!.back,
                                               style: TextStyle(
                                                   fontSize: 14.sp,
                                                   fontWeight: FontWeight.w500,
@@ -201,7 +195,7 @@ class _CarSalesScreenState extends State<CarSalesScreen>
                             SizedBox(height: 4.h),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 18.w),
-                              child: _buildSortBar(s, allAds.length),
+                              child: _buildSortBar(s, allAds.length, provider),
                             ),
                             SizedBox(height: 5.h),
                             // تقسيم الإعلانات حسب الأولوية
@@ -327,7 +321,7 @@ class _CarSalesScreenState extends State<CarSalesScreen>
                               SizedBox(height: 8.h),
                               _buildFiltersRow(s, provider),
                               SizedBox(height: 4.h),
-                              _buildSortBar(s, allAds.length),
+                              _buildSortBar(s, allAds.length, provider),
                             ],
                           ),
                         ),
@@ -341,11 +335,11 @@ class _CarSalesScreenState extends State<CarSalesScreen>
         ));
   }
 
-  Widget _buildSortBar(S s, int totalAds) {
+  Widget _buildSortBar(S s, int totalAds, CarAdProvider provider) {
     bool isSmallScreen = MediaQuery.of(context).size.width <= 370;
     return Row(
       children: [
-        Text('${S.of(context).ad} $totalAds',
+        Text('${S.of(context)!.ad} $totalAds',
             style: TextStyle(
                 fontSize: 12.sp,
                 color: KTextColor,
@@ -371,14 +365,23 @@ class _CarSalesScreenState extends State<CarSalesScreen>
                             fontWeight: FontWeight.w600,
                             color: KTextColor,
                             fontSize: 12.sp))),
+                if (provider.isLoadingLocation)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    child: SizedBox(
+                        width: 16.w,
+                        height: 16.h,
+                        child: CircularProgressIndicator(strokeWidth: 2)),
+                  ),
                 SizedBox(
                   width: isSmallScreen ? 35.w : 32.w,
                   child: Transform.scale(
                     scale: isSmallScreen ? 0.8 : .9,
                     child: Switch(
-                        value: _isMapSortActive,
-                        onChanged: (val) =>
-                            setState(() => _isMapSortActive = val),
+                        value: provider.isSortedByNearest,
+                        onChanged: provider.isLoadingLocation
+                            ? null
+                            : (val) => provider.toggleSortByNearest(),
                         activeColor: Colors.white,
                         activeTrackColor: const Color(0xFF08C2C9),
                         inactiveThumbColor: Colors.white,
@@ -624,9 +627,11 @@ class AdCardItemAdapter implements FavoriteItemInterface {
   String get details => _ad.title;
   @override
   String get category => 'Cars Sales'; // Category for car sales
-  
+
   @override
-  String get addCategory => _ad.addCategory ?? 'Cars Sales'; // Use dynamic category from API or fallback
+  String get addCategory =>
+      _ad.addCategory ??
+      'Cars Sales'; // Use dynamic category from API or fallback
   @override
   String get imageUrl => ImageUrlHelper.getMainImageUrl(_ad.mainImage);
   @override
@@ -724,7 +729,7 @@ Widget _buildRangePickerField(BuildContext context,
   String displayText = (fromValue == null || fromValue.isEmpty) &&
           (toValue == null || toValue.isEmpty)
       ? title
-      : '${fromValue ?? s.from} - ${toValue ?? s.to} $unit'.trim();
+      : '${fromValue ?? s!.from} - ${toValue ?? s!.to} $unit'.trim();
   return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -845,7 +850,7 @@ class _GenericMultiSelectBottomSheetState<T>
                       _selectedItems.clear();
                     });
                   },
-                  child: Text(s.reset,
+                  child: Text(s!.reset,
                       style: TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
@@ -1003,7 +1008,7 @@ class __RangeSelectionBottomSheetState
                   _toController.clear();
                   setState(() {});
                 },
-                child: Text(s.reset,
+                child: Text(s!.reset,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,

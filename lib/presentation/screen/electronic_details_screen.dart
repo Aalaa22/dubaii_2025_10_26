@@ -202,7 +202,7 @@ class _ElectronicDetailsScreenState extends State<ElectronicDetailsScreen> with 
                             width: 15,
                             child: Icon(Icons.arrow_back_ios,
                                 color: Colors.white, size: 18)),
-                        Text(s.back,
+                        Text(s!.back,
                             style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w500,
@@ -354,12 +354,12 @@ class _ElectronicDetailsScreenState extends State<ElectronicDetailsScreen> with 
                       trimLines: 5,
                       colorClickableText: KPrimaryColor,
                       trimMode: TrimMode.Line,
-                      trimCollapsedText: S.of(context).read_more,
+                      trimCollapsedText: S.of(context)!.read_more,
                       lessStyle: TextStyle(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
                           color: KPrimaryColor),
-                      trimExpandedText: '  ${S.of(context).show_less}',
+                      trimExpandedText: '  ${S.of(context)!.show_less}',
                       style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,

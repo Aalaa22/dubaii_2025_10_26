@@ -129,7 +129,7 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> with FavoritesHelpe
                                 width: 15,
                                 child: Icon(Icons.arrow_back_ios,
                                     color: Colors.white, size: 18)),
-                            Text(s.back,
+                            Text(s!.back,
                                 style: TextStyle(
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w500,
@@ -252,8 +252,8 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> with FavoritesHelpe
                               trimLines: 5,
                               colorClickableText: KPrimaryColor,
                               trimMode: TrimMode.Line,
-                              trimCollapsedText: S.of(context).read_more,
-                              trimExpandedText: '  ${S.of(context).show_less}',
+                              trimCollapsedText: S.of(context)!.read_more,
+                              trimExpandedText: '  ${S.of(context)!.show_less}',
                               style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,

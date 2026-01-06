@@ -81,7 +81,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
                 ),
                 SizedBox(width: 8.w),
                 Text(
-                  S.of(context).warning,
+                  S.of(context)!.warning,
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
               ],
             ),
             content: Text(
-              S.of(context).freeAdNotEligibleMessage(maxFreePrice.toStringAsFixed(0)),
+              S.of(context)!.freeAdNotEligibleMessage(maxFreePrice.toStringAsFixed(0)),
               style: TextStyle(
                 fontSize: 16.sp,
                 color: Colors.grey[700],
@@ -110,7 +110,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                   child: Text(
-                    S.of(context).ok,
+                    S.of(context)!.ok,
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
@@ -128,7 +128,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
 
   Future<void> _submitAdWithType() async {
     if (widget.adData == null || widget.adData!['adType'] == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).adDataIncomplete), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context)!.adDataIncomplete), backgroundColor: Colors.red));
       return;
     }
 
@@ -203,13 +203,13 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
 
       if (success) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).adPublishedSuccessfully), backgroundColor: Colors.green));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context)!.adPublishedSuccessfully), backgroundColor: Colors.green));
           context.go('/home'); // أو العودة للصفحة الرئيسية
         }
       } else {
         if (mounted) {
           // عرض الرسالة للمستخدم بدون استثناء ثم التوجه لصفحة الدفع مع تفاصيل الإعلان
-          final String message = submissionError ?? S.of(context).planExpiredOrInactivePleasePay;
+          final String message = submissionError ?? S.of(context)!.planExpiredOrInactivePleasePay;
           // ScaffoldMessenger.of(context).showSnackBar(
           //   SnackBar(content: Text(message), backgroundColor: Colors.orange),
           // );
@@ -224,7 +224,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
 
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).errorOccurredWithMessage(e.toString())), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context)!.errorOccurredWithMessage(e.toString())), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -345,7 +345,7 @@ class _PlaceAnAdState extends State<PlaceAnAd> {
                   Transform.translate(
                     offset: Offset(-3.w, 0),
                     child: Text(
-                      S.of(context).back,
+                      S.of(context)!.back,
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,

@@ -99,7 +99,7 @@ class _JobSearchScreenState extends State<JobSearchScreen>
                     Expanded(
                       child: _buildMultiSelectField(
                         context,
-                        S.of(context).category,
+                        S.of(context)!.category,
                         _selectedCategories,
                         categories,
                         (selection) {
@@ -115,7 +115,7 @@ class _JobSearchScreenState extends State<JobSearchScreen>
                     Expanded(
                       child: _buildMultiSelectField(
                         context,
-                        S.of(context).section,
+                        S.of(context)!.section,
                         _selectedSections,
                         sections,
                         (selection) {
@@ -331,7 +331,7 @@ class _JobSearchScreenState extends State<JobSearchScreen>
                                     color: KTextColor, size: 17.sp),
                                 Transform.translate(
                                     offset: Offset(-3.w, 0),
-                                    child: Text(S.of(context).back,
+                                    child: Text(S.of(context)!.back,
                                         style: TextStyle(
                                             fontSize: 14.sp,
                                             fontWeight: FontWeight.w500,
@@ -344,7 +344,7 @@ class _JobSearchScreenState extends State<JobSearchScreen>
                             bool isSmallScreen =
                                 MediaQuery.of(context).size.width <= 370;
                             return Row(children: [
-                              Text('${S.of(context).ad} ${provider.ads.length}',
+                              Text('${S.of(context)!.ad} ${provider.ads.length}',
                                   style: TextStyle(
                                       fontSize: 12.sp,
                                       color: KTextColor,
@@ -369,7 +369,7 @@ class _JobSearchScreenState extends State<JobSearchScreen>
                                         SizedBox(
                                             width: isSmallScreen ? 12.w : 15.w),
                                         Expanded(
-                                            child: Text(S.of(context).sort,
+                                            child: Text(S.of(context)!.sort,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.w600,

@@ -69,7 +69,7 @@ class _ForgotPassPhoneState extends State<ForgotPassPhone> {
                              Transform.translate(
                               offset: Offset(-5.w, 0), // قربنا النص من السهم
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor),
                               ),
                             ),
@@ -92,7 +92,7 @@ class _ForgotPassPhoneState extends State<ForgotPassPhone> {
         widget.notifier.changeLocale(newLocale);
     },
                     child: Text(
-                      locale.languageCode == 'ar' ? S.of(context).arabic : S.of(context).english,
+                      locale.languageCode == 'ar' ? S.of(context)!.arabic : S.of(context)!.english,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: KTextColor),
                     ),
                   ),
@@ -102,14 +102,14 @@ class _ForgotPassPhoneState extends State<ForgotPassPhone> {
               Image.asset('assets/images/logo.png', fit: BoxFit.contain, height: 98, width: 125),
               const SizedBox(height: 10),
               Text(
-                S.of(context).forgetyourpass,
+                S.of(context)!.forgetyourpass,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: KTextColor, fontSize: 20, fontWeight: FontWeight.w500),
                 maxLines: 1,
               ),
               const SizedBox(height: 15),
               Text(
-                S.of(context).enterphone,
+                S.of(context)!.enterphone,
                 style: const TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16),
               ),
               const SizedBox(height: 3),
@@ -129,7 +129,7 @@ class _ForgotPassPhoneState extends State<ForgotPassPhone> {
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           // تأكد من أن هذه الرسالة صحيحة للترجمة
-                          return S.of(context).pleaseEnterPhone;
+                          return S.of(context)!.pleaseEnterPhone;
                         }
                         return null;
                       },
@@ -147,11 +147,11 @@ class _ForgotPassPhoneState extends State<ForgotPassPhone> {
                   padding: const EdgeInsets.only(top: 10),
                   child: CustomTextField(
                     controller: _emailController,
-                    hintText: S.of(context).email,
+                    hintText: S.of(context)!.email,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                        if (value == null || !value.contains('@')) {
-                        return S.of(context).pleaseEnterValidEmail;
+                        return S.of(context)!.pleaseEnterValidEmail;
                        }
                        return null;
                     },
@@ -161,7 +161,7 @@ class _ForgotPassPhoneState extends State<ForgotPassPhone> {
 
               CustomButton(
                 ontap: _sendCode,
-                text: S.of(context).sendcode,
+                text: S.of(context)!.sendcode,
               ),
             ],
           ),

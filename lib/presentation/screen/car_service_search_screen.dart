@@ -311,7 +311,7 @@ class _CarServiceSearchScreenState extends State<CarServiceSearchScreen>
                                           color: KTextColor, size: 17.sp),
                                       Transform.translate(
                                           offset: Offset(-3.w, 0),
-                                          child: Text(s.back,
+                                          child: Text(s!.back,
                                               style: TextStyle(
                                                   fontSize: 14.sp,
                                                   fontWeight: FontWeight.w500,
@@ -438,7 +438,7 @@ class _CarServiceSearchScreenState extends State<CarServiceSearchScreen>
       padding: EdgeInsetsDirectional.symmetric(horizontal: 18.w),
       child: Row(
         children: [
-          Text('${S.of(context).ad} $totalAds',
+          Text('${S.of(context)!.ad} $totalAds',
               style: TextStyle(
                   fontSize: 12.sp,
                   color: KTextColor,
@@ -458,7 +458,7 @@ class _CarServiceSearchScreenState extends State<CarServiceSearchScreen>
                       width: 18.w, height: 18.h),
                   SizedBox(width: isSmallScreen ? 8.w : 15.w),
                   Expanded(
-                      child: Text(S.of(context).sort,
+                      child: Text(S.of(context)!.sort,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontWeight: FontWeight.w600,
@@ -732,10 +732,10 @@ Widget _buildRangePickerField(BuildContext context,
   final s = S.of(context);
   final from = (fromValue != null && fromValue.isNotEmpty)
       ? NumberFormatter.formatNumber(fromValue)
-      : s.from;
+      : s!.from;
   final to = (toValue != null && toValue.isNotEmpty)
       ? NumberFormatter.formatNumber(toValue)
-      : s.to;
+      : s!.to;
   String displayText = (fromValue == null || fromValue.isEmpty) &&
           (toValue == null || toValue.isEmpty)
       ? title
@@ -853,7 +853,7 @@ class _MultiSelectBottomSheetState extends State<_MultiSelectBottomSheet> {
                     _selectedItems.clear();
                   });
                 },
-                child: Text(s.reset,
+                child: Text(s!.reset,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -1006,7 +1006,7 @@ class __RangeSelectionBottomSheetState
                   _toController.clear();
                   setState(() {});
                 },
-                child: Text(s.reset,
+                child: Text(s!.reset,
                     style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,

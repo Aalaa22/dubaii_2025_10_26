@@ -27,7 +27,7 @@ class CarServicesInfoProvider extends ChangeNotifier {
   List<ServiceTypeModel> _serviceTypes = [];
   List<EmirateModel> _emirates = [];
   final Map<String, List<String>> _emirateToDistrictsMap = {};
-  
+
   // بيانات الاتصال المشتركة
   List<String> _advertiserNames = [];
   List<String> _phoneNumbers = [];
@@ -37,15 +37,16 @@ class CarServicesInfoProvider extends ChangeNotifier {
   // --- Getters لتوفير البيانات للـ UI ---
 
   // يرجع قائمة بأسماء الخدمات للعرض
-  List<String> get serviceTypeNames => _serviceTypes.map((e) => e.name).toList();
-  
+  List<String> get serviceTypeNames =>
+      _serviceTypes.map((e) => e.name).toList();
+
   // يرجع قائمة بأسماء الإمارات للعرض
   List<String> get emirateNames => _emirates.map((e) => e.name).toList();
-  
+
   // يرجع قائمة بالمناطق لإمارة محددة
   List<String> getDistrictsForEmirate(String? emirateDisplayName) {
     if (emirateDisplayName == null) return [];
-    
+
     // البحث عن الإمارة باستخدام displayName للعثور على الاسم الحقيقي
     final emirate = _emirates.firstWhere(
       (e) => e.name == emirateDisplayName,
@@ -59,7 +60,6 @@ class CarServicesInfoProvider extends ChangeNotifier {
   List<String> get phoneNumbers => _phoneNumbers;
   List<String> get whatsappNumbers => _whatsappNumbers;
   List<String> get locations => _locations;
-
 
   // --- دوال جلب البيانات من الـ API ---
 
@@ -80,7 +80,6 @@ class CarServicesInfoProvider extends ChangeNotifier {
 
       // جلب بيانات الاتصال المشتركة
       await fetchContactInfo();
-      
     } catch (e) {
       _error = "Failed to load data: ${e.toString()}";
       // يمكنك هنا استدعاء دالة لتحميل قيم افتراضية إذا أردت
@@ -94,15 +93,24 @@ class CarServicesInfoProvider extends ChangeNotifier {
   Future<void> fetchContactInfo({String? token}) async {
     try {
       final authToken = token ?? await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/contact-info', token: authToken);
-      
+      final response =
+          await _apiService.get('/api/contact-info', token: authToken);
+
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        
-        _advertiserNames = data['advertiser_names'] != null ? List<String>.from(data['advertiser_names']) : [];
-        _phoneNumbers = data['phone_numbers'] != null ? List<String>.from(data['phone_numbers']) : [];
-        _whatsappNumbers = data['whatsapp_numbers'] != null ? List<String>.from(data['whatsapp_numbers']) : [];
-        _locations = data['locations'] != null ? List<String>.from(data['locations']) : [];
+
+        _advertiserNames = data['advertiser_names'] != null
+            ? List<String>.from(data['advertiser_names'])
+            : [];
+        _phoneNumbers = data['phone_numbers'] != null
+            ? List<String>.from(data['phone_numbers'])
+            : [];
+        _whatsappNumbers = data['whatsapp_numbers'] != null
+            ? List<String>.from(data['whatsapp_numbers'])
+            : [];
+        _locations = data['locations'] != null
+            ? List<String>.from(data['locations'])
+            : [];
       } else {
         throw Exception('API returned success: false or data is null');
       }
@@ -112,17 +120,18 @@ class CarServicesInfoProvider extends ChangeNotifier {
     }
     // لا حاجة لـ notifyListeners هنا لأن fetchAllData ستقوم بذلك
   }
-  
+
   // هذه الدالة أيضًا مشتركة ومنسوخة
-  Future<bool> addContactItem(String field, String value, {required String token}) async {
-     // لا داعي لتغيير حالة التحميل هنا لجعل التجربة أفضل
+  Future<bool> addContactItem(String field, String value,
+      {required String token}) async {
+    // لا داعي لتغيير حالة التحميل هنا لجعل التجربة أفضل
     try {
       final response = await _apiService.post(
         '/api/contact-info/add-item',
         data: {'field': field, 'value': value},
         token: token,
       );
-      
+
       if (response['success'] == true) {
         // أضف العنصر محليًا وجدد البيانات من الـ API لضمان التوافق
         await fetchContactInfo();
@@ -132,15 +141,12 @@ class CarServicesInfoProvider extends ChangeNotifier {
         throw Exception(response['message'] ?? 'API returned success: false');
       }
     } catch (e) {
-       _error = e.toString(); // يمكن عرض خطأ الإضافة
-       notifyListeners();
-      return false;
+      rethrow;
     }
   }
 
-
   // --- دوال مساعدة ---
-  
+
   void _buildEmirateDistrictsMap() {
     _emirateToDistrictsMap.clear();
     for (final emirate in _emirates) {
@@ -151,16 +157,22 @@ class CarServicesInfoProvider extends ChangeNotifier {
   // دالة لتحويل displayName (مثل "دبي") إلى name (مثل "Dubai") لإرساله للـ API
   String? getServiceNameFromDisplayName(String? displayName) {
     if (displayName == null) return null;
-    return _serviceTypes.firstWhere((e) => e.name == displayName, orElse: () => ServiceTypeModel(name: '', displayName: '')).name;
+    return _serviceTypes
+        .firstWhere((e) => e.name == displayName,
+            orElse: () => ServiceTypeModel(name: '', displayName: ''))
+        .name;
   }
-  
+
   String? getEmirateNameFromDisplayName(String? displayName) {
-     if (displayName == null) return null;
-    return _emirates.firstWhere((e) => e.name == displayName, orElse: () => EmirateModel(name: '', displayName: '', districts: [])).name;
+    if (displayName == null) return null;
+    return _emirates
+        .firstWhere((e) => e.name == displayName,
+            orElse: () =>
+                EmirateModel(name: '', displayName: '', districts: []))
+        .name;
   }
 
-
- bool _isLoadingFilters = false;
+  bool _isLoadingFilters = false;
   String? _filtersError;
   bool _isLoadingTopGarages = false;
   String? _topGaragesError;
@@ -180,19 +192,27 @@ class CarServicesInfoProvider extends ChangeNotifier {
 
   // --- Getters لتوفير البيانات للـ UI ---
   List<String> get serviceTypeDisplayNames {
-    final List<String> names = ['All', ..._serviceTypes.map((e) => e.name).toList(), 'Other'];
+    final List<String> names = [
+      'All',
+      ..._serviceTypes.map((e) => e.name).toList(),
+      'Other'
+    ];
     return names;
   }
-  
+
   List<String> get emirateDisplayNames {
-    final List<String> names = ['All', ..._emirates.map((e) => e.name).toList(), 'Other'];
+    final List<String> names = [
+      'All',
+      ..._emirates.map((e) => e.name).toList(),
+      'Other'
+    ];
     return names;
   }
+
   List<BestAdvertiser> get topGarages => _topGarages;
 
   String? get selectedEmirate => _selectedEmirate;
   String? get selectedServiceType => _selectedServiceType;
-
 
   // --- دوال تحديث الفلاتر ---
   void updateSelectedEmirate(String? selectedName) {
@@ -204,11 +224,11 @@ class CarServicesInfoProvider extends ChangeNotifier {
     _selectedServiceType = selectedName;
     notifyListeners();
   }
-  
+
   // +++ دالة لتجهيز الفلاتر للـ API +++
   Map<String, String> getFormattedFilters() {
     final Map<String, String> filters = {};
-    
+
     // التعامل مع الإمارة
     if (_selectedEmirate != null && _selectedEmirate!.isNotEmpty) {
       if (_selectedEmirate != 'All' && _selectedEmirate != 'Other') {
@@ -219,7 +239,7 @@ class CarServicesInfoProvider extends ChangeNotifier {
         filters['emirate'] = 'Other';
       }
     }
-    
+
     // التعامل مع نوع الخدمة
     if (_selectedServiceType != null && _selectedServiceType!.isNotEmpty) {
       if (_selectedServiceType != 'All' && _selectedServiceType != 'Other') {
@@ -230,10 +250,10 @@ class CarServicesInfoProvider extends ChangeNotifier {
         filters['service_type'] = 'Other';
       }
     }
-    
+
     return filters;
   }
-  
+
   void clearFilters() {
     _selectedEmirate = null;
     _selectedServiceType = null;
@@ -273,9 +293,3 @@ class CarServicesInfoProvider extends ChangeNotifier {
     }
   }
 }
-
-
-
-
-
-

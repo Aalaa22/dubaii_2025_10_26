@@ -275,7 +275,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                           ),
                         ),
                         Text(
-                          S.of(context).back,
+                          S.of(context)!.back,
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
@@ -329,7 +329,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                           width: 15,
                           child: Icon(Icons.arrow_back_ios,
                               color: Colors.white, size: 18)),
-                      Text(s.back,
+                      Text(s!.back,
                           style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,

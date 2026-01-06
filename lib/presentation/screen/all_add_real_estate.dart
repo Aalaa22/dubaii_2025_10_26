@@ -58,7 +58,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
           cursorColor: KTextColor,
           style: TextStyle(color: KTextColor, fontSize: 14.sp),
           decoration: InputDecoration(
-            hintText: s.search,
+            hintText: s!.search,
             contentPadding:
                 EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             enabledBorder: OutlineInputBorder(
@@ -73,7 +73,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
         ),
         emptyBuilder: (context, searchEntry) => Center(
           child: Text(
-            s.noResultsFound,
+            s!.noResultsFound,
             style: TextStyle(fontSize: 14.sp, color: KTextColor),
           ),
         ),
@@ -150,7 +150,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -199,7 +199,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //             children: [
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).type,
+                      //                   hint: S.of(context)!.type,
                       //                   items: const [
                       //                     "شقة",
                       //                     "فيلا",
@@ -214,7 +214,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //               SizedBox(width: 5.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).district,
+                      //                   hint: S.of(context)!.district,
                       //                   items: const [
                       //                     "الرياض",
                       //                     "جدة",
@@ -228,7 +228,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //               SizedBox(width: 5.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).contract,
+                      //                   hint: S.of(context)!.contract,
                       //                   items: const ["بيع", "إيجار"],
                       //                   value: _selectedContract,
                       //                   onChanged: (val) => setState(
@@ -238,7 +238,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //               SizedBox(width: 5.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).price,
+                      //                   hint: S.of(context)!.price,
                       //                   items: const [
                       //                     "< 500 ألف",
                       //                     "500 ألف - مليون",
@@ -272,7 +272,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -301,7 +301,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //                     SizedBox(width: 12.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,
@@ -339,7 +339,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -368,7 +368,7 @@ class _AllAdsRealEstateState extends State<AllAdsRealEstate> {
                       //                     SizedBox(width: 20.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,

@@ -61,7 +61,7 @@ dependencies:
   geocoding: ^3.0.0
   flutter_dotenv: ^5.1.0
   external_app_launcher: ^4.0.3
-  # geolocator: ^9.0.2  # Temporarily disabled due to build issues
+  geolocator: ^9.0.2  # Temporarily disabled due to build issues
 untranslated-messages-file: untranslated.json
 
  

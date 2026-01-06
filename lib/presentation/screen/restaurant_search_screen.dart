@@ -227,7 +227,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                 
                 return _buildGenericMultiSelectField<String>(
                    context,
-                   S.of(context).district,
+                   S.of(context)!.district,
                    _selectedDistricts,
                    districts,
                    (selection) {
@@ -249,9 +249,9 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
              child: Consumer<RestaurantAdProvider>(
               builder: (context, provider, child) {
                 return _buildRangePickerField(
-                  context, title: S.of(context).price, fromValue: provider.priceFrom, toValue: provider.priceTo, unit: "AED", isFilter: true,
+                  context, title: S.of(context)!.price, fromValue: provider.priceFrom, toValue: provider.priceTo, unit: "AED", isFilter: true,
                   onTap: () async {
-                     final result = await _showRangePicker(context, title: S.of(context).price, initialFrom: provider.priceFrom, initialTo: provider.priceTo, unit: "AED");
+                     final result = await _showRangePicker(context, title: S.of(context)!.price, initialFrom: provider.priceFrom, initialTo: provider.priceTo, unit: "AED");
                       if (result != null) {
                         provider.updatePriceRange(result['from'], result['to']);
                       }
@@ -272,7 +272,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                 
                 return _buildGenericMultiSelectField<String>(
                    context,
-                   S.of(context).category,
+                   S.of(context)!.category,
                    _selectedCategories,
                    categories,
                    (selection) {
@@ -375,7 +375,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                         Icon(Icons.arrow_back_ios, color: KTextColor, size: 17.sp),
                                         Transform.translate(
                                           offset: Offset(-3.w, 0),
-                                          child: Text( S.of(context).back,
+                                          child: Text( S.of(context)!.back,
                                             style: TextStyle( fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor),
                                           ),
                                         ),
@@ -385,7 +385,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                 ),
                                 SizedBox(height: 3.h),
                                 Center(
-                                  child: Text( S.of(context).restaurants,
+                                  child: Text( S.of(context)!.restaurants,
                                     style: TextStyle( fontWeight: FontWeight.w600, fontSize: 24.sp, color: KTextColor),
                                   ),
                                 ),
@@ -406,7 +406,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                 return Row(
                                   children: [
                                     Text(
-                                      '${S.of(context).ad} $totalAds',
+                                      '${S.of(context)!.ad} $totalAds',
                                       style: TextStyle(
                                         fontSize: 12.sp,
                                         color: KTextColor,
@@ -427,7 +427,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                             SvgPicture.asset( 'assets/icons/locationicon.svg', width: 18.w, height: 18.h),
                                             SizedBox(width: isSmallScreen ? 8.w : 15.w),
                                             Expanded(
-                                              child: Text( S.of(context).sort, overflow: TextOverflow.ellipsis,
+                                              child: Text( S.of(context)!.sort, overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp),
                                               ),
                                             ),
@@ -465,10 +465,10 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                 ),
                               ),
                             ),
-                          _buildAdList(S.of(context).priority_first_premium, premiumStarAds),
-                          _buildAdList(S.of(context).priority_premium, premiumAds),
-                          _buildAdList(S.of(context).priority_featured, featuredAds),
-                          _buildAdList(S.of(context).priority_free, freeAds),
+                          _buildAdList(S.of(context)!.priority_first_premium, premiumStarAds),
+                          _buildAdList(S.of(context)!.priority_premium, premiumAds),
+                          _buildAdList(S.of(context)!.priority_featured, featuredAds),
+                          _buildAdList(S.of(context)!.priority_free, freeAds),
                         ],
                       ),
                     ),
@@ -501,7 +501,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                     Icon(Icons.arrow_back_ios, color: KTextColor, size: 17.sp),
                                     Transform.translate(
                                       offset: Offset(-3.w, 0),
-                                      child: Text(S.of(context).back, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor)),
+                                      child: Text(S.of(context)!.back, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: KTextColor)),
                                     ),
                                   ],
                                 ),
@@ -514,7 +514,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                   bool isSmallScreen = MediaQuery.of(context).size.width <= 370;
                                    return Row(
                                      children: [
-                                       Text('${S.of(context).ad} $totalAds', style: TextStyle(fontSize: 12.sp, color: KTextColor, fontWeight: FontWeight.w400)),
+                                       Text('${S.of(context)!.ad} $totalAds', style: TextStyle(fontSize: 12.sp, color: KTextColor, fontWeight: FontWeight.w400)),
                                        SizedBox(width: isSmallScreen ? 35.w : 30.w),
                                        Expanded(
                                          child: Container(
@@ -526,7 +526,7 @@ class _RestaurantSearchScreenState extends State<RestaurantSearchScreen>
                                                SvgPicture.asset('assets/icons/locationicon.svg', width: 18.w, height: 18.h),
                                                SizedBox(width: isSmallScreen ? 12.w : 15.w),
                                                Expanded(
-                                                 child: Text(S.of(context).sort, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp)),
+                                                 child: Text(S.of(context)!.sort, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, color: KTextColor, fontSize: 12.sp)),
                                                ),
                                                SizedBox(
                                                  width: isSmallScreen ? 35.w : 32.w,

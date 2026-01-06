@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/utils/phone_number_formatter.dart';
 import 'package:advertising_app/presentation/widget/custom_phone_field.dart';
+import 'package:advertising_app/presentation/widget/titled_select_or_add_field.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -65,7 +66,8 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
 
       // استدعاء الدوال بدون استخدام token
       infoProvider.fetchCarSpecs();
-      infoProvider.fetchContactInfo(); // سيقوم بقراءة الـ token من الـ storage داخلياً
+      infoProvider
+          .fetchContactInfo(); // سيقوم بقراءة الـ token من الـ storage داخلياً
       adProvider.fetchMakes();
 
       // تحديث موقع الخريطة إذا كانت الإحداثيات متوفرة
@@ -98,7 +100,9 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
             final first = locations.first;
             selectedLatLng = LatLng(first.latitude, first.longitude);
             final googleMapsProvider = context.read<GoogleMapsProvider>();
-            await googleMapsProvider.moveCameraToLocation(first.latitude, first.longitude, zoom: 14.0);
+            await googleMapsProvider.moveCameraToLocation(
+                first.latitude, first.longitude,
+                zoom: 14.0);
             googleMapsProvider.addMarker(
               'selected_location',
               LatLng(first.latitude, first.longitude),
@@ -124,7 +128,8 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     if (user == null) return;
 
     // تعيين موقع المستخدم المحفوظ إذا كان متوفراً وغير فارغ
-    if (user.advertiserLocation != null && user.advertiserLocation!.trim().isNotEmpty) {
+    if (user.advertiserLocation != null &&
+        user.advertiserLocation!.trim().isNotEmpty) {
       setState(() {
         selectedLocation = user.advertiserLocation!;
       });
@@ -134,7 +139,8 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     try {
       final hasCoords = user.latitude != null && user.longitude != null;
       if (hasCoords) {
-        final latLng = LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
+        final latLng =
+            LatLng(user.latitude!.toDouble(), user.longitude!.toDouble());
         setState(() => selectedLatLng = latLng);
         await context.read<GoogleMapsProvider>().moveCameraToLocation(
             latLng.latitude, latLng.longitude,
@@ -156,7 +162,8 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     // if (user.whatsapp == null || user.whatsapp!.trim().isEmpty) {
     //   missingFields.add('رقم الواتساب');
     // }
-    if ((user.advertiserLocation == null || user.advertiserLocation!.trim().isEmpty) &&
+    if ((user.advertiserLocation == null ||
+            user.advertiserLocation!.trim().isEmpty) &&
         (user.latitude == null || user.longitude == null)) {
       missingFields.add('your location');
     }
@@ -181,9 +188,9 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
         final localizedMissingFields = missingFields.map((field) {
           switch (field) {
             case 'phone number':
-              return s.phone; // "Phone"
+              return s!.phone; // "Phone"
             case 'your location':
-              return s.advertiserLocation; // "Advertiser Location"
+              return s!.advertiserLocation; // "Advertiser Location"
             default:
               return field;
           }
@@ -204,7 +211,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                 borderRadius: BorderRadius.circular(16),
               ),
               title: Text(
-                s.warning,
+                s!.warning,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: KTextColor,
@@ -613,29 +620,32 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
   Future<void> _validateAndProceedToNext() async {
     final s = S.of(context);
     List<String> validationErrors = [];
-    if (_titleController.text.trim().isEmpty) validationErrors.add(s.title);
-    if (selectedMake == null) validationErrors.add(s.make);
-    if (selectedModel == null || (selectedModel != "All" && selectedModel != "Other" && selectedModel!.trim().isEmpty)) validationErrors.add(s.model);
-    if (_yearController.text.trim().isEmpty) validationErrors.add(s.year);
-    if (_kilometersController.text.trim().isEmpty) validationErrors.add(s.km);
-    if (_priceController.text.trim().isEmpty) validationErrors.add(s.price);
-    if (selectedTransType == null) validationErrors.add(s.transType);
+    if (_titleController.text.trim().isEmpty) validationErrors.add(s!.title);
+    if (selectedMake == null) validationErrors.add(s!.make);
+    if (selectedModel == null ||
+        (selectedModel != "All" &&
+            selectedModel != "Other" &&
+            selectedModel!.trim().isEmpty)) validationErrors.add(s!.model);
+    if (_yearController.text.trim().isEmpty) validationErrors.add(s!.year);
+    if (_kilometersController.text.trim().isEmpty) validationErrors.add(s!.km);
+    if (_priceController.text.trim().isEmpty) validationErrors.add(s!.price);
+    if (selectedTransType == null) validationErrors.add(s!.transType);
     if (selectedPhoneNumber == null || selectedPhoneNumber!.trim().isEmpty)
-      validationErrors.add(s.phoneNumber);
-    if (selectedEmirate == null) validationErrors.add(s.emirate);
-    if (_areaController.text.trim().isEmpty) validationErrors.add(s.area);
+      validationErrors.add(s!.phoneNumber);
+    if (selectedEmirate == null) validationErrors.add(s!.emirate);
+    if (_areaController.text.trim().isEmpty) validationErrors.add(s!.area);
     if (selectedLocation == 'Dubai souq alharaj')
-      validationErrors.add(s.location);
-    if (selectedAdvertiserName == null) validationErrors.add(s.advertiserName);
-    if (selectedAdvertiserType == null) validationErrors.add(s.advertiserType);
+      validationErrors.add(s!.location);
+    if (selectedAdvertiserName == null) validationErrors.add(s!.advertiserName);
+    if (selectedAdvertiserType == null) validationErrors.add(s!.advertiserType);
     if (_mainImage == null) validationErrors.add("Main Image");
 
     if (validationErrors.isNotEmpty) {
       String errorMessage =
-          "${s.please_fill_required_fields}: ${validationErrors.join(', ')}.";
+          "${s!.please_fill_required_fields}: ${validationErrors.join(', ')}.";
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(errorMessage), backgroundColor: Color.fromRGBO(1, 84, 126, 1)
-));
+          content: Text(errorMessage),
+          backgroundColor: Color.fromRGBO(1, 84, 126, 1)));
       return;
     }
 
@@ -819,7 +829,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                               color: KTextColor, size: 20.sp),
                           Transform.translate(
                               offset: Offset(-3.w, 0),
-                              child: Text(s.back,
+                              child: Text(s!.back,
                                   style: TextStyle(
                                       fontSize: 16.sp,
                                       fontWeight: FontWeight.w500,
@@ -828,7 +838,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                       ),
                       SizedBox(height: 7.h),
                       Center(
-                          child: Text(s.appTitle,
+                          child: Text(s!.appTitle,
                               style: TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 24.sp,
@@ -1211,11 +1221,15 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                                 width: 20.w, height: 20.h),
                             SizedBox(width: 8.w),
                             Expanded(
-                                child: 
-                                Text(selectedLocation.isEmpty ? 'يرجى تحديد الموقع' : selectedLocation,
+                                child: Text(
+                                    selectedLocation.isEmpty
+                                        ? 'يرجى تحديد الموقع'
+                                        : selectedLocation,
                                     style: TextStyle(
                                         fontSize: 14.sp,
-                                        color: selectedLocation.isEmpty ? Colors.red : KTextColor,
+                                        color: selectedLocation.isEmpty
+                                            ? Colors.red
+                                            : KTextColor,
                                         fontWeight: FontWeight.w500)))
                           ])),
                       SizedBox(height: 8.h),
@@ -1353,7 +1367,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
       String? selectedValue, List<String> allItems, Function(String?) onConfirm,
       {double? titleFontSize}) {
     final s = S.of(context);
-    String displayText = selectedValue ?? s.chooseAnOption;
+    String displayText = selectedValue ?? s!.chooseAnOption;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1555,7 +1569,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          :Text(s.locateMe,
+                          : Text(s!.locateMe,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w500,
@@ -1575,7 +1589,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: Text(s.pickLocation,
+                      child: Text(s!.pickLocation,
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w500,
@@ -1658,287 +1672,6 @@ class _TitledDescriptionBoxState extends State<TitledDescriptionBox> {
   }
 }
 
-class TitledSelectOrAddField extends StatelessWidget {
-  final String title;
-  final String? value;
-  final List<String> items;
-  final Function(String) onChanged;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-  const TitledSelectOrAddField(
-      {Key? key,
-      required this.title,
-      required this.value,
-      required this.items,
-      required this.onChanged,
-      this.isNumeric = false,
-      this.onAddNew})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final borderColor = const Color.fromRGBO(8, 194, 201, 1);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600, color: KTextColor, fontSize: 14)),
-        const SizedBox(height: 4),
-        GestureDetector(
-          onTap: () async {
-            final result = await showModalBottomSheet<String>(
-              context: context,
-              backgroundColor: Colors.white,
-              isScrollControlled: true,
-              shape: const RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(20))),
-              builder: (_) => _SearchableSelectOrAddBottomSheet(
-                  title: title,
-                  items: items,
-                  isNumeric: isNumeric,
-                  onAddNew: onAddNew),
-            );
-            if (result != null && result.isNotEmpty) {
-              onChanged(result);
-            }
-          },
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: borderColor),
-                borderRadius: BorderRadius.circular(8)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text(value ?? s.chooseAnOption,
-                        style: TextStyle(
-                            fontWeight: value == null
-                                ? FontWeight.normal
-                                : FontWeight.w500,
-                            color: value == null
-                                ? Colors.grey.shade500
-                                : KTextColor,
-                            fontSize: 12),
-                        overflow: TextOverflow.ellipsis))
-              ],
-            ),
-          ),
-        )
-      ],
-    );
-  }
-}
-
-class _SearchableSelectOrAddBottomSheet extends StatefulWidget {
-  final String title;
-  final List<String> items;
-  final bool isNumeric;
-  final Function(String)? onAddNew;
-  const _SearchableSelectOrAddBottomSheet(
-      {required this.title,
-      required this.items,
-      this.isNumeric = false,
-      this.onAddNew});
-  @override
-  _SearchableSelectOrAddBottomSheetState createState() =>
-      _SearchableSelectOrAddBottomSheetState();
-}
-
-class _SearchableSelectOrAddBottomSheetState
-    extends State<_SearchableSelectOrAddBottomSheet> {
-  final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _addController = TextEditingController();
-  List<String> _filteredItems = [];
-  String _selectedCountryCode = '+971';
-
-  final Map<String, String> _countryCodes = PhoneNumberFormatter.countryCodes;
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredItems = List.from(widget.items);
-    _searchController.addListener(_filterItems);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _addController.dispose();
-    super.dispose();
-  }
-
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase();
-    setState(() => _filteredItems =
-        widget.items.where((i) => i.toLowerCase().contains(query)).toList());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final borderColor = const Color.fromRGBO(8, 194, 201, 1);
-    return Padding(
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          top: 16,
-          left: 16,
-          right: 16),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.75),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(widget.title,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.sp,
-                    color: KTextColor)),
-            const SizedBox(height: 16),
-            TextFormField(
-                controller: _searchController,
-                style: const TextStyle(color: KTextColor),
-                decoration: InputDecoration(
-                    hintText: s.search,
-                    prefixIcon: const Icon(Icons.search, color: KTextColor),
-                    hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: borderColor)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide:
-                            const BorderSide(color: KPrimaryColor, width: 2)))),
-            const SizedBox(height: 8),
-            const Divider(),
-            Expanded(
-              child: _filteredItems.isEmpty
-                  ? Center(
-                      child: Text(s.noResultsFound,
-                          style: const TextStyle(color: KTextColor)))
-                  : ListView.builder(
-                      itemCount: _filteredItems.length,
-                      itemBuilder: (context, index) {
-                        final item = _filteredItems[index];
-                        return ListTile(
-                            title: Text(item,
-                                style: const TextStyle(color: KTextColor)),
-                            onTap: () => Navigator.pop(context, item));
-                      },
-                    ),
-            ),
-            const Divider(),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.isNumeric) ...[
-                  Container(
-                    width: 90,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCountryCode,
-                      items: _countryCodes.entries.map((entry) {
-                        return DropdownMenuItem<String>(
-                          value: entry.value,
-                          child: Text(entry.value,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: KTextColor,
-                                  fontSize: 12)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCountryCode = value!;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 12),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: borderColor)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: borderColor)),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                                color: KPrimaryColor, width: 2)),
-                      ),
-                      isDense: true,
-                      isExpanded: true,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: TextFormField(
-                    controller: _addController,
-                    keyboardType: widget.isNumeric
-                        ? TextInputType.number
-                        : TextInputType.text,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: KTextColor,
-                        fontSize: 12),
-                    decoration: InputDecoration(
-                        hintText: widget.isNumeric ? s.phoneNumber : s.addNew,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: borderColor)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: borderColor)),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                                color: KPrimaryColor, width: 2)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12)),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                    onPressed: () async {
-                      String result = _addController.text;
-                      if (widget.isNumeric && result.isNotEmpty) {
-                        result = '$_selectedCountryCode$result';
-                      }
-                      if (result.isNotEmpty) {
-                        if (widget.onAddNew != null) {
-                          await widget.onAddNew!(result);
-                        }
-                        Navigator.pop(context, result);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: KPrimaryColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        minimumSize: const Size(60, 48)),
-                    child: Text(s.add,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12))),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SingleSelectBottomSheet extends StatefulWidget {
   final String title;
   final List<String> items;
@@ -1999,7 +1732,7 @@ class _SingleSelectBottomSheetState extends State<_SingleSelectBottomSheet> {
               controller: _searchController,
               style: const TextStyle(color: KTextColor),
               decoration: InputDecoration(
-                hintText: s.search,
+                hintText: s!.search,
                 prefixIcon: const Icon(Icons.search, color: KTextColor),
                 hintStyle: TextStyle(color: KTextColor.withOpacity(0.5)),
                 enabledBorder: OutlineInputBorder(

@@ -11,6 +11,7 @@ import 'package:advertising_app/presentation/widget/custom_phone_field.dart';
 import 'package:advertising_app/presentation/providers/auth_repository.dart';
 import 'package:advertising_app/router/local_notifier.dart';
 import 'package:advertising_app/core/scaffold_messenger_key.dart';
+import 'package:advertising_app/presentation/widget/legal_dialog.dart';
 
 class Login2 extends StatefulWidget {
   final LocaleChangeNotifier notifier;
@@ -220,7 +221,8 @@ class _Login2State extends State<Login2> {
               errorMsg.contains('مطلوب');
 
           if (!isPasswordError) {
-            final clean = _sanitizeErrorMessage(authProvider.errorMessage, s.loginError);
+            final clean =
+                _sanitizeErrorMessage(authProvider.errorMessage, s.loginError);
             rootScaffoldMessengerKey.currentState?.hideCurrentSnackBar();
             rootScaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
@@ -261,7 +263,7 @@ class _Login2State extends State<Login2> {
             Align(
               alignment: AlignmentDirectional.topEnd,
               child: GestureDetector(
-               onTap: () {
+                onTap: () {
                   // تم الإبقاء على هذا لأنه تغيير في حالة الـ UI المحلية فقط
                   final currentLocale = widget.notifier.locale;
                   final newLocale = currentLocale.languageCode == 'en'
@@ -271,8 +273,8 @@ class _Login2State extends State<Login2> {
                 },
                 child: Text(
                   locale.languageCode == 'ar'
-                      ? S.of(context).arabic
-                      : S.of(context).english,
+                      ? S.of(context)!.arabic
+                      : S.of(context)!.english,
                   style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -284,21 +286,21 @@ class _Login2State extends State<Login2> {
             Image.asset('assets/images/logo.png',
                 fit: BoxFit.contain, height: 115.h, width: 135.w),
             // SizedBox(height: 3.h),
-            Text(S.of(context).enjoyFreeAds,
+            Text(S.of(context)!.enjoyFreeAds,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: KTextColor,
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w500)),
             SizedBox(height: 10.h),
-            Text(S.of(context).login,
+            Text(S.of(context)!.login,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: KTextColor,
                     fontSize: 24.sp,
                     fontWeight: FontWeight.w500)),
             SizedBox(height: 10.h),
-            Text(S.of(context).phone,
+            Text(S.of(context)!.phone,
                 style: TextStyle(
                     color: KTextColor,
                     fontWeight: FontWeight.w500,
@@ -321,7 +323,7 @@ class _Login2State extends State<Login2> {
             // إضافة حقل كلمة المرور للمعلنين فقط
             if (_showPasswordField) ...[
               Text(
-                S.of(context).password,
+                S.of(context)!.password,
                 style: TextStyle(
                   color: KTextColor,
                   fontWeight: FontWeight.w500,
@@ -337,7 +339,7 @@ class _Login2State extends State<Login2> {
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w500),
                 decoration: InputDecoration(
-                  hintText: S.of(context).enterpassword,
+                  hintText: S.of(context)!.enterpassword,
                   hintStyle: TextStyle(
                     color: Colors.grey,
                     fontSize: 14.sp,
@@ -380,15 +382,16 @@ class _Login2State extends State<Login2> {
                 child: GestureDetector(
                   onTap: () {
                     // TODO: إضافة منطق نسيان كلمة المرور
-                    rootScaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+                    rootScaffoldMessengerKey.currentState
+                        ?.hideCurrentSnackBar();
                     rootScaffoldMessengerKey.currentState?.showSnackBar(
                       SnackBar(
-                        content: Text(S.of(context).passwordResetComingSoon),
+                        content: Text(S.of(context)!.passwordResetComingSoon),
                       ),
                     );
                   },
                   child: Text(
-                    S.of(context).forgotPassword,
+                    S.of(context)!.forgotPassword,
                     style: TextStyle(
                       color: KTextColor,
                       fontSize: 14.sp,
@@ -411,8 +414,8 @@ class _Login2State extends State<Login2> {
                 return CustomButton(
                   ontap: authProvider.isLoading ? null : _handleLogin,
                   text: authProvider.isLoading
-                      ? S.of(context).loggingIn
-                      : S.of(context).login,
+                      ? S.of(context)!.loggingIn
+                      : S.of(context)!.login,
                 );
               },
             ),
@@ -424,14 +427,14 @@ class _Login2State extends State<Login2> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Directionality(
-                    textDirection: locale.languageCode == 'ar' 
-                        ? TextDirection.rtl 
+                    textDirection: locale.languageCode == 'ar'
+                        ? TextDirection.rtl
                         : TextDirection.ltr,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          S.of(context).byContinueIAgreeTo,
+                          S.of(context)!.byContinueIAgreeTo,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: KTextColor,
@@ -440,13 +443,21 @@ class _Login2State extends State<Login2> {
                           ),
                         ),
                         SizedBox(width: 4),
-                        Text(
-                          S.of(context).termsAndConditions,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: KTextColor,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () => LegalDialog.show(
+                            context,
+                            type: LegalType.terms,
+                            isArabic: locale.languageCode == 'ar',
+                          ),
+                          child: Text(
+                            S.of(context)!.termsAndConditions,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: KTextColor,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
                       ],
@@ -454,15 +465,15 @@ class _Login2State extends State<Login2> {
                   ),
                   Center(
                     child: Directionality(
-                      textDirection: locale.languageCode == 'ar' 
-                          ? TextDirection.rtl 
+                      textDirection: locale.languageCode == 'ar'
+                          ? TextDirection.rtl
                           : TextDirection.ltr,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            S.of(context).and,
+                            S.of(context)!.and,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: KTextColor,
@@ -471,13 +482,21 @@ class _Login2State extends State<Login2> {
                             ),
                           ),
                           SizedBox(width: 4),
-                          Text(
-                            S.of(context).privacyPolicy,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: KTextColor,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
+                          GestureDetector(
+                            onTap: () => LegalDialog.show(
+                              context,
+                              type: LegalType.privacy,
+                              isArabic: locale.languageCode == 'ar',
+                            ),
+                            child: Text(
+                              S.of(context)!.privacyPolicy,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: KTextColor,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
                             ),
                           ),
                         ],
@@ -497,7 +516,7 @@ class _Login2State extends State<Login2> {
             //         child: Divider(color: KTextColor, thickness: 2)),
             //     Padding(
             //         padding: EdgeInsets.symmetric(horizontal: 10.w),
-            //         child: Text(S.of(context).or,
+            //         child: Text(S.of(context)!.or,
             //             style: TextStyle(
             //                 color: KTextColor,
             //                 fontWeight: FontWeight.w500,
@@ -514,28 +533,28 @@ class _Login2State extends State<Login2> {
             //             onpress: () {
             //                // UI Only - No Logic
             //             },
-            //             text: S.of(context).emailLogin)),
+            //             text: S.of(context)!.emailLogin)),
             //     SizedBox(width: 16.w),
             //     Expanded(
             //         child: CustomElevatedButton(
             //             onpress: () {
             //                // UI Only - No Logic
             //             },
-            //             text: S.of(context).guestLogin)),
+            //             text: S.of(context)!.guestLogin)),
             //   ],
             // ),
             // SizedBox(height: 16.h),
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.center,
             //   children: [
-            //     Text(S.of(context).dontHaveAccount,
+            //     Text(S.of(context)!.dontHaveAccount,
             //         style: TextStyle(color: KTextColor, fontSize: 13.sp)),
             //     SizedBox(width: 4.w),
             //     GestureDetector(
             //       onTap: () {
             //          // UI Only - No Logic
             //       },
-            //       child: Text(S.of(context).createAccount,
+            //       child: Text(S.of(context)!.createAccount,
             //           style: TextStyle(
             //               decoration: TextDecoration.underline,
             //               decorationColor: KTextColor,

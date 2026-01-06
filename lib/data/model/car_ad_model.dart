@@ -53,8 +53,11 @@ class CarAdModel {
   final String? createdAt;
   final String? planType; // هذا سيعوض حقل 'priority' المفقود
   final String? addCategory; // Dynamic category from API
+  final double? latitude;
+  final double? longitude;
 
-  CarAdModel(this.location, {
+  CarAdModel(
+    this.location, {
     required this.id,
     required this.title,
     required this.description,
@@ -89,6 +92,8 @@ class CarAdModel {
     this.createdAt,
     this.planType,
     this.addCategory,
+    this.latitude,
+    this.longitude,
   });
 
   // مصنع (Factory) آمن يقوم بتحليل الـ JSON ومنع الأخطاء
@@ -101,8 +106,15 @@ class CarAdModel {
           List<String>.from(thumbnailsFromJson.map((item) => item.toString()));
     }
 
+    double? parseDouble(dynamic value) {
+      if (value == null) return null;
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value);
+      return null;
+    }
+
     return CarAdModel(
-      // استخدام .toString() و `??` لضمان عدم حدوث أي خطأ crash
+      // استخدام .toString() و `??` لضمان عدم تكرار أي خطأ crash
       id: json['id'] ?? 0,
       json['location']?.toString() ?? '',
       title: json['title']?.toString() ?? 'No Title',
@@ -139,6 +151,8 @@ class CarAdModel {
       createdAt: json['created_at']?.toString(),
       planType: json['plan_type']?.toString(),
       addCategory: json['add_category']?.toString(),
+      latitude: parseDouble(json['latitude'] ?? json['lat']),
+      longitude: parseDouble(json['longitude'] ?? json['lng']),
     );
   }
 }

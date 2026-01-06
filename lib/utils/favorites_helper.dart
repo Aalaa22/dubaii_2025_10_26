@@ -70,11 +70,11 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).add_to_favorite, style: const TextStyle(color: KTextColor, fontSize: 16)),
-        content: Text(S.of(context).confirm_add_to_favorite, style: const TextStyle(color: KTextColor, fontSize: 18)),
+        title: Text(S.of(context)!.add_to_favorite, style: const TextStyle(color: KTextColor, fontSize: 16)),
+        content: Text(S.of(context)!.confirm_add_to_favorite, style: const TextStyle(color: KTextColor, fontSize: 18)),
         actions: [
           TextButton(
-            child: Text(S.of(context).cancel, style: const TextStyle(color: KTextColor, fontSize: 20)),
+            child: Text(S.of(context)!.cancel, style: const TextStyle(color: KTextColor, fontSize: 20)),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
@@ -84,7 +84,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : Text(S.of(context).yes, style: const TextStyle(color: KTextColor, fontSize: 20)),
+              : Text(S.of(context)!.yes, style: const TextStyle(color: KTextColor, fontSize: 20)),
             onPressed: _isAddingToFavorites ? null : () async {
               await _addToFavorites(item, onSuccess: onSuccess);
             },
@@ -156,7 +156,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).added_to_favorite),
+          content: Text(S.of(context)!.added_to_favorite),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),
@@ -171,7 +171,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
       // Show error message (localized)
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).errorOccurredWithMessage(e.toString())),
+          content: Text(S.of(context)!.errorOccurredWithMessage(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
@@ -239,7 +239,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
       if (showFeedback) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).favoriteRemoveFailed(S.of(context).unknownError)),
+            content: Text(S.of(context)!.favoriteRemoveFailed(S.of(context)!.unknownError)),
             backgroundColor: Colors.red,
           ),
         );
@@ -256,7 +256,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     if (showFeedback) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).favoriteRemovedSuccess),
+          content: Text(S.of(context)!.favoriteRemovedSuccess),
           backgroundColor: Colors.green,
         ),
       );
@@ -406,24 +406,24 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
                 return AlertDialog(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   title: Text(
-                    S.of(context).removeFromFavoritesTitle,
+                    S.of(context)!.removeFromFavoritesTitle,
                     style: const TextStyle(color: KTextColor, fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   content: Text(
-                    S.of(context).removeFromFavoritesMessage,
+                    S.of(context)!.removeFromFavoritesMessage,
                     style: const TextStyle(color: KTextColor, fontSize: 15),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(false),
-                      child: Text(S.of(context).cancel),
+                      child: Text(S.of(context)!.cancel),
                       style: TextButton.styleFrom(foregroundColor: KTextColor),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Color.fromRGBO(1, 84, 126, 1)),
                       onPressed: () => Navigator.of(ctx).pop(true),
                       child: Text(
-                        S.of(context).remove,
+                        S.of(context)!.remove,
                         style: const TextStyle(color: Colors.white),
                       ),
                       ),
@@ -439,7 +439,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      S.of(context).favoriteRemoveFailed(S.of(context).unknownError),
+                      S.of(context)!.favoriteRemoveFailed(S.of(context)!.unknownError),
                     ),
                     backgroundColor: Colors.red,
                   ),
@@ -456,7 +456,7 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
               // إشعار نجاح بسيط
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(S.of(context).favoriteRemovedSuccess),
+                  content: Text(S.of(context)!.favoriteRemovedSuccess),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -506,15 +506,15 @@ mixin FavoritesHelper<T extends StatefulWidget> on State<T> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(S.of(context).loginRequiredTitle, style: const TextStyle(color: KTextColor, fontSize: 18)),
-        content: Text(S.of(context).loginRequiredDescription, style: const TextStyle(color: KTextColor, fontSize: 16)),
+        title: Text(S.of(context)!.loginRequiredTitle, style: const TextStyle(color: KTextColor, fontSize: 18)),
+        content: Text(S.of(context)!.loginRequiredDescription, style: const TextStyle(color: KTextColor, fontSize: 16)),
         actions: [
           TextButton(
-            child: Text(S.of(context).cancel, style: const TextStyle(color: KTextColor, fontSize: 16)),
+            child: Text(S.of(context)!.cancel, style: const TextStyle(color: KTextColor, fontSize: 16)),
             onPressed: () => Navigator.pop(context),
           ),
           TextButton(
-            child: Text(S.of(context).loginAction, style: const TextStyle(color: Colors.blue, fontSize: 16)),
+            child: Text(S.of(context)!.loginAction, style: const TextStyle(color: Colors.blue, fontSize: 16)),
             onPressed: () {
               Navigator.pop(context);
               // Navigate to login screen

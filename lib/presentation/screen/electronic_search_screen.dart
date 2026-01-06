@@ -169,13 +169,13 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                   Flexible(
                       flex: 3,
                       child: _buildRangePickerField(context,
-                          title: S.of(context).price,
+                          title: S.of(context)!.price,
                           fromValue: _priceFrom,
                           toValue: _priceTo,
                           unit: "AED",
                           isFilter: true, onTap: () async {
                         final result = await _showRangePicker(context,
-                            title: S.of(context).price,
+                            title: S.of(context)!.price,
                             initialFrom: _priceFrom,
                             initialTo: _priceTo,
                             unit: "AED");
@@ -194,7 +194,7 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                       flex: 3,
                       child: _buildMultiSelectField(
                           context,
-                          S.of(context).section,
+                          S.of(context)!.section,
                           _selectedSections,
                           infoProvider.sectionTypes, (selection) {
                         setState(() => _selectedSections = selection);
@@ -205,7 +205,7 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                       flex: 3,
                       child: _buildMultiSelectField(
                           context,
-                          S.of(context).product,
+                          S.of(context)!.product,
                           _selectedProducts,
                           adProvider.productNames, (selection) {
                         setState(() => _selectedProducts = selection);
@@ -272,7 +272,7 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                                         color: KTextColor, size: 17.sp),
                                     Transform.translate(
                                         offset: Offset(-3.w, 0),
-                                        child: Text(s.back,
+                                        child: Text(s!.back,
                                             style: TextStyle(
                                                 fontSize: 14.sp,
                                                 fontWeight: FontWeight.w500,
@@ -281,12 +281,12 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                           SizedBox(height: 3.h),
                           Center(
                               child: Column(children: [
-                            Text(s.electronics2,
+                            Text(s!.electronics2,
                                 style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 24.sp,
                                     color: KTextColor)),
-                            Text(s.electronics3,
+                            Text(s!.electronics3,
                                 style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 24.sp,
@@ -753,7 +753,7 @@ Widget _buildRangePickerField(BuildContext context,
   String displayText = (fromValue == null || fromValue.isEmpty) &&
           (toValue == null || toValue.isEmpty)
       ? title
-      : '${fromValue ?? s.from} - ${toValue ?? s.to} $unit'.trim();
+      : '${fromValue ?? s!.from} - ${toValue ?? s!.to} $unit'.trim();
   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     if (!isFilter)
       Text(title,
@@ -881,7 +881,7 @@ class _MultiSelectBottomSheetState extends State<_MultiSelectBottomSheet> {
                                     _selectedItems.clear();
                                   });
                                 },
-                                child: Text(s.reset,
+                                child: Text(s!.reset,
                                     style: TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,
@@ -892,7 +892,7 @@ class _MultiSelectBottomSheetState extends State<_MultiSelectBottomSheet> {
                           controller: _searchController,
                           style: const TextStyle(color: KTextColor),
                           decoration: InputDecoration(
-                              hintText: s.search,
+                              hintText: s!.search,
                               prefixIcon:
                                   const Icon(Icons.search, color: KTextColor),
                               hintStyle:
@@ -1046,7 +1046,7 @@ class __RangeSelectionBottomSheetState
                       _toController.clear();
                       setState(() {});
                     },
-                    child: Text(s.reset,
+                    child: Text(s!.reset,
                         style: TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -1054,15 +1054,15 @@ class __RangeSelectionBottomSheetState
               ]),
               SizedBox(height: 16.h),
               Row(children: [
-                buildTextField(s.from, widget.unit, _fromController),
+                buildTextField(s!.from, widget.unit, _fromController),
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(s.to,
+                    child: Text(s!.to,
                         style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: KTextColor,
                             fontSize: 14))),
-                buildTextField(s.to, widget.unit, _toController)
+                buildTextField(s!.to, widget.unit, _toController)
               ]),
               SizedBox(height: 24.h),
               SizedBox(
@@ -1072,7 +1072,7 @@ class __RangeSelectionBottomSheetState
                             'from': _fromController.text,
                             'to': _toController.text
                           }),
-                      child: Text(s.apply,
+                      child: Text(s!.apply,
                           style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

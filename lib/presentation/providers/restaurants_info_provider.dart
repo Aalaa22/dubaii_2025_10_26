@@ -13,7 +13,7 @@ class RestaurantsInfoProvider extends ChangeNotifier {
   final ApiService _apiService; // لجلب بيانات الاتصال المشتركة
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-    RestaurantsInfoProvider()
+  RestaurantsInfoProvider()
       : _repository = RestaurantsRepository(ApiService()),
         _apiService = ApiService();
 
@@ -28,18 +28,19 @@ class RestaurantsInfoProvider extends ChangeNotifier {
   List<RestaurantCategoryModel> _categories = [];
   List<EmirateModel> _emirates = [];
   final Map<String, List<String>> _emirateToDistrictsMap = {};
-  
+
   // بيانات الاتصال المشتركة
   List<String> _advertiserNames = [];
   List<String> _phoneNumbers = [];
   List<String> _whatsappNumbers = [];
-  
+
   // --- بيانات أفضل المعلنين ---
   bool _isLoadingTopRestaurants = false;
   List<BestAdvertiser> _topRestaurants = [];
 
   // --- Getters لتوفير البيانات للـ UI ---
-  List<String> get categoryDisplayNames => _categories.map((e) => e.name).toList();
+  List<String> get categoryDisplayNames =>
+      _categories.map((e) => e.name).toList();
   List<String> get emirateDisplayNames => _emirates.map((e) => e.name).toList();
   List<String> getDistrictsForEmirate(String? emirateDisplayName) {
     if (emirateDisplayName == null) return [];
@@ -49,11 +50,11 @@ class RestaurantsInfoProvider extends ChangeNotifier {
     );
     return _emirateToDistrictsMap[emirate.name] ?? [];
   }
-  
+
   List<String> get advertiserNames => _advertiserNames;
   List<String> get phoneNumbers => _phoneNumbers;
   List<String> get whatsappNumbers => _whatsappNumbers;
-  
+
   // --- Getters لأفضل المعلنين ---
   bool get isLoadingTopRestaurants => _isLoadingTopRestaurants;
   List<BestAdvertiser> get topRestaurants => _topRestaurants;
@@ -69,7 +70,6 @@ class RestaurantsInfoProvider extends ChangeNotifier {
   }) async {
     try {
       return await _repository.getRestaurants(
-      
         emirate: emirate,
         district: district,
         category: category,
@@ -89,16 +89,16 @@ class RestaurantsInfoProvider extends ChangeNotifier {
     try {
       // جلب البيانات الخاصة بقسم المطاعم
       final fetchedCategories = await _repository.getRestaurantCategories();
-      
-      final fetchedEmirates = await _repository.getEmirates(); // استخدام نفس الدالة
-      
+
+      final fetchedEmirates =
+          await _repository.getEmirates(); // استخدام نفس الدالة
+
       _categories = fetchedCategories;
       _emirates = fetchedEmirates;
       _buildEmirateDistrictsMap();
 
       // جلب بيانات الاتصال المشتركة
       await fetchContactInfo();
-      
     } catch (e) {
       _error = "Failed to load data: ${e.toString()}";
     } finally {
@@ -106,17 +106,24 @@ class RestaurantsInfoProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   // (دالة مكررة ومشتركة)
   Future<void> fetchContactInfo({String? token}) async {
     try {
       final authToken = token ?? await _storage.read(key: 'auth_token');
-      final response = await _apiService.get('/api/contact-info', token: authToken);
+      final response =
+          await _apiService.get('/api/contact-info', token: authToken);
       if (response['success'] == true && response['data'] != null) {
         final data = response['data'];
-        _advertiserNames = data['advertiser_names'] != null ? List<String>.from(data['advertiser_names']) : [];
-        _phoneNumbers = data['phone_numbers'] != null ? List<String>.from(data['phone_numbers']) : [];
-        _whatsappNumbers = data['whatsapp_numbers'] != null ? List<String>.from(data['whatsapp_numbers']) : [];
+        _advertiserNames = data['advertiser_names'] != null
+            ? List<String>.from(data['advertiser_names'])
+            : [];
+        _phoneNumbers = data['phone_numbers'] != null
+            ? List<String>.from(data['phone_numbers'])
+            : [];
+        _whatsappNumbers = data['whatsapp_numbers'] != null
+            ? List<String>.from(data['whatsapp_numbers'])
+            : [];
       } else {
         throw Exception('API returned success: false or data is null');
       }
@@ -126,9 +133,11 @@ class RestaurantsInfoProvider extends ChangeNotifier {
   }
 
   // (دالة مكررة ومشتركة)
-  Future<bool> addContactItem(String field, String value, {required String token}) async {
+  Future<bool> addContactItem(String field, String value,
+      {required String token}) async {
     try {
-      final response = await _apiService.post('/api/contact-info/add-item', data: {'field': field, 'value': value}, token: token);
+      final response = await _apiService.post('/api/contact-info/add-item',
+          data: {'field': field, 'value': value}, token: token);
       if (response['success'] == true) {
         await fetchContactInfo();
         notifyListeners();
@@ -137,9 +146,7 @@ class RestaurantsInfoProvider extends ChangeNotifier {
         throw Exception(response['message'] ?? 'API returned success: false');
       }
     } catch (e) {
-       _error = e.toString();
-       notifyListeners();
-       return false;
+      rethrow;
     }
   }
 
@@ -161,36 +168,35 @@ class RestaurantsInfoProvider extends ChangeNotifier {
   }
 
   String? getEmirateNameFromDisplayName(String? displayName) {
-     if (displayName == null) return null;
+    if (displayName == null) return null;
     try {
       return _emirates.firstWhere((e) => e.name == displayName).name;
     } catch (e) {
       return null;
     }
   }
-  
+
   // --- دالة جلب أفضل المعلنين ---
   Future<void> fetchTopRestaurants({String? token, String? category}) async {
     _isLoadingTopRestaurants = true;
     notifyListeners();
-    
+
     try {
       print('Fetching top restaurants...');
       final topRestaurants = await _repository.getTopRestaurants(
-        
         category: "restaurant", // استخدام فئة المطاعم الصحيحة
       );
-      
+
       // طباعة معلومات المعلنين والإعلانات للتحقق من البيانات
       for (var advertiser in topRestaurants) {
         print('Processing advertiser: ${advertiser.name}');
         print('Total ads for ${advertiser.name}: ${advertiser.ads.length}');
-        
+
         for (var ad in advertiser.ads) {
           print('Ad: ${ad.title ?? ad.make}, category: ${ad.category}');
         }
       }
-      
+
       _topRestaurants = topRestaurants;
       print('Successfully fetched ${topRestaurants.length} top restaurants');
     } catch (e) {

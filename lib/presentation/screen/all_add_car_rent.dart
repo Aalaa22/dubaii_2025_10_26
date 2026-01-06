@@ -52,7 +52,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
           cursorColor: KTextColor,
           style: TextStyle(color: KTextColor, fontSize: 14.sp),
           decoration: InputDecoration(
-            hintText: s.search,
+            hintText: s!.search,
             contentPadding:
                 EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             enabledBorder: OutlineInputBorder(
@@ -144,7 +144,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
@@ -192,7 +192,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                       //             children: [
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).year,
+                      //                   hint: S.of(context)!.year,
                       //                   items: const ["2022", "2023", "2024"],
                       //                   value: selectedYear,
                       //                   onChanged: (val) =>
@@ -202,7 +202,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                       //               SizedBox(width: 7.w),
                       //               Expanded(
                       //                 child: _buildFilterChipDropdown(
-                      //                   hint: S.of(context).price,
+                      //                   hint: S.of(context)!.price,
                       //                   items: const [
                       //                     "< 150",
                       //                     "150 - 300",
@@ -236,7 +236,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -265,7 +265,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                       //                     SizedBox(width: 12.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,
@@ -303,7 +303,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                       //         return Row(
                       //           children: [
                       //             Text(
-                      //               '${S.of(context).ad} 1000',
+                      //               '${S.of(context)!.ad} 1000',
                       //               style: TextStyle(
                       //                 fontSize: 12.sp,
                       //                 color: KTextColor,
@@ -332,7 +332,7 @@ class _AllAdCarRentState extends State<AllAdCarRent> {
                       //                     SizedBox(width: 20.w),
                       //                     Expanded(
                       //                       child: Text(
-                      //                         S.of(context).sort,
+                      //                         S.of(context)!.sort,
                       //                         overflow: TextOverflow.ellipsis,
                       //                         style: TextStyle(
                       //                           fontWeight: FontWeight.w600,

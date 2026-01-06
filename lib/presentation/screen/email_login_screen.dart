@@ -54,7 +54,7 @@
 //     } else {
 //       ScaffoldMessenger.of(context).showSnackBar(
 //         SnackBar(
-//           content: Text(authProvider.errorMessage ?? S.of(context).unknownError),
+//           content: Text(authProvider.errorMessage ?? S.of(context)!.unknownError),
 //           backgroundColor: Colors.red,
 //         ),
 //       );
@@ -91,7 +91,7 @@
 //         widget.notifier.changeLocale(newLocale);
 //     },
 //                   child: Text(
-//                     isArabic ? S.of(context).arabic : S.of(context).english,
+//                     isArabic ? S.of(context)!.arabic : S.of(context)!.english,
 //                     style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: KTextColor),
 //                   ),
 //                 ),
@@ -106,13 +106,13 @@
 //               ),
 //               SizedBox(height: 10.h),
 //               Text(
-//                 S.of(context).login,
+//                 S.of(context)!.login,
 //                 textAlign: TextAlign.center,
 //                 style: TextStyle(color: KTextColor, fontSize: 24.sp, fontWeight: FontWeight.w500),
 //               ),
 //               SizedBox(height: 18.h),
 //               Text(
-//                 S.of(context).emailLogin,
+//                 S.of(context)!.emailLogin,
 //                 style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp),
 //               ),
 //               CustomTextField(
@@ -121,14 +121,14 @@
 //                 keyboardType: TextInputType.emailAddress,
 //                 validator: (value) {
 //                   if (value == null || !value.contains('@')) {
-//                     return S.of(context).pleaseEnterValidEmail;
+//                     return S.of(context)!.pleaseEnterValidEmail;
 //                   }
 //                   return null;
 //                 },
 //               ),
 //               SizedBox(height: 8.h),
 //               Text(
-//                 S.of(context).password,
+//                 S.of(context)!.password,
 //                 style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp),
 //               ),
 //               CustomTextField(
@@ -137,7 +137,7 @@
 //                 isPassword: true,
 //                 validator: (value) {
 //                   if (value == null || value.length < 6) {
-//                     return S.of(context).passwordTooShort;
+//                     return S.of(context)!.passwordTooShort;
 //                   }
 //                   return null;
 //                 },
@@ -147,14 +147,14 @@
 //                 const Center(child: CircularProgressIndicator())
 //               else
 //                 CustomButton(
-//                   text: S.of(context).login,
+//                   text: S.of(context)!.login,
 //                   ontap: _submitLogin,
 //                 ),
 //               SizedBox(height: 8.h),
 //               GestureDetector(
 //                 onTap: () => context.push('/forgetpassemail'),
 //                 child: Text(
-//                   S.of(context).forgotPassword,
+//                   S.of(context)!.forgotPassword,
 //                   textAlign: TextAlign.end,
 //                   style: TextStyle(
 //                     fontWeight: FontWeight.w500,
@@ -172,7 +172,7 @@
 //                   Padding(
 //                     padding: EdgeInsets.symmetric(horizontal: 10.w),
 //                     child: Text(
-//                       S.of(context).or,
+//                       S.of(context)!.or,
 //                       style: TextStyle(color: KTextColor, fontWeight: FontWeight.w500, fontSize: 16.sp),
 //                     ),
 //                   ),
@@ -185,14 +185,14 @@
 //                   Expanded(
 //                     child: CustomElevatedButton(
 //                       onpress: () => context.go('/login'),
-//                       text: S.of(context).phoneLogin,
+//                       text: S.of(context)!.phoneLogin,
 //                     ),
 //                   ),
 //                   SizedBox(width: 16.w),
 //                   Expanded(
 //                     child: CustomElevatedButton(
 //                       onpress: () => context.go('/home'),
-//                       text: S.of(context).guestLogin,
+//                       text: S.of(context)!.guestLogin,
 //                     ),
 //                   ),
 //                 ],
@@ -202,14 +202,14 @@
 //                 mainAxisAlignment: MainAxisAlignment.center,
 //                 children: [
 //                   Text(
-//                     S.of(context).dontHaveAccount,
+//                     S.of(context)!.dontHaveAccount,
 //                     style: TextStyle(color: KTextColor, fontSize: 13.sp),
 //                   ),
 //                   SizedBox(width: 4.w),
 //                   GestureDetector(
 //                     onTap: () => context.go('/signup'),
 //                     child: Text(
-//                       S.of(context).createAccount,
+//                       S.of(context)!.createAccount,
 //                       style: TextStyle(
 //                         decoration: TextDecoration.underline,
 //                         decorationColor: KTextColor,

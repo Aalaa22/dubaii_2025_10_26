@@ -27,42 +27,42 @@ class _PostAdScreenState extends State<PostAdScreen> {
     // عناصر الشبكة مترجمة حسب اللغة الحالية
     final localizedItems = [
       {
-        "title": S.of(context).carsales,
+        "title": S.of(context)!.carsales,
         "image": "assets/images/salesCar.jpg",
         "route": "/car_sales_ads"
       },
       {
-        "title": S.of(context).realestate,
+        "title": S.of(context)!.realestate,
         "image": "assets/images/realEstate.jpg",
         "route": "/real_estate_ads"
       },
       {
-        "title": S.of(context).carrent,
+        "title": S.of(context)!.carrent,
         "image": "assets/images/careRent.jpg",
         "route": "/car_rent_ads"
       },
       {
-        "title": S.of(context).carservices,
+        "title": S.of(context)!.carservices,
         "image": "assets/images/car_services.png",
         "route": "/car_services_ads"
       },
       {
-        "title": S.of(context).electronics,
+        "title": S.of(context)!.electronics,
         "image": "assets/images/electronics.jpg",
         "route": "/electronics_ads"
       },
       {
-        "title": S.of(context).restaurants,
+        "title": S.of(context)!.restaurants,
         "image": "assets/images/restaurant.jpg",
         "route": "/resturant_ads"
       },
       {
-        "title": S.of(context).jobs,
+        "title": S.of(context)!.jobs,
         "image": "assets/images/jobs.jpg",
         "route": "/job_ads"
       },
       {
-        "title": S.of(context).otherservices,
+        "title": S.of(context)!.otherservices,
         "image": "assets/images/service.jpg",
         "route": "/other_servics_ads"
       },
@@ -94,7 +94,7 @@ class _PostAdScreenState extends State<PostAdScreen> {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            S.of(context).enjoyFreeAds,
+                            S.of(context)!.enjoyFreeAds,
                             style: TextStyle(
                               fontSize: screenWidth * 0.05,
                               fontWeight: FontWeight.bold,
@@ -119,7 +119,7 @@ SizedBox(width: 5),
                             Transform.translate(
                               offset: Offset(-3.w, 0),
                               child: Text(
-                                S.of(context).back,
+                                S.of(context)!.back,
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,

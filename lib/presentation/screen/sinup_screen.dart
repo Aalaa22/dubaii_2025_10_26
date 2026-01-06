@@ -40,7 +40,7 @@
 //     if (!_formKey.currentState!.validate()) return;
 //     if (!isChecked) {
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//           content: Text(S.of(context).agreeTermsValidation),
+//           content: Text(S.of(context)!.agreeTermsValidation),
 //           backgroundColor: Colors.orange));
 //       return;
 //     }
@@ -61,13 +61,13 @@
 //     if (!mounted) return;
 //     if (success) {
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//           content: Text(S.of(context).accountCreatedSuccessfully),
+//           content: Text(S.of(context)!.accountCreatedSuccessfully),
 //           backgroundColor: Colors.green));
 //       context.go('/home');
 //     } else {
 //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
 //           content:
-//               Text(authProvider.errorMessage ?? S.of(context).unknownError),
+//               Text(authProvider.errorMessage ?? S.of(context)!.unknownError),
 //           backgroundColor: Colors.red));
 //     }
 //   }
@@ -117,8 +117,8 @@
 //     },
 //                     child: Text(
 //                       locale.languageCode == 'ar'
-//                           ? S.of(context).arabic
-//                           : S.of(context).english,
+//                           ? S.of(context)!.arabic
+//                           : S.of(context)!.english,
 //                       style: TextStyle(
 //                           fontSize: 16.sp,
 //                           fontWeight: FontWeight.w500,
@@ -133,7 +133,7 @@
 //                 SizedBox(height: 5.h),
 //                 Center(
 //                   child: Text(
-//                     S.of(context).signUp,
+//                     S.of(context)!.signUp,
 //                     textAlign: TextAlign.center,
 //                     style: TextStyle(
 //                         color: KTextColor,
@@ -143,7 +143,7 @@
 //                 ),
 //                 SizedBox(height: 5.h),
 //                 Text(
-//                   '${S.of(context).userName}*',
+//                   '${S.of(context)!.userName}*',
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontWeight: FontWeight.w500,
@@ -153,12 +153,12 @@
 //                   controller: _usernameController,
 //                   hintText: "Ralph Edwards",
 //                   validator: (v) => v!.trim().isEmpty
-//                       ? S.of(context).pleaseEnterUsername
+//                       ? S.of(context)!.pleaseEnterUsername
 //                       : null,
 //                 ),
 //                 SizedBox(height: 5.h),
 //                 Text(
-//                   '${S.of(context).phone}*',
+//                   '${S.of(context)!.phone}*',
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontWeight: FontWeight.w500,
@@ -184,7 +184,7 @@
 //                       child: TextFormField(
 //                         controller: _phoneController,
 //                         validator: (v) =>
-//                             v!.isEmpty ? S.of(context).pleaseEnterPhone : null,
+//                             v!.isEmpty ? S.of(context)!.pleaseEnterPhone : null,
 //                         decoration: const InputDecoration(
 //                             border: InputBorder.none,
 //                             contentPadding: EdgeInsets.zero,
@@ -207,7 +207,7 @@
 //                     children: [
 //                       SizedBox(height: 5.h),
 //                       Text(
-//                         '${S.of(context).email}*',
+//                         '${S.of(context)!.email}*',
 //                         style: TextStyle(
 //                             color: KTextColor,
 //                             fontWeight: FontWeight.w500,
@@ -220,7 +220,7 @@
 //                         validator: (value) {
 //                           if (showEmailField &&
 //                               (value == null || !value.contains('@'))) {
-//                             return S.of(context).pleaseEnterValidEmail;
+//                             return S.of(context)!.pleaseEnterValidEmail;
 //                           }
 //                           return null;
 //                         },
@@ -229,7 +229,7 @@
 //                   ),
 //                 SizedBox(height: 5.h),
 //                 Text(
-//                   "${S.of(context).password}*",
+//                   "${S.of(context)!.password}*",
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontWeight: FontWeight.w500,
@@ -240,11 +240,11 @@
 //                   hintText: '12345678',
 //                   isPassword: true,
 //                   validator: (v) =>
-//                       v!.length < 6 ? S.of(context).passwordTooShort : null,
+//                       v!.length < 6 ? S.of(context)!.passwordTooShort : null,
 //                 ),
 //                 SizedBox(height: 5.h),
 //                 Text(
-//                   S.of(context).referralCode,
+//                   S.of(context)!.referralCode,
 //                   style: TextStyle(
 //                       color: KTextColor,
 //                       fontWeight: FontWeight.w500,
@@ -262,7 +262,7 @@
 //                     ),
 //                     Expanded(
 //                       child: Text(
-//                         S.of(context).agreeTerms,
+//                         S.of(context)!.agreeTerms,
 //                         style: TextStyle(
 //                             fontSize: 14.sp,
 //                             color: KTextColor,
@@ -276,11 +276,11 @@
 //                   const Center(child: CircularProgressIndicator())
 //                 else
 //                   CustomButton(
-//                       text: S.of(context).register, ontap: _submitSignUp),
+//                       text: S.of(context)!.register, ontap: _submitSignUp),
 //                 SizedBox(height: 4.h),
 //                 Center(
 //                   child: Text(
-//                     S.of(context).or,
+//                     S.of(context)!.or,
 //                     style: TextStyle(
 //                         color: KTextColor,
 //                         fontWeight: FontWeight.w500,
@@ -294,7 +294,7 @@
 //                     Flexible(
 //                       child: CustomElevatedButton(
 //                         onpress: () => context.go('/emailsignup'),
-//                         text: S.of(context).emailSignUp,
+//                         text: S.of(context)!.emailSignUp,
 //                       ),
 //                     ),
 //                     SizedBox(width: 16.w),
@@ -303,7 +303,7 @@
 //                         onpress: () {
 //                          // context.go("/home");
 //                         },
-//                         text: S.of(context).guestLogin,
+//                         text: S.of(context)!.guestLogin,
 //                       ),
 //                     ),
 //                   ],
@@ -313,14 +313,14 @@
 //                   mainAxisAlignment: MainAxisAlignment.center,
 //                   children: [
 //                     Text(
-//                       S.of(context).haveAccount,
+//                       S.of(context)!.haveAccount,
 //                       style: TextStyle(color: KTextColor, fontSize: 14.sp),
 //                     ),
 //                     SizedBox(width: 4.w),
 //                     GestureDetector(
 //                       onTap: () => context.go('/login'),
 //                       child: Text(
-//                         S.of(context).login,
+//                         S.of(context)!.login,
 //                         style: TextStyle(
 //                           decoration: TextDecoration.underline,
 //                           decorationColor: KTextColor,
@@ -383,7 +383,7 @@
 // //     if (!_formKey.currentState!.validate()) return;
 // //     if (!isChecked) {
 // //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-// //           content: Text(S.of(context).agreeTermsValidation),
+// //           content: Text(S.of(context)!.agreeTermsValidation),
 // //           backgroundColor: Colors.orange));
 // //       return;
 // //     }
@@ -403,13 +403,13 @@
 // //     if (!mounted) return;
 // //     if (success) {
 // //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-// //           content: Text(S.of(context).accountCreatedSuccessfully),
+// //           content: Text(S.of(context)!.accountCreatedSuccessfully),
 // //           backgroundColor: Colors.green));
 // //       context.go('/home');
 // //     } else {
 // //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
 // //           content:
-// //               Text(authProvider.errorMessage ?? S.of(context).unknownError),
+// //               Text(authProvider.errorMessage ?? S.of(context)!.unknownError),
 // //           backgroundColor: Colors.red));
 // //     }
 // //   }
@@ -449,8 +449,8 @@
 // //                     onTap: widget.notifier.toggleLocale,
 // //                     child: Text(
 // //                       locale.languageCode == 'ar'
-// //                           ? S.of(context).arabic
-// //                           : S.of(context).english,
+// //                           ? S.of(context)!.arabic
+// //                           : S.of(context)!.english,
 // //                       style: TextStyle(
 // //                           fontSize: 16.sp,
 // //                           fontWeight: FontWeight.w500,
@@ -465,7 +465,7 @@
 // //                 SizedBox(height: 5.h),
 // //                 Center(
 // //                   child: Text(
-// //                     S.of(context).signUp,
+// //                     S.of(context)!.signUp,
 // //                     textAlign: TextAlign.center,
 // //                     style: TextStyle(
 // //                         color: KTextColor,
@@ -475,7 +475,7 @@
 // //                 ),
 // //                 SizedBox(height: 5.h),
 // //                 Text(
-// //                   '${S.of(context).userName}*',
+// //                   '${S.of(context)!.userName}*',
 // //                   style: TextStyle(
 // //                       color: KTextColor,
 // //                       fontWeight: FontWeight.w500,
@@ -485,12 +485,12 @@
 // //                   controller: _usernameController,
 // //                   hintText: "Ralph Edwards",
 // //                   validator: (v) => v!.trim().isEmpty
-// //                       ? S.of(context).pleaseEnterUsername
+// //                       ? S.of(context)!.pleaseEnterUsername
 // //                       : null,
 // //                 ),
 // //                 SizedBox(height: 5.h),
 // //                 Text(
-// //                   '${S.of(context).phone}*',
+// //                   '${S.of(context)!.phone}*',
 // //                   style: TextStyle(
 // //                       color: KTextColor,
 // //                       fontWeight: FontWeight.w500,
@@ -510,7 +510,7 @@
 // //                       child: TextFormField(
 // //                         controller: _phoneController,
 // //                         validator: (v) =>
-// //                             v!.isEmpty ? S.of(context).pleaseEnterPhone : null,
+// //                             v!.isEmpty ? S.of(context)!.pleaseEnterPhone : null,
 // //                         decoration: const InputDecoration(
 // //                             border: InputBorder.none,
 // //                             contentPadding: EdgeInsets.zero,
@@ -533,7 +533,7 @@
 // //                     children: [
 // //                       SizedBox(height: 5.h),
 // //                       Text(
-// //                         '${S.of(context).email}*',
+// //                         '${S.of(context)!.email}*',
 // //                         style: TextStyle(
 // //                             color: KTextColor,
 // //                             fontWeight: FontWeight.w500,
@@ -546,7 +546,7 @@
 // //                         validator: (value) {
 // //                           if (showEmailField &&
 // //                               (value == null || !value.contains('@'))) {
-// //                             return S.of(context).pleaseEnterValidEmail;
+// //                             return S.of(context)!.pleaseEnterValidEmail;
 // //                           }
 // //                           return null;
 // //                         },
@@ -555,7 +555,7 @@
 // //                   ),
 // //                 SizedBox(height: 5.h),
 // //                 Text(
-// //                   "${S.of(context).password}*",
+// //                   "${S.of(context)!.password}*",
 // //                   style: TextStyle(
 // //                       color: KTextColor,
 // //                       fontWeight: FontWeight.w500,
@@ -566,11 +566,11 @@
 // //                   hintText: '1234567',
 // //                   isPassword: true,
 // //                   validator: (v) =>
-// //                       v!.length < 6 ? S.of(context).passwordTooShort : null,
+// //                       v!.length < 6 ? S.of(context)!.passwordTooShort : null,
 // //                 ),
 // //                 SizedBox(height: 5.h),
 // //                 Text(
-// //                   S.of(context).referralCode,
+// //                   S.of(context)!.referralCode,
 // //                   style: TextStyle(
 // //                       color: KTextColor,
 // //                       fontWeight: FontWeight.w500,
@@ -588,7 +588,7 @@
 // //                     ),
 // //                     Expanded(
 // //                       child: Text(
-// //                         S.of(context).agreeTerms,
+// //                         S.of(context)!.agreeTerms,
 // //                         style: TextStyle(
 // //                             fontSize: 14.sp,
 // //                             color: KTextColor,
@@ -602,11 +602,11 @@
 // //                   const Center(child: CircularProgressIndicator())
 // //                 else
 // //                   CustomButton(
-// //                       text: S.of(context).register, ontap: _submitSignUp),
+// //                       text: S.of(context)!.register, ontap: _submitSignUp),
 // //                 SizedBox(height: 4.h),
 // //                 Center(
 // //                   child: Text(
-// //                     S.of(context).or,
+// //                     S.of(context)!.or,
 // //                     style: TextStyle(
 // //                         color: KTextColor,
 // //                         fontWeight: FontWeight.w500,
@@ -620,7 +620,7 @@
 // //                     Flexible(
 // //                       child: CustomElevatedButton(
 // //                         onpress: () => context.go('/emailsignup'),
-// //                         text: S.of(context).emailSignUp,
+// //                         text: S.of(context)!.emailSignUp,
 // //                       ),
 // //                     ),
 // //                     SizedBox(width: 16.w),
@@ -629,7 +629,7 @@
 // //                         onpress: () {
 // //                          // context.go("/home");
 // //                         },
-// //                         text: S.of(context).guestLogin,
+// //                         text: S.of(context)!.guestLogin,
 // //                       ),
 // //                     ),
 // //                   ],
@@ -639,14 +639,14 @@
 // //                   mainAxisAlignment: MainAxisAlignment.center,
 // //                   children: [
 // //                     Text(
-// //                       S.of(context).haveAccount,
+// //                       S.of(context)!.haveAccount,
 // //                       style: TextStyle(color: KTextColor, fontSize: 14.sp),
 // //                     ),
 // //                     SizedBox(width: 4.w),
 // //                     GestureDetector(
 // //                       onTap: () => context.go('/login'),
 // //                       child: Text(
-// //                         S.of(context).login,
+// //                         S.of(context)!.login,
 // //                         style: TextStyle(
 // //                           decoration: TextDecoration.underline,
 // //                           decorationColor: KTextColor,
