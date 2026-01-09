@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+  <!-- Folder shape -->
+  <path d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8.5l-1-1H4a1 1 0 0 1-1-1V8h18v3.5l1 1V6a2 2 0 0 0-2-2h-8l-2-2H4z"/>
+  
+  <!-- Edit pen -->
+  <path d="m15.5 12.5 1.414-1.414a1 1 0 0 1 1.414 0l1.414 1.414a1 1 0 0 1 0 1.414L17.5 15.5l-2.828-2.828a1 1 0 0 1 0-1.414z"/>
+  <path d="m14.5 13.5 2.828 2.828L13.5 20.5H10.5v-3l3.828-3.828z"/>
+</svg>

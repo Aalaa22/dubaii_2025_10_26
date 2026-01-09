@@ -1,0 +1,18 @@
+[33me937658[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{2025-10-05 12:49:30 +0300}: reset: moving to e937658
+[33ma06de85[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mbackup-current[m[33m)[m HEAD@{2025-09-30 15:05:04 +0300}: commit: build: update intl package and transitive dependencies
+[33m2216fe7[m HEAD@{2025-09-30 15:03:54 +0300}: reset: moving to main
+[33m2216fe7[m HEAD@{2025-09-24 16:29:17 +0300}: commit: feat: add real estate and car rent features with multiple enhancements
+[33m45aadf4[m HEAD@{2025-09-16 16:39:22 +0300}: commit: fix: handle null price in car service offer display
+[33mfc7b41d[m HEAD@{2025-09-16 16:39:07 +0300}: commit: feat: add clear filters functionality and improve form validation
+[33m95c5f6f[m HEAD@{2025-09-16 09:40:10 +0300}: pull --tags origin main: Fast-forward
+[33m2f22590[m HEAD@{2025-09-14 18:08:15 +0300}: pull --tags origin main: Merge made by the 'ort' strategy.
+[33me937658[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{2025-09-14 18:08:10 +0300}: commit: feat(restaurants): implement restaurant ad management and search functionality
+[33mff2d8e4[m HEAD@{2025-09-10 19:03:44 +0300}: commit: feat(car_services): implement enhanced filtering and error handling
+[33m1f98dd3[m HEAD@{2025-09-09 17:38:39 +0300}: commit: feat(car_services): implement car services feature with models, providers and repository
+[33m4806690[m HEAD@{2025-09-09 13:44:50 +0300}: reset: moving to origin/main
+[33m4806690[m HEAD@{2025-09-09 13:44:24 +0300}: checkout: moving from main to main
+[33m4806690[m HEAD@{2025-09-08 14:56:13 +0300}: reset: moving to origin/main
+[33m4806690[m HEAD@{2025-09-08 14:55:47 +0300}: checkout: moving from main to main
+[33m4806690[m HEAD@{2025-09-08 14:52:17 +0300}: checkout: moving from main to main
+[33m4806690[m HEAD@{2025-09-08 13:11:14 +0300}: commit: feat: implement comprehensive app updates including localization, settings, and UI enhancements
+[33m2fa2295[m HEAD@{2025-09-03 12:55:18 +0300}: clone: from github.com:Abdelrhman0101/main-dubaisale-V1.0

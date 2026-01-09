@@ -1,0 +1,433 @@
+1- This Section Talk About GET Endpoints to (Car Services)
+
+Main Endpoint to search ( Car Service)
+GET {{base_url}}/api/car-services
+
+Responce:
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 10,
+            "add_category": "Car Services",
+            "add_status": "Valid",
+            "admin_approved": true,
+            "views": 0,
+            "rank": 0,
+            "plan_type": null,
+            "plan_days": null,
+            "plan_expires_at": null,
+            "title": "خدمة تغيير زيت السيارة المتميزة",
+            "description": "نقدم خدمة تغيير زيت عالية الجودة لجميع أنواع السيارات باستخدام أفضل أنواع الزيوت العالمية مع ضمان الجودة",
+            "emirate": "Dubai",
+            "district": "Deira",
+            "area": "Al Rigga",
+            "service_type": "oil_change",
+            "service_name": "تغيير زيت المحرك والفلتر",
+            "price": "150.00",
+            "advertiser_name": "أحمد محمد علي",
+            "phone_number": "+971501234567",
+            "whatsapp": "+971501234567",
+            "main_image": "car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+            "thumbnail_images": "[\"car_services\\/thumbnails\\/KXoUIjMTTr4ZKfGWXlVmPyqxhZIM3c7Sbj4yJD6D.jpg\",\"car_services\\/thumbnails\\/H2TFv6z7IEKt1EsmSGKj4bRiYDp8yQ1Svp6R11Qw.jpg\",\"car_services\\/thumbnails\\/4Tdtru6PpX6htcUOlFz1cwR9Rt0FsxwMUOR8l0QG.webp\"]",
+            "location": "بالقرب من مترو الاتحاد، شارع الرقة الرئيسي",
+            "active_offers_box_status": true,
+            "active_offers_box_days": 7,
+            "active_offers_box_expires_at": "2025-09-11T00:58:17.000000Z",
+            "active_offers_box_rank": 0,
+            "main_image_url": "/storage/car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+            "thumbnail_images_urls": [],
+            "status": "Valid",
+            "category": "Car Services"
+        }
+    ],
+    "first_page_url": "https://dubaisale.app/api/car-services?page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "https://dubaisale.app/api/car-services?page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https://dubaisale.app/api/car-services?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "https://dubaisale.app/api/car-services",
+    "per_page": 15,
+    "prev_page_url": null,
+    "to": 1,
+    "total": 1
+}
+
+----------------------
+GET {{base_url}}/api/car-services/1
+
+Responce:
+
+{
+    "id": 1,
+    "user_id": 10,
+    "add_category": "Car Services",
+    "add_status": "Valid",
+    "admin_approved": true,
+    "views": 1,
+    "rank": 0,
+    "plan_type": null,
+    "plan_days": null,
+    "plan_expires_at": null,
+    "title": "خدمة تغيير زيت السيارة المتميزة",
+    "description": "نقدم خدمة تغيير زيت عالية الجودة لجميع أنواع السيارات باستخدام أفضل أنواع الزيوت العالمية مع ضمان الجودة",
+    "emirate": "Dubai",
+    "district": "Deira",
+    "area": "Al Rigga",
+    "service_type": {
+        "id": 4,
+        "name": "oil_change",
+        "display_name": "تغيير الزيت - Oil Change",
+        "is_active": true,
+        "sort_order": 4,
+        "created_at": "2025-09-03T23:21:16.000000Z",
+        "updated_at": "2025-09-03T23:21:16.000000Z"
+    },
+    "service_name": "تغيير زيت المحرك والفلتر",
+    "price": "150.00",
+    "advertiser_name": "أحمد محمد علي",
+    "phone_number": "+971501234567",
+    "whatsapp": "+971501234567",
+    "main_image": "car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+    "thumbnail_images": "[\"car_services\\/thumbnails\\/KXoUIjMTTr4ZKfGWXlVmPyqxhZIM3c7Sbj4yJD6D.jpg\",\"car_services\\/thumbnails\\/H2TFv6z7IEKt1EsmSGKj4bRiYDp8yQ1Svp6R11Qw.jpg\",\"car_services\\/thumbnails\\/4Tdtru6PpX6htcUOlFz1cwR9Rt0FsxwMUOR8l0QG.webp\"]",
+    "location": "بالقرب من مترو الاتحاد، شارع الرقة الرئيسي",
+    "active_offers_box_status": true,
+    "active_offers_box_days": 7,
+    "active_offers_box_expires_at": "2025-09-11T00:58:17.000000Z",
+    "active_offers_box_rank": 0,
+    "main_image_url": "/storage/car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+    "thumbnail_images_urls": [],
+    "status": "Valid",
+    "category": "Car Services"
+}
+
+----------------------
+{{base_url}}/api/car-services/search?emirate=Dubai&service_type=car_wash&keyword=تنظيف&sort_by=price_low&per_page=10
+This Endpoint has all keys the user will use in deffrint cases
+
+{
+    "current_page": 1,
+    "data": [
+        {
+            "id": 1,
+            "user_id": 10,
+            "add_category": "Car Services",
+            "add_status": "Valid",
+            "admin_approved": true,
+            "views": 1,
+            "rank": 0,
+            "plan_type": null,
+            "plan_days": null,
+            "plan_expires_at": null,
+            "title": "خدمة تغيير زيت السيارة المتميزة",
+            "description": "نقدم خدمة تغيير زيت عالية الجودة لجميع أنواع السيارات باستخدام أفضل أنواع الزيوت العالمية مع ضمان الجودة",
+            "emirate": "Dubai",
+            "district": "Deira",
+            "area": "Al Rigga",
+            "service_type": "oil_change",
+            "service_name": "تغيير زيت المحرك والفلتر",
+            "price": "150.00",
+            "advertiser_name": "أحمد محمد علي",
+            "phone_number": "+971501234567",
+            "whatsapp": "+971501234567",
+            "main_image": "car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+            "thumbnail_images": "[\"car_services\\/thumbnails\\/KXoUIjMTTr4ZKfGWXlVmPyqxhZIM3c7Sbj4yJD6D.jpg\",\"car_services\\/thumbnails\\/H2TFv6z7IEKt1EsmSGKj4bRiYDp8yQ1Svp6R11Qw.jpg\",\"car_services\\/thumbnails\\/4Tdtru6PpX6htcUOlFz1cwR9Rt0FsxwMUOR8l0QG.webp\"]",
+            "location": "بالقرب من مترو الاتحاد، شارع الرقة الرئيسي",
+            "active_offers_box_status": true,
+            "active_offers_box_days": 7,
+            "active_offers_box_expires_at": "2025-09-11T00:58:17.000000Z",
+            "active_offers_box_rank": 0,
+            "main_image_url": "/storage/car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+            "thumbnail_images_urls": [],
+            "status": "Valid",
+            "category": "Car Services"
+        }
+    ],
+    "first_page_url": "https://dubaisale.app/api/car-services/search?emirate=Dubai&page=1",
+    "from": 1,
+    "last_page": 1,
+    "last_page_url": "https://dubaisale.app/api/car-services/search?emirate=Dubai&page=1",
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https://dubaisale.app/api/car-services/search?emirate=Dubai&page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "next_page_url": null,
+    "path": "https://dubaisale.app/api/car-services/search",
+    "per_page": 15,
+    "prev_page_url": null,
+    "to": 1,
+    "total": 1
+}
+
+----------------------
+GET {{base_url}}/api/car-services/filters
+{
+    "emirates": [
+        "Dubai"
+    ],
+    "service_types": [
+        {
+            "name": "maintenance",
+            "display_name": "صيانة عامة - General Maintenance"
+        },
+        {
+            "name": "repair",
+            "display_name": "إصلاح - Repair"
+        },
+        {
+            "name": "car_wash",
+            "display_name": "غسيل السيارات - Car Wash"
+        },
+        {
+            "name": "oil_change",
+            "display_name": "تغيير الزيت - Oil Change"
+        },
+        {
+            "name": "tire_service",
+            "display_name": "خدمات الإطارات - Tire Service"
+        },
+        {
+            "name": "ac_service",
+            "display_name": "خدمات التكييف - AC Service"
+        },
+        {
+            "name": "battery_service",
+            "display_name": "خدمات البطارية - Battery Service"
+        },
+        {
+            "name": "towing",
+            "display_name": "سحب السيارات - Towing"
+        },
+        {
+            "name": "inspection",
+            "display_name": "فحص السيارات - Car Inspection"
+        },
+        {
+            "name": "detailing",
+            "display_name": "تنظيف تفصيلي - Car Detailing"
+        },
+        {
+            "name": "other",
+            "display_name": "أخرى - Other"
+        }
+    ],
+    "districts": [
+        "Deira"
+    ]
+}
+
+--------------------
+GET {{base_url}}/api/car-services/offers-box/ads
+
+[
+    {
+        "id": 1,
+        "user_id": 10,
+        "add_category": "Car Services",
+        "add_status": "Valid",
+        "admin_approved": true,
+        "views": 1,
+        "rank": 0,
+        "plan_type": null,
+        "plan_days": null,
+        "plan_expires_at": null,
+        "title": "خدمة تغيير زيت السيارة المتميزة",
+        "description": "نقدم خدمة تغيير زيت عالية الجودة لجميع أنواع السيارات باستخدام أفضل أنواع الزيوت العالمية مع ضمان الجودة",
+        "emirate": "Dubai",
+        "district": "Deira",
+        "area": "Al Rigga",
+        "service_type": "oil_change",
+        "service_name": "تغيير زيت المحرك والفلتر",
+        "price": "150.00",
+        "advertiser_name": "أحمد محمد علي",
+        "phone_number": "+971501234567",
+        "whatsapp": "+971501234567",
+        "main_image": "car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+        "thumbnail_images": "[\"car_services\\/thumbnails\\/KXoUIjMTTr4ZKfGWXlVmPyqxhZIM3c7Sbj4yJD6D.jpg\",\"car_services\\/thumbnails\\/H2TFv6z7IEKt1EsmSGKj4bRiYDp8yQ1Svp6R11Qw.jpg\",\"car_services\\/thumbnails\\/4Tdtru6PpX6htcUOlFz1cwR9Rt0FsxwMUOR8l0QG.webp\"]",
+        "location": "بالقرب من مترو الاتحاد، شارع الرقة الرئيسي",
+        "active_offers_box_status": true,
+        "active_offers_box_days": 7,
+        "active_offers_box_expires_at": "2025-09-11T00:58:17.000000Z",
+        "active_offers_box_rank": 0,
+        "main_image_url": "/storage/car_services/main/dLoWNoVlN2GVEnrI5EKajIXPPHgIGjPDDCAPSjkd.jpg",
+        "thumbnail_images_urls": [],
+        "status": "Valid",
+        "category": "Car Services"
+    }
+]
+
+GET {{base_url}}/api/best-advertisers
+This endpoint you will setup it in the category home in Top Premium Dealers like Car Sales
+
+[
+    {
+        "id": 10,
+        "advertiser_name": null,
+        "featured_in": [
+            {
+                "category": "car_sales",
+                "latest_ads": []
+            }
+        ]
+    },
+    {
+        "id": 12,
+        "advertiser_name": "test name",
+        "featured_in": [
+            {
+                "category": "car_sales",
+                "latest_ads": [
+                    {
+                        "id": 53,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/jpjLOSpLWKPrpynWLLzHWVw5Uz6nAvaGb1VoUEWl.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 30,
+                        "price": "2000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/dfL7YLUPCTUrJAF8n42ZwSkfKFUz5KHM14pKhQRD.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 29,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/UQw56aD6bouMVDexWUxU2iInog4P9cgRxyBwoulh.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 28,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/nXNQgsLKnQc9hHbTSXP9CkCkpF0Vy9pkAtQXvCiz.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 27,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/dvCQlpa9yakTPzxVHg7VN2inQ1u6G0CE1NEP4SzB.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 26,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/nrYIYOHgcQtNQ52QpXRzYKxPDUFoDxWpPDvqLW2z.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 25,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/esGr6ZnU03u1m8qom2XvBI129hZosdiMhdBJJq4s.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    },
+                    {
+                        "id": 24,
+                        "price": "20000.00",
+                        "year": "2021",
+                        "km": 50000,
+                        "main_image": "https://dubaisale.app/storage/cars/main/veGsO7AImEXIS5grh8yntJp3YKf0MHtb1qASo7JX.jpg",
+                        "make": "Honda",
+                        "model": "CR-V",
+                        "trim": "EX"
+                    }
+                ]
+            }
+        ]
+    }
+]
+ 
+
+2- This Section Talk About POST Endpoints to (Car Services)
+
+POST {{base_url}}/api/car-services-ads
+body type: form-data
+
+title - description - emirate - district - area - location - service_name - service_type - price - advertiser_name - phone_number - whatsapp - main_image with no [] - thumbnail_images_urls[] with []
+
+Responce:
+{
+    "success": true,
+    "message": "تم إضافة الإعلان بنجاح",
+    "data": {
+        "id": 2,
+        "title": "خدمة تغيير زيت السيارة المتميزة",
+        "service_type": "oil_change",
+        "advertiser_name": "أحمد محمد علي",
+        "phone_number": "+971501234567",
+        "whatsapp": "+971501234567",
+        "price": "150.00",
+        "main_image": "car_services/main/U6JgrY663wBQkriA7oNVYNV51NfRARALfkke5luh.png",
+        "thumbnail_images_urls": []
+    }
+}
+
+PUT {{base_url}}/api/car-services-ads/4
+to Edit the ad 
+
+Delete {{base_url}}/api/car-services-ads/1
+
+
+POST {{base_url}}/api/offers-box/activate
+{
+  "category_slug": "car_services",
+  "ad_id": 1,
+  "days": 7
+}

@@ -1,0 +1,42 @@
+e937658 refs/heads/main@{2025-10-05 12:49:30 +0300}: reset: moving to e937658
+e937658 HEAD@{2025-10-05 12:49:30 +0300}: reset: moving to e937658
+a06de85 refs/heads/backup-current@{2025-10-05 12:23:15 +0300}: branch: Created from main
+a06de85 refs/remotes/origin/main@{2025-09-30 15:05:30 +0300}: update by push
+a06de85 refs/heads/main@{2025-09-30 15:05:04 +0300}: commit: build: update intl package and transitive dependencies
+a06de85 HEAD@{2025-09-30 15:05:04 +0300}: commit: build: update intl package and transitive dependencies
+2216fe7 refs/remotes/origin/main@{2025-09-30 15:04:53 +0300}: update by push
+2216fe7 HEAD@{2025-09-30 15:03:54 +0300}: reset: moving to main
+2216fe7 refs/heads/main@{2025-09-24 16:29:17 +0300}: commit: feat: add real estate and car rent features with multiple enhancements
+2216fe7 HEAD@{2025-09-24 16:29:17 +0300}: commit: feat: add real estate and car rent features with multiple enhancements
+575150b refs/remotes/origin/main@{2025-09-17 10:44:19 +0300}: fetch: fast-forward
+45aadf4 refs/remotes/origin/main@{2025-09-16 16:39:31 +0300}: update by push
+45aadf4 refs/heads/main@{2025-09-16 16:39:22 +0300}: commit: fix: handle null price in car service offer display
+45aadf4 HEAD@{2025-09-16 16:39:22 +0300}: commit: fix: handle null price in car service offer display
+fc7b41d refs/heads/main@{2025-09-16 16:39:07 +0300}: commit: feat: add clear filters functionality and improve form validation
+fc7b41d HEAD@{2025-09-16 16:39:07 +0300}: commit: feat: add clear filters functionality and improve form validation
+95c5f6f refs/heads/main@{2025-09-16 09:40:10 +0300}: pull --tags origin main: Fast-forward
+95c5f6f HEAD@{2025-09-16 09:40:10 +0300}: pull --tags origin main: Fast-forward
+95c5f6f refs/remotes/origin/main@{2025-09-16 09:38:51 +0300}: fetch: fast-forward
+2f22590 refs/remotes/origin/main@{2025-09-14 18:08:32 +0300}: update by push
+2f22590 refs/heads/main@{2025-09-14 18:08:15 +0300}: pull --tags origin main: Merge made by the 'ort' strategy.
+ae6c2c8 refs/remotes/origin/main@{2025-09-14 18:08:15 +0300}: pull --tags origin main: fast-forward
+2f22590 HEAD@{2025-09-14 18:08:15 +0300}: pull --tags origin main: Merge made by the 'ort' strategy.
+e937658 refs/heads/main@{2025-09-14 18:08:10 +0300}: commit: feat(restaurants): implement restaurant ad management and search functionality
+e937658 HEAD@{2025-09-14 18:08:10 +0300}: commit: feat(restaurants): implement restaurant ad management and search functionality
+ff2d8e4 refs/remotes/origin/main@{2025-09-10 19:03:56 +0300}: update by push
+ff2d8e4 refs/heads/main@{2025-09-10 19:03:44 +0300}: commit: feat(car_services): implement enhanced filtering and error handling
+ff2d8e4 HEAD@{2025-09-10 19:03:44 +0300}: commit: feat(car_services): implement enhanced filtering and error handling
+1f98dd3 refs/remotes/origin/main@{2025-09-09 17:40:08 +0300}: update by push
+1f98dd3 refs/heads/main@{2025-09-09 17:38:39 +0300}: commit: feat(car_services): implement car services feature with models, providers and repository
+1f98dd3 HEAD@{2025-09-09 17:38:39 +0300}: commit: feat(car_services): implement car services feature with models, providers and repository
+4806690 HEAD@{2025-09-09 13:44:50 +0300}: reset: moving to origin/main
+4806690 HEAD@{2025-09-09 13:44:24 +0300}: checkout: moving from main to main
+4806690 HEAD@{2025-09-08 14:56:13 +0300}: reset: moving to origin/main
+4806690 HEAD@{2025-09-08 14:55:47 +0300}: checkout: moving from main to main
+4806690 HEAD@{2025-09-08 14:52:17 +0300}: checkout: moving from main to main
+4806690 refs/remotes/origin/main@{2025-09-08 13:11:36 +0300}: update by push
+4806690 refs/heads/main@{2025-09-08 13:11:14 +0300}: commit: feat: implement comprehensive app updates including localization, settings, and UI enhancements
+4806690 HEAD@{2025-09-08 13:11:14 +0300}: commit: feat: implement comprehensive app updates including localization, settings, and UI enhancements
+2fa2295 refs/heads/main@{2025-09-03 12:55:18 +0300}: clone: from github.com:Abdelrhman0101/main-dubaisale-V1.0
+2fa2295 refs/remotes/origin/HEAD@{2025-09-03 12:55:18 +0300}: clone: from github.com:Abdelrhman0101/main-dubaisale-V1.0
+2fa2295 HEAD@{2025-09-03 12:55:18 +0300}: clone: from github.com:Abdelrhman0101/main-dubaisale-V1.0
