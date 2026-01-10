@@ -2,7 +2,11 @@ import 'package:advertising_app/data/model/car_ad_model.dart';
 import 'package:advertising_app/presentation/providers/car_sales_ad_provider.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
 import 'package:advertising_app/utils/phone_number_formatter.dart';
+import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:advertising_app/presentation/widgets/report_dialog.dart';
+// <-- تأكد 100% من وجود هذا الـ import
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -235,9 +239,10 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
         children: [
           Stack(
             children: [
-              SizedBox(
-                height: 290.h,
+              Container(
+                height: 200.h,
                 width: double.infinity,
+                color: Colors.white, // خلفية فاتحة أفضل من الأسود
                 child: PageView.builder(
                   controller: _pageController,
                   itemCount: images.length,
@@ -246,7 +251,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                   itemBuilder: (context, index) => CachedNetworkImage(
                     imageUrl: images[index],
                     key: ValueKey(images[index]),
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain, // عرض الصورة كاملة بدون قص
                     width: double.infinity,
                     placeholder: (context, url) =>
                         const Center(child: CircularProgressIndicator()),
@@ -545,14 +550,15 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                     _buildDetailBox(
                         s.interior_color, car.interiorColor ?? 'N/A'),
                     _buildDetailBox(s.fuel_type, car.fuelType ?? 'N/A'),
-                    _buildDetailBox(s.warranty, car.warranty ? s.yes : s.no),
+                    _buildDetailBox(s.warranty, car.warranty ?? s.no),
                     _buildDetailBox(s.doors_no, car.doorsNo ?? 'N/A'),
                     _buildDetailBox(s.seats_no, car.seatsNo ?? 'N/A'),
                     _buildDetailBox(
                         s.engine_capacity, car.engineCapacity ?? 'N/A'),
                     _buildDetailBox(s.cylinders, car.cylinders ?? 'N/A'),
                     _buildDetailBox(s.horse_power, car.horsepower ?? 'N/A'),
-                    _buildDetailBox(s.steering_side, car.steeringSide ?? 'N/A'),
+                    _buildDetailBox(s.steering_side, car.steeringSide ?? 'N/A',
+                        fontSize: 10.sp),
                   ],
                 ),
                 Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
@@ -561,7 +567,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: KTextColor)),
-                SizedBox(height: 20.h),
+                SizedBox(height: 5.h),
                 Directionality(
                   textDirection: TextDirection.ltr,
                   child: Row(
@@ -610,7 +616,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                           width: 20.w, height: 20.h),
                       SizedBox(width: 8.w),
                       Expanded(
-                          child: Text('${car.emirate} ${car.area ?? ''}',
+                          child: Text(car.location,
                               style: TextStyle(
                                   fontSize: 14.sp,
                                   color: KTextColor,
@@ -637,6 +643,22 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8.r),
                         ),
+                        child: (car.advertiserLogoUrl != null &&
+                                car.advertiserLogoUrl!.isNotEmpty)
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8.r),
+                                child: CachedNetworkImage(
+                                  imageUrl: ImageUrlHelper.getFullImageUrl(
+                                      car.advertiserLogoUrl),
+                                  fit: BoxFit.contain,
+                                  placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator()),
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.error,
+                                          color: Colors.grey),
+                                ),
+                              )
+                            : null,
                       ),
                     ),
                     SizedBox(width: 15.w),
@@ -712,14 +734,25 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                 Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
                 SizedBox(height: 7.h),
                 Center(
-                  child: Text(
-                    s.report_this_ad,
-                    style: TextStyle(
-                      color: KTextColor,
-                      fontSize: 16.sp,
-                      decoration: TextDecoration.underline,
-                      decorationColor: KTextColor,
-                      fontWeight: FontWeight.w600,
+                  child: InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => ReportDialog(
+                          adType:"car_sale",
+                          adId: car.id,
+                        ),
+                      );
+                    },
+                    child: Text(
+                      s!.report_this_ad,
+                      style: TextStyle(
+                        color: KTextColor,
+                        fontSize: 16.sp,
+                        decoration: TextDecoration.underline,
+                        decorationColor: KTextColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -760,7 +793,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
     );
   }
 
-  Widget _buildDetailBox(String title, String value) {
+  Widget _buildDetailBox(String title, String value, {double? fontSize}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -783,7 +816,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
             value,
             style: TextStyle(
                 fontWeight: FontWeight.w500,
-                fontSize: 13.sp,
+                fontSize: fontSize ?? 13.sp,
                 color: KTextColor),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

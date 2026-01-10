@@ -154,22 +154,22 @@ class _RealEstateAdScreenState extends State<RealEstateAdScreen> {
       debugPrint('Failed to set default coordinates from profile: $e');
     }
 
-    List<String> missingFields = [];
+    // List<String> missingFields = [];
+    
+    // // التحقق من الحقول المطلوبة
+    // if (user.phone.trim().isEmpty) {
+    //   missingFields.add('phone number');
+    // }
+    // if ((user.advertiserLocation == null ||
+    //         user.advertiserLocation!.trim().isEmpty) &&
+    //     (user.latitude == null || user.longitude == null)) {
+    //   missingFields.add('your location');
+    // }
 
-    // التحقق من الحقول المطلوبة
-    if (user.phone.trim().isEmpty) {
-      missingFields.add('phone number');
-    }
-    if ((user.advertiserLocation == null ||
-            user.advertiserLocation!.trim().isEmpty) &&
-        (user.latitude == null || user.longitude == null)) {
-      missingFields.add('your location');
-    }
-
-    // إظهار التنبيه إذا كانت هناك حقول ناقصة
-    if (missingFields.isNotEmpty && mounted) {
-      _showProfileIncompleteDialog(missingFields);
-    }
+    // // إظهار التنبيه إذا كانت هناك حقول ناقصة
+    // if (missingFields.isNotEmpty && mounted) {
+    //   _showProfileIncompleteDialog(missingFields);
+    // }
   }
 
   // دالة لإظهار تنبيه البيانات الناقصة

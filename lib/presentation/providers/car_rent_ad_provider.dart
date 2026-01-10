@@ -838,6 +838,10 @@ class CarRentAdProvider extends ChangeNotifier {
   /// Apply filters to the ads (separating API and local filters)
   void applyFilters(Map<String, dynamic> filters) {
     _currentFilters = Map<String, dynamic>.from(filters);
+
+    // Remove "All" values to prevent sending them to the API
+    _currentFilters.removeWhere((key, value) => value == 'All');
+
     // Handle local-only filters
     final incomingKeyword = filters['keyword']?.toString();
     _keyword = (incomingKeyword == null || incomingKeyword.trim().isEmpty)

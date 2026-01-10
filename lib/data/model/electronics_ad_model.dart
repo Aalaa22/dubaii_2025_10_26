@@ -31,6 +31,8 @@ class ElectronicAdModel implements FavoriteItemInterface {
   final String? whatsappNumber;
   final String? addres;
   final String? _addCategory; // Dynamic category from API
+  final double? latitude;
+  final double? longitude;
 
   // -- الخصائص المطلوبة من FavoriteItemInterface لعرضها في الكارد --
   @override
@@ -92,6 +94,8 @@ class ElectronicAdModel implements FavoriteItemInterface {
     this.phoneNumber,
     this.whatsappNumber,
     String? addCategory,
+    this.latitude,
+    this.longitude,
   }) : _addCategory = addCategory;
 
   factory ElectronicAdModel.fromJson(Map<String, dynamic> json) {
@@ -128,6 +132,12 @@ class ElectronicAdModel implements FavoriteItemInterface {
       phoneNumber: json['phone_number'],
       whatsappNumber: json['whatsapp_number'],
       addCategory: json['add_category']?.toString(),
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
     );
   }
 }

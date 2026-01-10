@@ -20,6 +20,7 @@ import 'package:advertising_app/presentation/widget/location_map.dart';
 import 'package:advertising_app/utils/favorites_helper.dart';
 import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
 import 'package:advertising_app/data/model/ad_priority.dart';
+import 'package:advertising_app/presentation/widgets/report_dialog.dart';
 
 class RestaurantDetailsScreen extends StatefulWidget {
   final int adId;
@@ -381,7 +382,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> with 
                       
                        Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
                 Text(S.of(context)!.description, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: KTextColor)),
-                SizedBox(height: 20.h),
+                SizedBox(height: 5.h),
                 Directionality(
                   textDirection: TextDirection.ltr,
                   child: Row(
@@ -527,9 +528,19 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> with 
                       Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
                       SizedBox(height: 7.h),
                       Center(
-                        child: Text(
-                          S.of(context)!.report_this_ad,
-                          style: TextStyle(
+                        child: InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ReportDialog(
+                                adType: restaurant.addCategory,
+                                adId: restaurant.id,
+                              ),
+                            );
+                          },
+                          child: Text(
+                            S.of(context)!.report_this_ad,
+                            style: TextStyle(
                             color: KTextColor,
                             fontSize: 16.sp,
                             decoration: TextDecoration.underline,
@@ -537,7 +548,7 @@ class _RestaurantDetailsScreenState extends State<RestaurantDetailsScreen> with 
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
+                      ),),
                       SizedBox(height: 10.h),
                       Container(
                         width: double.infinity,

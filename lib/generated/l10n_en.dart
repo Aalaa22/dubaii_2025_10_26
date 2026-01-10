@@ -1232,4 +1232,43 @@ class SEn extends S {
 
   @override
   String get company => 'Company';
+
+  @override
+  String get report_ad_title => 'Report Ad';
+
+  @override
+  String get report_reason_inappropriate => 'Inappropriate Content';
+
+  @override
+  String get report_reason_spam => 'Spam or Repetitive';
+
+  @override
+  String get report_reason_misleading => 'Misleading Information';
+
+  @override
+  String get report_reason_duplicate => 'Duplicate Ad';
+
+  @override
+  String get report_reason_fraud => 'Fraud or Scam';
+
+  @override
+  String get report_reason_wrong_category => 'Wrong Category';
+
+  @override
+  String get report_reason_other => 'Other';
+
+  // @override
+  // String get please_select_all_fields => 'Please select all fields';
+
+  @override
+  String get report_description_hint => 'Please describe the issue...';
+
+  @override
+  String get report_cancel => 'Cancel';
+
+  @override
+  String get report_submit => 'Submit Report';
+
+  @override
+  String get report_success_message => 'Report sent successfully. It will be reviewed soon.';
 }

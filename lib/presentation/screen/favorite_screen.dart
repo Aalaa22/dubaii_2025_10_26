@@ -526,9 +526,52 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       itemBuilder: (context, index) {
         final item = selectedItems[index];
 
-        return _buildCategorySpecificCard(item, index);
+        return GestureDetector(
+          onTap: () => _navigateToDetails(item, selectedCategory),
+          child: _buildCategorySpecificCard(item, index),
+        );
       },
     );
+  }
+
+  void _navigateToDetails(FavoriteItemInterface item, int categoryIndex) {
+    int? adId;
+    if (item is FavoriteAdapterItem) {
+      adId = item.original.ad.id;
+    } else if (item is FavoriteItem) {
+      adId = item.ad.id;
+    } else {
+      adId = int.tryParse(item.id.toString());
+    }
+
+    if (adId == null) return;
+
+    switch (categoryIndex) {
+      case 0: // carsales
+        context.push('/car-details/$adId');
+        break;
+      case 1: // realestate
+        context.push('/real-details/$adId');
+        break;
+      case 2: // electronics
+        context.push('/electronic-details/$adId');
+        break;
+      case 3: // jobs
+        context.push('/job-details/$adId');
+        break;
+      case 4: // carrent
+        context.push('/car-rent-details/$adId');
+        break;
+      case 5: // carservices
+        context.push('/car-service-details/$adId');
+        break;
+      case 6: // restaurants
+        context.push('/restaurant_details/$adId');
+        break;
+      case 7: // otherservices
+        context.push('/other_service-details/$adId');
+        break;
+    }
   }
 
   Widget _buildCategorySpecificCard(FavoriteItemInterface item, int index) {

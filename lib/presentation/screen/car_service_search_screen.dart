@@ -520,7 +520,7 @@ class _CarServiceSearchScreenState extends State<CarServiceSearchScreen>
     final adapter = CarServiceAdCardAdapter(item);
     return GestureDetector(
       onTap: () {
-        context.push('/car-service-details', extra: item);
+        context.push('/car-service-details/${item.id}');
       },
       child: Directionality(
         textDirection: TextDirection.ltr,

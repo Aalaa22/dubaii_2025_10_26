@@ -162,16 +162,16 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     // if (user.whatsapp == null || user.whatsapp!.trim().isEmpty) {
     //   missingFields.add('رقم الواتساب');
     // }
-    if ((user.advertiserLocation == null ||
-            user.advertiserLocation!.trim().isEmpty) &&
-        (user.latitude == null || user.longitude == null)) {
-      missingFields.add('your location');
-    }
+    // if ((user.advertiserLocation == null ||
+    //         user.advertiserLocation!.trim().isEmpty) &&
+    //     (user.latitude == null || user.longitude == null)) {
+    //   missingFields.add('your location');
+    // }
 
-    // إظهار التنبيه إذا كانت هناك حقول ناقصة
-    if (missingFields.isNotEmpty && mounted) {
-      _showProfileIncompleteDialog(missingFields);
-    }
+  //  إظهار التنبيه إذا كانت هناك حقول ناقصة
+    // if (missingFields.isNotEmpty && mounted) {
+    //   _showProfileIncompleteDialog(missingFields);
+    // }
   }
 
   // دالة لإظهار تنبيه البيانات الناقصة
@@ -349,15 +349,15 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
       await _storage.write(key: 'saved_address', value: selectedLocation);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم حفظ الموقع بنجاح'),
+        SnackBar(
+          content: Text(S.of(context)!.locationSavedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('فشل في حفظ الموقع: $e'),
+          content: Text(S.of(context)!.saveFailed(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -401,8 +401,8 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     try {
       // إظهار مؤشر التحميل
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('جاري تحديد الموقع...'),
+        SnackBar(
+          content: Text("${S.of(context)!.locateMe}..."),
           backgroundColor: Color(0xFF01547E),
           duration: Duration(seconds: 2),
         ),
@@ -437,19 +437,19 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
         await _saveLocationToStorage();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم تحديد الموقع بنجاح'),
+          SnackBar(
+            content: Text(S.of(context)!.locationSavedSuccessfully),
             backgroundColor: Colors.green,
           ),
         );
       } else {
-        throw Exception('لم يتم العثور على الموقع');
+        throw Exception(S.of(context)!.failedToLocate);
       }
     } catch (e) {
       print('Location error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('فشل في تحديد الموقع: $e'),
+          content: Text(S.of(context)!.locationError(e.toString())),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 4),
         ),
@@ -492,7 +492,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('فشل في فتح Google Maps: $e'),
+          content: Text(S.of(context)!.failedToOpenGoogleMaps(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -537,8 +537,8 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
           await _saveLocationToStorage();
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم تحديث الموقع بنجاح'),
+            SnackBar(
+              content: Text(S.of(context)!.locationUpdateSuccess),
               backgroundColor: Colors.green,
             ),
           );
@@ -547,7 +547,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('خطأ في اختيار الموقع: $e'),
+          content: Text(S.of(context)!.locationPickerError(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -691,7 +691,7 @@ class _CarSalesAdScreenState extends State<CarSalesAdScreen> {
       'fuelType': selectedFuelType,
       'color': selectedColor,
       'interiorColor': selectedInteriorColor,
-      'warranty': selectedWarrantyValue == 'Yes',
+      'warranty': selectedWarrantyValue,
       'engineCapacity': selectedEngineCap,
       'cylinders': selectedCylinder,
       'horsepower': selectedHorsePower,

@@ -20,6 +20,8 @@ class RealEstateAdModel {
   final String? createdAt;
   final String location;
   final String? addCategory; // Dynamic category from API
+  final double? latitude;
+  final double? longitude;
 
   RealEstateAdModel(this.location, {
     required this.id,
@@ -39,6 +41,8 @@ class RealEstateAdModel {
     this.planType,
     this.createdAt,
     this.addCategory,
+    this.latitude,
+    this.longitude,
   });
 
   factory RealEstateAdModel.fromJson(Map<String, dynamic> json) {
@@ -75,6 +79,12 @@ class RealEstateAdModel {
       planType: json['plan_type'],
       createdAt: json['created_at'],
       addCategory: json['add_category'],
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
     );
   }
 }

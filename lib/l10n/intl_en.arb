@@ -96,6 +96,19 @@
   "privacyPolicy": "Privacy Policy",
   "passwordResetComingSoon": "Password reset will be available soon",
 
+  "report_ad_title": "Report Ad",
+  "report_reason_inappropriate": "Inappropriate Content",
+  "report_reason_spam": "spam",
+  "report_reason_misleading": "misleading",
+  "report_reason_duplicate": "duplicate",
+  "report_reason_fraud": "fraud",
+  "report_reason_wrong_category": "wrong_category ",
+  "report_reason_other": "other",
+  "please_select_all_fields": "Please select all fields",
+  "report_description_hint": "Please describe the issue...",
+  "report_cancel": "Cancel",
+  "report_submit": "Submit Report",
+  "report_success_message": "Report sent successfully. It will be reviewed soon.",
   "home":"Home",
   "srtting":"Settings",
   "manage":"Manage",
@@ -464,5 +477,9 @@
   "company": "Company",
   "editing1": "Editing",
   "editit2": "To make changes, please press the edit button below",
-  "edit3": "Edit"
+  "edit3": "Edit",
+  "locating": "Locating...",
+  "locationNotFound": "Location not found",
+  "imagesAddedSuccessfully": "Added {count} images successfully",
+  "locationSelectedSuccessfully": "Location selected successfully"
 }

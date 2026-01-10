@@ -329,7 +329,7 @@ class _CarSalesSaveAdScreenState extends State<CarSalesSaveAdScreen> {
               _buildFormRow([
                 _buildReadOnlyField(s.color, ad.color ?? 'N/A'),
                 _buildReadOnlyField(s.interiorColor, ad.interiorColor ?? 'N/A'),
-                _buildReadOnlyField(s.warranty, ad.warranty ? 'Yes' : 'No'),
+                _buildReadOnlyField(s.warranty, ad.warranty ?? 'N/A'),
               ]),
               const SizedBox(height: 15),
               _buildFormRow([

@@ -18,6 +18,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:advertising_app/presentation/widget/location_map.dart';
 import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
 import 'package:advertising_app/data/model/ad_priority.dart';
+import 'package:advertising_app/presentation/widgets/report_dialog.dart';
 
 // تعريف الثوابت
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
@@ -246,7 +247,7 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> with FavoritesHelpe
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
                                   color: KTextColor)),
-                          SizedBox(height: 10.h),
+                          SizedBox(height: 5.h),
                           ReadMoreText(
                               ad.description ?? 'No description provided.',
                               trimLines: 5,
@@ -356,13 +357,23 @@ class _JobDetailsScreenState extends State<JobDetailsScreen> with FavoritesHelpe
                           const Divider(color: Color(0xFFB5A9B1), thickness: 1),
                           SizedBox(height: 7.h),
                           Center(
-                              child: Text(s.report_this_ad,
-                                  style: TextStyle(
+                              child: InkWell(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => ReportDialog(
+                                      adType: ad.addCategory,
+                                      adId: ad.id,
+                                    ),
+                                  );
+                                },
+                                child: Text(s.report_this_ad,
+                                    style: TextStyle(
                                       color: KTextColor,
                                       fontSize: 16.sp,
                                       decoration: TextDecoration.underline,
                                       decorationColor: KTextColor,
-                                      fontWeight: FontWeight.w600))),
+                                      fontWeight: FontWeight.w600))),),
                           SizedBox(height: 10.h),
                           Container(
                               width: double.infinity,

@@ -6,6 +6,9 @@ import 'package:advertising_app/data/model/real_estate_ad_model.dart';
 import 'package:advertising_app/generated/l10n.dart';
 import 'package:advertising_app/presentation/providers/real_estate_ad_provider.dart';
 import 'package:advertising_app/presentation/providers/real_estate_info_provider.dart'; // ++ استيراد جديد
+import 'package:advertising_app/data/web_services/location_service.dart';
+import 'package:location/location.dart' as loc;
+import 'dart:math' as math;
 import 'package:advertising_app/presentation/widget/custom_search_card.dart';
 import 'package:advertising_app/constant/image_url_helper.dart';
 import 'package:advertising_app/utils/number_formatter.dart';
@@ -87,6 +90,8 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
   bool _showFloatingFilterBar = false;
   double _lastScrollOffset = 0.0;
   bool _sortByPriority = false; // Sort switch state - default off
+  bool _isLoadingLocation = false;
+  loc.LocationData? _currentUserLocation;
 
   List<String> _selectedTypes = [];
   List<String> _selectedDistricts = [];
@@ -220,6 +225,59 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
     context.read<RealEstateAdProvider>().fetchAds();
   }
 
+  // Calculate distance between two points in km using Haversine formula
+  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    var p = 0.017453292519943295; // Math.PI / 180
+    var c = math.cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * math.asin(math.sqrt(a)); // 2 * R; R = 6371 km
+  }
+
+  Future<void> _toggleSort(bool value) async {
+    if (value) {
+      setState(() {
+        _isLoadingLocation = true;
+      });
+
+      try {
+        final locationData = await LocationService().getCurrentLocationData();
+        if (locationData != null) {
+          setState(() {
+            _currentUserLocation = locationData;
+            _sortByPriority = true;
+            _isLoadingLocation = false;
+          });
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(S.of(context)!.errorLabel("Location not found"))),
+            );
+            setState(() {
+              _sortByPriority = false;
+              _isLoadingLocation = false;
+            });
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(S.of(context)!.errorLabel(e.toString()))),
+          );
+          setState(() {
+            _sortByPriority = false;
+            _isLoadingLocation = false;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        _sortByPriority = false;
+      });
+    }
+  }
+
   // ++ تم تحديث هذه الدالة لتستخدم بيانات من الـ Provider
   Widget _buildFiltersRow() {
     return Consumer<RealEstateInfoProvider>(
@@ -329,7 +387,24 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
             final allAds = provider.ads;
 
             // Apply sorting based on switch state
-            if (_sortByPriority) {
+            if (_sortByPriority && _currentUserLocation != null) {
+              allAds.sort((a, b) {
+                if (a.latitude == null || a.longitude == null) return 1;
+                if (b.latitude == null || b.longitude == null) return -1;
+
+                final distA = _calculateDistance(
+                    _currentUserLocation!.latitude!,
+                    _currentUserLocation!.longitude!,
+                    a.latitude!,
+                    a.longitude!);
+                final distB = _calculateDistance(
+                    _currentUserLocation!.latitude!,
+                    _currentUserLocation!.longitude!,
+                    b.latitude!,
+                    b.longitude!);
+                return distA.compareTo(distB);
+              });
+            } else {
               allAds.sort(
                   (a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
             }
@@ -471,16 +546,17 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
                                           SizedBox(
                                               width:
                                                   isSmallScreen ? 35.w : 32.w,
-                                              child: Transform.scale(
-                                                  scale:
-                                                      isSmallScreen ? 0.8 : .9,
-                                                  child: Switch(
+                                              child: _isLoadingLocation
+                                                  ? SizedBox(
+                                                      height: 20.h,
+                                                      width: 20.w,
+                                                      child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: KPrimaryColor))
+                                                  : Switch(
                                                       value: _sortByPriority,
-                                                      onChanged: (val) {
-                                                        setState(() {
-                                                          _sortByPriority = val;
-                                                        });
-                                                      },
+                                                      onChanged: (val) =>
+                                                          _toggleSort(val),
                                                       activeColor: Colors.white,
                                                       activeTrackColor:
                                                           const Color(
@@ -490,7 +566,7 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
                                                               ? Colors.white
                                                               : Colors.grey,
                                                       inactiveTrackColor:
-                                                          Colors.grey[300])))
+                                                          Colors.grey[300]))
                                         ])))
                               ]);
                             },
@@ -599,16 +675,17 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
                                           SizedBox(
                                               width:
                                                   isSmallScreen ? 35.w : 32.w,
-                                              child: Transform.scale(
-                                                  scale:
-                                                      isSmallScreen ? 0.8 : .9,
-                                                  child: Switch(
+                                              child: _isLoadingLocation
+                                                  ? SizedBox(
+                                                      height: 20.h,
+                                                      width: 20.w,
+                                                      child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: KPrimaryColor))
+                                                  : Switch(
                                                       value: _sortByPriority,
-                                                      onChanged: (val) {
-                                                        setState(() {
-                                                          _sortByPriority = val;
-                                                        });
-                                                      },
+                                                      onChanged: (val) =>
+                                                          _toggleSort(val),
                                                       activeColor: Colors.white,
                                                       activeTrackColor:
                                                           const Color(
@@ -618,7 +695,7 @@ class _RealEstateSearchScreenState extends State<RealEstateSearchScreen>
                                                               ? Colors.white
                                                               : Colors.grey,
                                                       inactiveTrackColor:
-                                                          Colors.grey[300])))
+                                                          Colors.grey[300]))
                                         ])))
                               ]);
                             },

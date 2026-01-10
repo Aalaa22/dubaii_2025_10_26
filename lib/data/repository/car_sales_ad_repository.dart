@@ -103,7 +103,7 @@ class CarAdRepository {
       String? fuelType,
       String? color,
       String? interiorColor,
-      required bool warranty,
+      String? warranty,
       String? engineCapacity,
       String? cylinders,
       String? horsepower,
@@ -123,61 +123,22 @@ class CarAdRepository {
       required int planDays,
       required String planExpiresAt,
       String? payment}) async {
-    final String warrantyValue = warranty ? '1' : '0';
+    final String? warrantyValue = warranty;
 
-    // تنظيف قيمة engine_capacity لإزالة الحرف "L" إذا كان موجوداً
-    String? cleanEngineCapacity;
-    if (engineCapacity != null && engineCapacity.isNotEmpty) {
-      cleanEngineCapacity = engineCapacity.replaceAll('L', '').trim();
-      if (cleanEngineCapacity.isEmpty) cleanEngineCapacity = null;
-    }
+    // Pass engine_capacity as is (String)
+    String? cleanEngineCapacity = engineCapacity;
 
-    // تنظيف قيمة cylinders لاستخراج الأرقام فقط
-    String? cleanCylinders;
-    if (cylinders != null && cylinders.isNotEmpty) {
-      // استخراج الأرقام فقط من النص
-      final match = RegExp(r'\d+').firstMatch(cylinders);
-      if (match != null) {
-        cleanCylinders = match.group(0);
-      }
-    }
+    // Pass cylinders as is (String)
+    String? cleanCylinders = cylinders;
 
-    // تنظيف قيمة horsepower لاستخراج الأرقام والشرطة فقط
-    String? cleanHorsepower;
-    if (horsepower != null && horsepower.isNotEmpty) {
-      // إذا كانت القيمة تحتوي على نطاق مثل "100-150", نأخذ الرقم الأول
-      if (horsepower.contains('-')) {
-        final parts = horsepower.split('-');
-        final firstNumber = RegExp(r'\d+').firstMatch(parts[0]);
-        if (firstNumber != null) {
-          cleanHorsepower = firstNumber.group(0);
-        }
-      } else {
-        // استخراج الأرقام فقط
-        final match = RegExp(r'\d+').firstMatch(horsepower);
-        if (match != null) {
-          cleanHorsepower = match.group(0);
-        }
-      }
-    }
+    // Pass horsepower as is (String)
+    String? cleanHorsepower = horsepower;
 
-    // تنظيف قيمة doors لاستخراج الأرقام فقط
-    String? cleanDoorsNo;
-    if (doorsNo != null && doorsNo.isNotEmpty) {
-      final match = RegExp(r'\d+').firstMatch(doorsNo);
-      if (match != null) {
-        cleanDoorsNo = match.group(0);
-      }
-    }
+    // Pass doors_no as is (String)
+    String? cleanDoorsNo = doorsNo;
 
-    // تنظيف قيمة seats لاستخراج الأرقام فقط
-    String? cleanSeatsNo;
-    if (seatsNo != null && seatsNo.isNotEmpty) {
-      final match = RegExp(r'\d+').firstMatch(seatsNo);
-      if (match != null) {
-        cleanSeatsNo = match.group(0);
-      }
-    }
+    // Pass seats_no as is (String)
+    String? cleanSeatsNo = seatsNo;
 
     final Map<String, dynamic> textData = {
       'title': title,

@@ -32,7 +32,7 @@ class CarAdModel {
   final String? fuelType;
   final String? color;
   final String? interiorColor;
-  final bool warranty;
+  final String? warranty;
   final String? engineCapacity;
   final String? cylinders;
   final String? horsepower;
@@ -55,6 +55,7 @@ class CarAdModel {
   final String? addCategory; // Dynamic category from API
   final double? latitude;
   final double? longitude;
+  final String? advertiserLogoUrl;
 
   CarAdModel(
     this.location, {
@@ -73,7 +74,7 @@ class CarAdModel {
     this.fuelType,
     this.color,
     this.interiorColor,
-    required this.warranty,
+    this.warranty,
     this.engineCapacity,
     this.cylinders,
     this.horsepower,
@@ -94,6 +95,7 @@ class CarAdModel {
     this.addCategory,
     this.latitude,
     this.longitude,
+    this.advertiserLogoUrl,
   });
 
   // مصنع (Factory) آمن يقوم بتحليل الـ JSON ومنع الأخطاء
@@ -132,7 +134,8 @@ class CarAdModel {
       color: json['color']?.toString(),
       interiorColor: json['interior_color']?.toString(),
       // تحويل القيم الرقمية (0, 1) أو النصية ('0', '1') أو (true, false) إلى bool بأمان
-      warranty: ['1', 1, true].contains(json['warranty']),
+      // تم التحديث: الآن الضمان يأتي كنص (String)
+      warranty: json['warranty']?.toString(),
       engineCapacity: json['engine_capacity']?.toString(),
       cylinders: json['cylinders']?.toString(),
       horsepower: json['horsepower']?.toString(),
@@ -153,6 +156,7 @@ class CarAdModel {
       addCategory: json['add_category']?.toString(),
       latitude: parseDouble(json['latitude'] ?? json['lat']),
       longitude: parseDouble(json['longitude'] ?? json['lng']),
+      advertiserLogoUrl: json['user'] != null ? json['user']['advertiser_logo_url']?.toString() : null,
     );
   }
 }

@@ -158,7 +158,7 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('تم إضافة ${pickedImages.length} صورة بنجاح.'),
+            content: Text(S.of(context)!.saveSuccess),
             backgroundColor: Colors.green));
       }
     }
@@ -206,22 +206,22 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
       debugPrint('Failed to set default coordinates from profile: $e');
     }
 
-    List<String> missingFields = [];
+    // List<String> missingFields = [];
 
-    // التحقق من الحقول المطلوبة
-    if (user.phone.trim().isEmpty) {
-      missingFields.add('رقم الهاتف');
-    }
-    if ((user.advertiserLocation == null ||
-            user.advertiserLocation!.trim().isEmpty) &&
-        (user.latitude == null || user.longitude == null)) {
-      missingFields.add('الموقع');
-    }
+    // // التحقق من الحقول المطلوبة
+    // if (user.phone.trim().isEmpty) {
+    //   missingFields.add('رقم الهاتف');
+    // }
+    // if ((user.advertiserLocation == null ||
+    //         user.advertiserLocation!.trim().isEmpty) &&
+    //     (user.latitude == null || user.longitude == null)) {
+    //   missingFields.add('الموقع');
+    // }
 
-    // إظهار التنبيه إذا كانت هناك حقول ناقصة
-    if (missingFields.isNotEmpty && mounted) {
-      _showProfileIncompleteDialog(missingFields);
-    }
+    // // إظهار التنبيه إذا كانت هناك حقول ناقصة
+    // if (missingFields.isNotEmpty && mounted) {
+    //   _showProfileIncompleteDialog(missingFields);
+    // }
   }
 
   // دالة لإظهار تنبيه البيانات الناقصة
@@ -369,8 +369,8 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
   // --- دوال الخريطة (منسوخة من شاشة السيارات مع تعديلات بسيطة) ---
   Future<void> _getCurrentLocation() async {
     setState(() => _isLoadingLocation = true);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('جاري تحديد الموقع...'), backgroundColor: KPrimaryColor));
+    ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        content: Text(S.of(context)!.loading), backgroundColor: KPrimaryColor));
 
     try {
       final mapsProvider = context.read<GoogleMapsProvider>();
@@ -390,13 +390,13 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
           if (address != null) selectedLocation = address;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('تم تحديد الموقع بنجاح'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(S.of(context)!.locationSavedSuccessfully),
             backgroundColor: Colors.green));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('فشل في تحديد الموقع: $e'),
+          content: Text(S.of(context)!.locationError(e.toString())),
           backgroundColor: Colors.red));
     } finally {
       setState(() => _isLoadingLocation = false);
@@ -497,8 +497,13 @@ class _CarServicesAdScreenState extends State<CarServicesAdScreen> {
     if (token != null &&
         selectedLocation.isNotEmpty &&
         !infoProvider.locations.contains(selectedLocation)) {
-      await infoProvider.addContactItem('locations', selectedLocation,
-          token: token);
+      try {
+        await infoProvider.addContactItem('advertiser_locations', selectedLocation,
+            token: token);
+      } catch (e) {
+        print('Failed to add location: $e');
+        // Continue even if adding location fails
+      }
     }
 
     // تحويل أسماء العرض إلى أسماء الـ API

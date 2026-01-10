@@ -390,8 +390,9 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                               if (selection != null) {
                                 try {
                                   if (selection == 'All') {
-                                    // Fetch all models when "All" is selected
-                                    await infoProvider.fetchAllModels();
+                                    // When "All" is selected, clear models
+                                    // We will only show "All" in the model dropdown
+                                    infoProvider.clearModelsAndTrims();
                                   } else {
                                     final makeObject = infoProvider.makes
                                         .firstWhere((m) => m.name == selection);
@@ -410,8 +411,9 @@ class _CarRentScreenState extends State<CarRentScreen> with FavoritesHelper {
                           UnifiedDropdown<String>(
                             title: s.choose_model,
                             selectedValue: _selectedModel,
-                            items: infoProvider
-                                .modelNames, // Model list will be empty until a make is chosen and data is fetched
+                            items: _selectedMake == 'All'
+                                ? ['All']
+                                : infoProvider.modelNames,
                             isLoading: infoProvider.isLoading,
                             onConfirm: (selection) =>
                                 setState(() => _selectedModel = selection),

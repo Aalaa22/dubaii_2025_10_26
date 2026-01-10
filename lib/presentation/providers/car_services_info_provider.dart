@@ -108,9 +108,14 @@ class CarServicesInfoProvider extends ChangeNotifier {
         _whatsappNumbers = data['whatsapp_numbers'] != null
             ? List<String>.from(data['whatsapp_numbers'])
             : [];
-        _locations = data['locations'] != null
-            ? List<String>.from(data['locations'])
-            : [];
+        // Support both keys just in case, preferring advertiser_locations
+        if (data['advertiser_locations'] != null) {
+          _locations = List<String>.from(data['advertiser_locations']);
+        } else if (data['locations'] != null) {
+          _locations = List<String>.from(data['locations']);
+        } else {
+          _locations = [];
+        }
       } else {
         throw Exception('API returned success: false or data is null');
       }

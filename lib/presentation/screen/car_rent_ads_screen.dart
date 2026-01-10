@@ -163,14 +163,14 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
           setState(() => _thumbnailImages
               .addAll(pickedImages.map((img) => File(img.path))));
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('تم إضافة ${pickedImages.length} صور بنجاح'),
+            content: Text(S.of(context)!.saveSuccess),
             backgroundColor: Colors.green,
           ));
         }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('حدث خطأ أثناء اختيار الصور: $e'),
+        content: Text(S.of(context)!.errorOccurredWithMessage(e.toString())),
         backgroundColor: Colors.red,
       ));
     }
@@ -218,22 +218,22 @@ class _CarsRentAdScreenState extends State<CarsRentAdScreen> {
       debugPrint('Failed to set default coordinates from profile: $e');
     }
 
-    List<String> missingFields = [];
+    // List<String> missingFields = [];
+    
+    // // التحقق من الحقول المطلوبة
+    // if (user.phone.trim().isEmpty) {
+    //   missingFields.add('phone number');
+    // }
+    // if ((user.advertiserLocation == null ||
+    //         user.advertiserLocation!.trim().isEmpty) &&
+    //     (user.latitude == null || user.longitude == null)) {
+    //   missingFields.add('your location');
+    // }
 
-    // التحقق من الحقول المطلوبة
-    if (user.phone.trim().isEmpty) {
-      missingFields.add('phone number');
-    }
-    if ((user.advertiserLocation == null ||
-            user.advertiserLocation!.trim().isEmpty) &&
-        (user.latitude == null || user.longitude == null)) {
-      missingFields.add('your location');
-    }
-
-    // إظهار التنبيه إذا كانت هناك حقول ناقصة
-    if (missingFields.isNotEmpty && mounted) {
-      _showProfileIncompleteDialog(missingFields);
-    }
+    // // إظهار التنبيه إذا كانت هناك حقول ناقصة
+    // if (missingFields.isNotEmpty && mounted) {
+    //   _showProfileIncompleteDialog(missingFields);
+    // }
   }
 
   // دالة لإظهار تنبيه البيانات الناقصة

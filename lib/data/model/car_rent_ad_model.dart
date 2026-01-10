@@ -32,6 +32,7 @@ class CarRentAdModel {
   final String? seats_no;
   final String? description;
   final String? addCategory;
+  final String? advertiserLogoUrl;
 
   // Getters for compatibility with screen code
   String? get interiorColor => interior_color;
@@ -45,7 +46,8 @@ class CarRentAdModel {
     this.interior_color,
     this.seats_no,
     this.description,
-    this.addCategory, {
+    this.addCategory,
+    this.advertiserLogoUrl, {
     required this.id,
     required this.title,
     required this.price,
@@ -96,6 +98,9 @@ class CarRentAdModel {
         json['seats_no']?.toString(),
         json['description']?.toString(),
         json['add_category']?.toString(),
+        json['user'] != null
+            ? json['user']['advertiser_logo_url']?.toString()
+            : null,
         id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
         price: json['price']?.toString() ?? '0',
         title: json['title']?.toString() ?? 'No Title',

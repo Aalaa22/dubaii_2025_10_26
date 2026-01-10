@@ -452,8 +452,8 @@ class CarAdProvider with ChangeNotifier {
     if (_selectedMake != null && _selectedMake!.id > 0) {
       fetchModelsForMake(_selectedMake!);
     } else if (_selectedMake != null && _selectedMake!.id == -1) {
-      // When "All" is selected, fetch all models
-      fetchAllModels();
+      // When "All" is selected, clear models (UI handles showing "All" option only)
+      _models.clear();
     } else {
       applyAndFetchAds();
     }
@@ -886,34 +886,13 @@ class CarAdProvider with ChangeNotifier {
     try {
       final token = await FlutterSecureStorage().read(key: 'auth_token');
 
-      // Normalize and validate payload (camelCase -> snake_case, clean numeric fields)
-      String? cleanEngineCapacity(dynamic v) {
-        if (v == null) return null;
-        final s = v.toString().replaceAll('L', '').trim();
-        return s.isEmpty ? null : s;
-      }
 
-      String? digitsOnly(dynamic v) {
-        if (v == null) return null;
-        final m = RegExp(r'\d+').firstMatch(v.toString());
-        return m?.group(0);
-      }
 
-      String? firstNumber(dynamic v) {
-        if (v == null) return null;
-        final s = v.toString();
-        if (s.contains('-')) {
-          final m = RegExp(r'\d+').firstMatch(s.split('-').first);
-          return m?.group(0);
-        }
-        return RegExp(r'\d+').firstMatch(s)?.group(0);
-      }
-
-      String warrantyToApi(dynamic v) {
-        return (v == true || (v is String && (v == 'true' || v == '1')))
-            ? '1'
-            : '0';
-      }
+      // String warrantyToApi(dynamic v) {
+      //   return (v == true || (v is String && (v == 'true' || v == '1')))
+      //       ? '1'
+      //       : '0';
+      // }
 
       final Map<String, String> camelToSnake = {
         'carType': 'car_type',
@@ -950,12 +929,12 @@ class CarAdProvider with ChangeNotifier {
         'fuel_type': adData['fuel_type'] ?? adData['fuelType'],
         'color': adData['color'],
         'interior_color': adData['interior_color'] ?? adData['interiorColor'],
-        'warranty': warrantyToApi(adData['warranty']),
-        'engine_capacity': cleanEngineCapacity(adData['engineCapacity']),
-        'cylinders': digitsOnly(adData['cylinders']),
-        'horsepower': firstNumber(adData['horsepower']),
-        'doors_no': digitsOnly(adData['doorsNo']),
-        'seats_no': digitsOnly(adData['seatsNo']),
+        'warranty': adData['warranty']?.toString(),
+        'engine_capacity': adData['engineCapacity']?.toString(),
+        'cylinders': adData['cylinders']?.toString(),
+        'horsepower': adData['horsepower']?.toString(),
+        'doors_no': adData['doorsNo']?.toString(),
+        'seats_no': adData['seatsNo']?.toString(),
         'steering_side': adData['steering_side'] ?? adData['steeringSide'],
         'advertiser_name':
             adData['advertiser_name'] ?? adData['advertiserName'],

@@ -114,6 +114,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   List<CarModel> _getModelsWithAllAndOther(CarAdProvider provider) {
+    // If "All" make is selected (id == -1), return only "All" option
+    if (provider.selectedMake != null && provider.selectedMake!.id == -1) {
+      return [CarModel(id: -1, name: "All", makeId: -1)];
+    }
+
     List<CarModel> modelsWithOptions = [];
 
     // إضافة خيار "All"
@@ -327,7 +332,8 @@ class _HomeScreenState extends State<HomeScreen>
                               _showValidationError = false;
                             });
                           },
-                          displayNamer: (make) => make.name,
+                          displayNamer: (make) =>
+                              make.name == 'All' ? s.all : make.name,
                           isLoading: carAdProvider.isLoadingMakes,
                         ),
                         if (_showValidationError)
@@ -349,7 +355,8 @@ class _HomeScreenState extends State<HomeScreen>
                               _showValidationError = false;
                             });
                           },
-                          displayNamer: (model) => model.name,
+                          displayNamer: (model) =>
+                              model.name == 'All' ? s.all : model.name,
                           isLoading: carAdProvider.isLoadingModels,
                         ),
                         SizedBox(height: 4.h),

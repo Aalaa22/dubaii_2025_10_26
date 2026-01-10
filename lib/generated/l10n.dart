@@ -2412,6 +2412,84 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Company'**
   String get company;
+
+  /// No description provided for @report_ad_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Ad'**
+  String get report_ad_title;
+
+  /// No description provided for @report_reason_inappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate Content'**
+  String get report_reason_inappropriate;
+
+  /// No description provided for @report_reason_spam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or Repetitive'**
+  String get report_reason_spam;
+
+  /// No description provided for @report_reason_misleading.
+  ///
+  /// In en, this message translates to:
+  /// **'Misleading Information'**
+  String get report_reason_misleading;
+
+  /// No description provided for @report_reason_duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate Ad'**
+  String get report_reason_duplicate;
+
+  /// No description provided for @report_reason_fraud.
+  ///
+  /// In en, this message translates to:
+  /// **'Fraud or Scam'**
+  String get report_reason_fraud;
+
+  /// No description provided for @report_reason_wrong_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong Category'**
+  String get report_reason_wrong_category;
+
+  /// No description provided for @report_reason_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get report_reason_other;
+
+  /// No description provided for @please_select_all_fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select all fields'**
+ // String get please_select_all_fields;
+
+  /// No description provided for @report_description_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please describe the issue...'**
+  String get report_description_hint;
+
+  /// No description provided for @report_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get report_cancel;
+
+  /// No description provided for @report_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Report'**
+  String get report_submit;
+
+  /// No description provided for @report_success_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Report sent successfully. It will be reviewed soon.'**
+  String get report_success_message;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

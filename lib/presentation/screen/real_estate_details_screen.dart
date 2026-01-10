@@ -22,6 +22,7 @@ import 'package:advertising_app/utils/number_formatter.dart';
 import 'package:advertising_app/utils/favorites_helper.dart';
 import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
 import 'package:advertising_app/data/model/ad_priority.dart';
+import 'package:advertising_app/presentation/widgets/report_dialog.dart';
 
 class RealEstateDetailsScreen extends StatefulWidget {
   final String adId;
@@ -341,15 +342,15 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                                 ),
                               ],
                             ),
-                            SizedBox(height: 6.h),
-                            Text(
-                              realEstate.title ?? '',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: KTextColor,
-                              ),
-                            ),
+                            // SizedBox(height: 6.h),
+                            // Text(
+                            //   realEstate.title ?? '',
+                            //   style: TextStyle(
+                            //     fontSize: 16.sp,
+                            //     fontWeight: FontWeight.w600,
+                            //     color: KTextColor,
+                            //   ),
+                            // ),
                            
                             SizedBox(height: 6.h),
                             Text(
@@ -400,7 +401,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                           color: KTextColor,
                         ),
                       ),
-                      SizedBox(height: 20.h),
+                      SizedBox(height: 5.h),
                       Directionality(
                         textDirection: TextDirection.ltr,
                         child: Row(
@@ -569,9 +570,19 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                       Divider(color: Color(0xFFB5A9B1), thickness: 1.h),
                       SizedBox(height: 7.h),
                       Center(
-                        child: Text(
-                          S.of(context)!.report_this_ad,
-                          style: TextStyle(
+                        child: InkWell(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => ReportDialog(
+                                adType: realEstate.addCategory ?? 'real_estate',
+                                adId: realEstate.id,
+                              ),
+                            );
+                          },
+                          child: Text(
+                            S.of(context)!.report_this_ad,
+                            style: TextStyle(
                             color: KTextColor,
                             fontSize: 16.sp,
                             decoration: TextDecoration.underline,
@@ -579,7 +590,7 @@ class _RealEstateDetailsScreenState extends State<RealEstateDetailsScreen> with 
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
+                      ),),
                       SizedBox(height: 10.h),
                       Container(
                         width: double.infinity,

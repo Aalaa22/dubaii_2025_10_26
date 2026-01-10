@@ -415,7 +415,7 @@ class _CarServiceOfferBoxState extends State<CarServiceOfferBox> with FavoritesH
 
                         return GestureDetector(
                           onTap: () {
-                            context.push('/car-service-details', extra: car);
+                            context.push('/car-service-details/${car.id}');
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 3),

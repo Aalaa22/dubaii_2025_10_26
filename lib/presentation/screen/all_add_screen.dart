@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
@@ -368,12 +369,36 @@ class _AllAddScreenState extends State<AllAddScreen> {
         body: Column(
           children: [
             SizedBox(height: 60),
-            Text(
-              S.of(context)!.see_all_ads,
-              style: TextStyle(
-                color: Color(0xFF001E5B),
-                fontWeight: FontWeight.w500,
-                fontSize: 24,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => context.pop(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.arrow_back_ios,
+                            color: KTextColor, size: 17.sp),
+                        Transform.translate(
+                            offset: Offset(-3.w, 0),
+                            child: Text(S.of(context)!.back,
+                                style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    color: KTextColor))),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 22.w),
+                  Text(
+                    S.of(context)!.see_all_ads,
+                    style: TextStyle(
+                      color: Color(0xFF001E5B),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 10),
@@ -503,16 +528,21 @@ class _AllAddScreenState extends State<AllAddScreen> {
   }
 
   Widget _buildCarSalesCard(FavoriteItemInterface item, int index) {
-    return SearchCard(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/car-details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 
@@ -540,58 +570,78 @@ class _AllAddScreenState extends State<AllAddScreen> {
       ]);
     } catch (_) {}
 
-    return SearchCard(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/car-rent-details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customLine1Span: line1Span,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customLine1Span: line1Span,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 
   Widget _buildCarServiceCard(FavoriteItemInterface item, int index) {
-    return SearchCard(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/car-service-details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 
   Widget _buildRealEstateCard(FavoriteItemInterface item, int index) {
-    return SearchCard(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/real-details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 
   Widget _buildElectronicsCard(FavoriteItemInterface item, int index) {
-    return SearchCard2(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/electronic-details/${item.id}');
       },
-      showDelete: true,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard2(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 
@@ -641,46 +691,61 @@ class _AllAddScreenState extends State<AllAddScreen> {
       debugPrint('Job card customization failed: $e');
     }
 
-    return SearchCardJob(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/job-details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customActionButtons: const [],
-      customImageUrl: customImageUrl,
-      customBottomWidget: bottomWidget,
+      child: SearchCardJob(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customActionButtons: const [],
+        customImageUrl: customImageUrl,
+        customBottomWidget: bottomWidget,
+      ),
     );
   }
 
   Widget _buildRestaurantCard(FavoriteItemInterface item, int index) {
-    return SearchCard(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/restaurant_details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 
   Widget _buildOtherServiceCard(FavoriteItemInterface item, int index) {
-    return SearchCard(
-      item: item,
-      onDelete: () {
-        setState(() {
-          allData[selectedCategory].removeAt(index);
-        });
+    return GestureDetector(
+      onTap: () {
+        context.push('/other_service-details/${item.id}');
       },
-      showDelete: true,
-      showLine1: true,
-      customActionButtons: _buildActionButtons(item),
+      child: SearchCard(
+        item: item,
+        onDelete: () {
+          setState(() {
+            allData[selectedCategory].removeAt(index);
+          });
+        },
+        showDelete: true,
+        showLine1: true,
+        customActionButtons: _buildActionButtons(item),
+      ),
     );
   }
 

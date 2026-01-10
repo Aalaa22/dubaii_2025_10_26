@@ -18,6 +18,7 @@ import 'package:advertising_app/utils/favorites_helper.dart';
 import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
 import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:provider/provider.dart';
+import 'package:advertising_app/presentation/widgets/report_dialog.dart';
 
 class CarServiceDetails extends StatefulWidget {
   final int adId;
@@ -398,7 +399,7 @@ class _CarServiceDetailsState extends State<CarServiceDetails>
                               color: KTextColor,
                             ),
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 5.h),
                           Directionality(
                             textDirection: TextDirection.ltr,
                             child: ReadMoreText(
@@ -544,6 +545,16 @@ class _CarServiceDetailsState extends State<CarServiceDetails>
                               color: const Color(0xFFB5A9B1), thickness: 1.h),
                           SizedBox(height: 7.h),
                           Center(
+                            child: InkWell(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => ReportDialog(
+                                  adType: "car-services",
+                                  adId: car_service.id,
+                                ),
+                              );
+                            },
                             child: Text(
                               S.of(context)!.report_this_ad,
                               style: TextStyle(
@@ -555,7 +566,7 @@ class _CarServiceDetailsState extends State<CarServiceDetails>
                               ),
                             ),
                           ),
-                          SizedBox(height: 10.h),
+                         ), SizedBox(height: 10.h),
                           Container(
                             width: double.infinity,
                             height: 110.h,

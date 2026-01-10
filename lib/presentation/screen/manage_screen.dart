@@ -56,6 +56,8 @@ class _ManageScreenState extends State<ManageScreen> {
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -255,6 +257,48 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
     });
   }
 
+  void _navigateToDetails(BuildContext context) {
+    final ad = widget.ad;
+    final slug = ad.categorySlug.toLowerCase();
+    final category = (ad.category ?? '').toLowerCase();
+
+    if (slug == 'car-sales' ||
+        slug == 'car_sales' ||
+        category.contains('cars sales')) {
+      context.push('/car-details/${ad.id}');
+    } else if (slug == 'car-rent' ||
+        slug == 'car_rent' ||
+        category.contains('car rent')) {
+      context.push('/car-rent-details/${ad.id}');
+    } else if (slug == 'job' ||
+        slug.contains('job') ||
+        category == 'jobs' ||
+        category == 'jop') {
+      context.push('/job-details/${ad.id}');
+    } else if (slug == 'electronic' ||
+        slug.contains('electronic') ||
+        category.contains('electronic')) {
+      context.push('/electronic-details/${ad.id}');
+    } else if (slug == 'other-services' ||
+        slug == 'other_services' ||
+        category.contains('other services')) {
+      context.push('/other_service-details/${ad.id}');
+    } else if (slug == 'car-services' ||
+        slug == 'car_services' ||
+        category.contains('car services')) {
+      context.push('/car-service-details/${ad.id}');
+    } else if (slug == 'restaurant' ||
+        slug == 'restaurants' ||
+        category.contains('restaurant')) {
+      context.push('/restaurant_details/${ad.id}');
+    } else if (slug == 'real-estate' ||
+        slug == 'real_estate' ||
+        category.contains('real estate') ||
+        category.contains('real state')) {
+      context.push('/real-details/${ad.id}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
@@ -276,69 +320,30 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
       isJobCategory && jobImagePath.isNotEmpty ? jobImagePath : ad.mainImageUrl,
     );
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade200),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3))
-          ]),
-      child: Column(
-        children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Stack(
-              children: [
-                SizedBox(
-                  width: 140.w,
-                  height: 105.h,
-                  child: GestureDetector(
-                    onTap: () {
-                      final slug = ad.categorySlug.toLowerCase();
-                      final category = (ad.category ?? '').toLowerCase();
-
-                      if (slug == 'car-sales' ||
-                          slug == 'car_sales' ||
-                          category.contains('cars sales')) {
-                        context.push('/car-details/${ad.id}');
-                      } else if (slug == 'car-rent' ||
-                          slug == 'car_rent' ||
-                          category.contains('car rent')) {
-                        context.push('/car-rent-details/${ad.id}');
-                      } else if (slug == 'job' ||
-                          slug.contains('job') ||
-                          category == 'jobs' ||
-                          category == 'jop') {
-                        context.push('/job-details/${ad.id}');
-                      } else if (slug == 'electronic' ||
-                          slug.contains('electronic') ||
-                          category.contains('electronic')) {
-                        context.push('/electronic-details/${ad.id}');
-                      } else if (slug == 'other-services' ||
-                          slug == 'other_services' ||
-                          category.contains('other services')) {
-                        context.push('/other_service-details/${ad.id}');
-                      } else if (slug == 'car-services' ||
-                          slug == 'car_services' ||
-                          category.contains('car services')) {
-                        context.push('/car-service-details/${ad.id}');
-                      } else if (slug == 'restaurant' ||
-                          slug == 'restaurants' ||
-                          category.contains('restaurant')) {
-                        context.push('/restaurant_details/${ad.id}');
-                      } else if (slug == 'real-estate' ||
-                          slug == 'real_estate' ||
-                          category.contains('real estate') ||
-                          category.contains('real state')) {
-                        context.push('/real-details/${ad.id}');
-                      }
-                    },
+    return GestureDetector(
+      onTap: () => _navigateToDetails(context),
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3))
+            ]),
+        child: Column(
+          children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    width: 140.w,
+                    height: 105.h,
                     child: Stack(children: [
                       ClipRRect(
                           borderRadius: BorderRadius.circular(8),
@@ -369,8 +374,7 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                       fontWeight: FontWeight.bold)))),
                     ]),
                   ),
-                ),
-                // Plan type box positioned above the image
+                  // Plan type box positioned above the image
                 if (ad.planType != null && ad.planType!.isNotEmpty)
                   Positioned(
                     top: 4.h,
@@ -523,121 +527,6 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
                                       fontSize: 14.sp,
                                     ),
                                   ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      final confirmed = await showDialog<bool>(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (ctx) {
-                                          return AlertDialog(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            title: Text(
-                                              S.of(context)!.deleteAdTitle,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16.sp,
-                                                color: KTextColor,
-                                              ),
-                                            ),
-                                            content: Text(
-                                              S
-                                                  .of(context)
-                                                  .deleteAdConfirmation,
-                                              style: TextStyle(
-                                                fontSize: 14.sp,
-                                                color: KTextColor,
-                                              ),
-                                            ),
-                                            actionsPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(ctx)
-                                                        .pop(false),
-                                                child: Text(
-                                                  S.of(context)!.cancel,
-                                                  style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: KTextColor),
-                                                ),
-                                              ),
-                                              ElevatedButton(
-                                                onPressed: () =>
-                                                    Navigator.of(ctx).pop(true),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: Colors.red,
-                                                  shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8)),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 10),
-                                                ),
-                                                child: Text(
-                                                  S.of(context)!.yesDelete,
-                                                  style: TextStyle(
-                                                      fontSize: 12.sp,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-
-                                      if (confirmed != true) return;
-
-                                      final messenger =
-                                          rootScaffoldMessengerKey.currentState;
-                                      final provider =
-                                          context.read<MyAdsProvider>();
-                                      final success =
-                                          await provider.deleteAd(ad: ad);
-                                      messenger?.hideCurrentSnackBar();
-                                      messenger?.showSnackBar(
-                                        SnackBar(
-                                          content: _localizedSnackText(
-                                              context,
-                                              success
-                                                  ? S
-                                                      .of(context)
-                                                      .adDeletedSuccess
-                                                  : S
-                                                      .of(context)
-                                                      .adDeletedFailed),
-                                          backgroundColor: success
-                                              ? Colors.green
-                                              : Colors.red,
-                                          duration: const Duration(seconds: 2),
-                                        ),
-                                      );
-                                    },
-                                    icon: SvgPicture.asset(
-                                      'assets/icons/deleted.svg',
-                                      width: 20.w,
-                                      height: 22.h,
-                                    ),
-
-                                    // أهم 4 أسطر لإلغاء المسافات العمودية والأفقية الزائدة:
-                                    padding: EdgeInsets.zero,
-                                    //  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    constraints: BoxConstraints.tightFor(
-                                        width: 22, height: 22),
-                                    visualDensity: const VisualDensity(
-                                        horizontal: -4, vertical: -4),
-                                    splashRadius:
-                                        14, // اختياري لتقليل دائرة الرِبِّل
-                                  ),
                                 ],
                               ),
                               //  SizedBox(height: 4.h),
@@ -729,12 +618,12 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
               _buildActionButton(s.refresh, primaryColor, borderColor, s, ad),
               _buildActionButton(s.edit, primaryColor, borderColor, s, ad),
               _buildActionButton(s.renew, primaryColor, borderColor, s, ad),
-              _buildActionButton(s.upgrade, primaryColor, borderColor, s, ad),
+              _buildActionButton(s.delete, primaryColor, borderColor, s, ad),
             ],
           ),
         ],
       ),
-    );
+    ));
   }
 
   Color _getStatusColor(String status) {
@@ -894,22 +783,129 @@ class __AdCardWidgetState extends State<_AdCardWidget> {
               );
               // بعد تنفيذ الترقية، أعِد الجلب لتتحدث حالة الإعلان فورًا
               await provider.fetchMyAds();
+            } else if (text == s.renew) {
+              // تنفيذ طلب Renew (حالياً يستخدم makeRankOne)
+              final messenger = rootScaffoldMessengerKey.currentState;
+              final provider = context.read<MyAdsProvider>();
+              messenger?.hideCurrentSnackBar();
+              messenger?.showSnackBar(
+                SnackBar(
+                  content: _localizedSnackText(
+                      context, S.of(context)!.rankAdInProgress),
+                ),
+              );
+              // قد يحتاج هذا إلى endpoint خاص بالتجديد مستقبلاً
+              final success = await provider.makeRankOne(ad: ad);
+              messenger?.hideCurrentSnackBar();
+              messenger?.showSnackBar(
+                SnackBar(
+                  content: _localizedSnackText(
+                    context,
+                    success
+                        ? S.of(context)!.rankAdSuccess
+                        : S.of(context)!.rankAdFailed,
+                  ),
+                  backgroundColor: success ? Colors.green : Colors.red,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+              await provider.fetchMyAds();
+            } else if (text == s.delete) {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                barrierDismissible: false,
+                builder: (ctx) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    title: Text(
+                      S.of(context)!.deleteAdTitle,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
+                        color: KTextColor,
+                      ),
+                    ),
+                    content: Text(
+                      S.of(context)!.deleteAdConfirmation,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: KTextColor,
+                      ),
+                    ),
+                    actionsPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: Text(
+                          S.of(context)!.cancel,
+                          style: TextStyle(
+                              fontSize: 12.sp, color: KTextColor),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                        ),
+                        child: Text(
+                          S.of(context)!.yesDelete,
+                          style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (confirmed != true) return;
+
+              final messenger = rootScaffoldMessengerKey.currentState;
+              final provider = context.read<MyAdsProvider>();
+              final success = await provider.deleteAd(ad: ad);
+              messenger?.hideCurrentSnackBar();
+              messenger?.showSnackBar(
+                SnackBar(
+                  content: _localizedSnackText(
+                      context,
+                      success
+                          ? S.of(context)!.adDeletedSuccess
+                          : S.of(context)!.adDeletedFailed),
+                  backgroundColor: success ? Colors.green : const Color.fromARGB(255, 215, 54, 42),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
             } else {
               setState(() => _selectedAction = text);
             }
           },
           style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected ? primaryColor : Colors.transparent,
+              backgroundColor: text == s.delete
+                  ? const Color.fromARGB(255, 214, 46, 34)
+                  : (isSelected ? primaryColor : Colors.transparent),
               shadowColor: Colors.transparent,
               elevation: 0,
               padding: EdgeInsets.symmetric(vertical: 8.h),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: borderColor, width: 1))),
+                  side: BorderSide(
+                      color: text == s.delete ? Colors.red : borderColor,
+                      width: 1))),
           child: Text(text,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  color: isSelected ? Colors.white : primaryColor,
+                  color: text == s.delete
+                      ? Colors.white
+                      : (isSelected ? Colors.white : primaryColor),
                   fontWeight: FontWeight.w500,
                   fontSize: 11.sp)),
         ),

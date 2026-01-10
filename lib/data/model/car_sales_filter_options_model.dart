@@ -12,6 +12,15 @@ class MakeModel {
       name: json['name']?.toString() ?? 'Unknown Make',
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is MakeModel && other.id == id && other.name == name;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode;
 }
 
 class CarModel {
@@ -29,13 +38,25 @@ class CarModel {
       makeId: json['car_make_id'] ?? 0,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CarModel &&
+        other.id == id &&
+        other.name == name &&
+        other.makeId == makeId;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode ^ makeId.hashCode;
 }
 
 class TrimModel {
   final int id;
   final String name;
   // +++ إضافة الحقل المفقود للربط +++
-  final int modelId; 
+  final int modelId;
 
   TrimModel({required this.id, required this.name, required this.modelId});
 
@@ -47,4 +68,16 @@ class TrimModel {
       modelId: json['car_model_id'] ?? 0,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TrimModel &&
+        other.id == id &&
+        other.name == name &&
+        other.modelId == modelId;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode ^ modelId.hashCode;
 }

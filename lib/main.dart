@@ -1,6 +1,7 @@
 import 'package:advertising_app/data/repository/auth_repository.dart';
 import 'package:advertising_app/data/repository/car_sales_ad_repository.dart';
 import 'package:advertising_app/data/repository/manage_ads_repository.dart';
+import 'package:advertising_app/data/repository/report_repository.dart';
 import 'package:advertising_app/data/web_services/api_service.dart';
 import 'package:advertising_app/data/web_services/google_api_service.dart';
 import 'package:advertising_app/data/web_services/google_maps_service.dart';
@@ -25,6 +26,7 @@ import 'package:advertising_app/presentation/providers/real_estate_ad_provider.d
 import 'package:advertising_app/presentation/providers/real_estate_details_provider.dart';
 import 'package:advertising_app/presentation/providers/real_estate_info_provider.dart';
 import 'package:advertising_app/presentation/providers/real_estate_offers_provider.dart';
+import 'package:advertising_app/presentation/providers/report_provider.dart';
 import 'package:advertising_app/presentation/providers/restaurant_details_provider.dart';
 import 'package:advertising_app/presentation/providers/restaurants_ad_provider.dart';
 import 'package:advertising_app/presentation/providers/restaurant_ad_provider.dart';
@@ -65,6 +67,7 @@ void main() async {
       CarAdRepository(apiService); // <-- تم تعريفه هنا
   final ManageAdsRepository myAdsRepository = ManageAdsRepository(apiService);
   final SettingsRepository settingsRepository = SettingsRepository(apiService);
+  final ReportRepository reportRepository = ReportRepository(apiService);
   final RestaurantsRepository restaurantsRepository =
       RestaurantsRepository(apiService);
   final GoogleApiService googleApiService = GoogleApiService();
@@ -98,6 +101,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) =>
               SettingsProvider(settingsRepository), // <-- Settings Provider
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReportProvider(reportRepository),
         ),
         ChangeNotifierProvider(create: (_) => CarRentInfoProvider()),
         ChangeNotifierProvider(create: (_) => CarRentAdProvider()),

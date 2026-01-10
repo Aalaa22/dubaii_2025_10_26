@@ -459,7 +459,13 @@ class _CarServiceState extends State<CarService>
                   final ad = garage.ads[index];
                   return GestureDetector(
                     onTap: () {
-                      // context.push('/car_service_details', extra: ad);
+                      print('Navigating to car service details with ID: ${ad.id}');
+                      if (ad.id != 0) {
+                         context.push('/car-service-details/${ad.id}');
+                      } else {
+                         print("Invalid Ad ID: ${ad.id}");
+                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invalid Ad ID")));
+                      }
                     },
                     child: Padding(
                       padding: EdgeInsetsDirectional.only(end: 8.w),

@@ -104,19 +104,19 @@ class _JobsAdScreenState extends State<JobsAdScreen> {
       debugPrint('Failed to set default coordinates from profile: $e');
     }
 
-    List<String> missingFields = [];
-    if (user.phone.trim().isEmpty) {
-      missingFields.add('phone number');
-    }
-    if ((user.advertiserLocation == null ||
-            user.advertiserLocation!.trim().isEmpty) &&
-        (user.latitude == null || user.longitude == null)) {
-      missingFields.add('your location');
-    }
+    // List<String> missingFields = [];
+    // if (user.phone.trim().isEmpty) {
+    //   missingFields.add('phone number');
+    // }
+    // if ((user.advertiserLocation == null ||
+    //         user.advertiserLocation!.trim().isEmpty) &&
+    //     (user.latitude == null || user.longitude == null)) {
+    //   missingFields.add('your location');
+    // }
 
-    if (missingFields.isNotEmpty && mounted) {
-      _showProfileIncompleteDialog(missingFields);
-    }
+    // if (missingFields.isNotEmpty && mounted) {
+    //   _showProfileIncompleteDialog(missingFields);
+    // }
   }
 
   void _showProfileIncompleteDialog(List<String> missingFields) {

@@ -20,6 +20,7 @@ import 'package:advertising_app/data/model/favorite_item_interface_model.dart';
 import 'package:advertising_app/data/model/ad_priority.dart';
 import 'package:provider/provider.dart';
 import 'package:advertising_app/presentation/providers/car_rent_ad_provider.dart';
+import 'package:advertising_app/presentation/widgets/report_dialog.dart';
 
 class CarRentDetailsScreen extends StatefulWidget {
   final String adId;
@@ -409,7 +410,7 @@ class _CarRentDetailsScreenState extends State<CarRentDetailsScreen>
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
                                   color: KTextColor)),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 5.h),
                           Directionality(
                             textDirection: TextDirection.ltr,
                             child: Row(
@@ -502,6 +503,27 @@ class _CarRentDetailsScreenState extends State<CarRentDetailsScreen>
                                     border: Border.all(color: Colors.grey),
                                     borderRadius: BorderRadius.circular(8.r),
                                   ),
+                                  child: (car_rent.advertiserLogoUrl != null &&
+                                          car_rent.advertiserLogoUrl!.isNotEmpty)
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                ImageUrlHelper.getFullImageUrl(
+                                                    car_rent.advertiserLogoUrl),
+                                            fit: BoxFit.contain,
+                                            placeholder: (context, url) =>
+                                                const Center(
+                                                    child:
+                                                        CircularProgressIndicator()),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error,
+                                                        color: Colors.grey),
+                                          ),
+                                        )
+                                      : null,
                                 ),
                               ),
                               SizedBox(width: 15.w),
@@ -594,9 +616,19 @@ class _CarRentDetailsScreenState extends State<CarRentDetailsScreen>
                               color: const Color(0xFFB5A9B1), thickness: 1.h),
                           SizedBox(height: 7.h),
                           Center(
-                            child: Text(
-                              S.of(context)!.report_this_ad,
-                              style: TextStyle(
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => ReportDialog(
+                                    adType: "car_rent",
+                                    adId: car_rent.id,
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                S.of(context)!.report_this_ad,
+                                style: TextStyle(
                                 color: KTextColor,
                                 fontSize: 16.sp,
                                 decoration: TextDecoration.underline,
@@ -604,7 +636,7 @@ class _CarRentDetailsScreenState extends State<CarRentDetailsScreen>
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
+                          ),),
                           SizedBox(height: 10.h),
                           Container(
                             width: double.infinity,

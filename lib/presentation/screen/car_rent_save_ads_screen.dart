@@ -205,10 +205,12 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
 
                     _buildFormRow([
                       _buildReadOnlyField(s.year, ad.year ?? '', borderColor),
-                      _buildReadOnlyField(
-                          s.dayRent, ad.dayRent ?? '', borderColor),
-                      _buildReadOnlyField(
-                          s.monthRent, ad.monthRent ?? '', borderColor),
+                      _buildTitledTextField(
+                          s.dayRent, '', borderColor, currentLocale,
+                          controller: _dayRentController, isNumber: true),
+                      _buildTitledTextField(
+                          s.monthRent, '', borderColor, currentLocale,
+                          controller: _monthRentController, isNumber: true),
                     ]),
                     const SizedBox(height: 7),
 
@@ -306,19 +308,19 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                     // Original form fields for new ads
                     _buildFormRow([
                       _buildTitledDropdownField(context, s.emirate,
-                          ['Dubai', 'Abu Dhabi'], ad!.emirate, borderColor),
+                          ['Dubai', 'Abu Dhabi'], ad?.emirate, borderColor),
                       _buildTitledDropdownField(context, s.make,
-                          ['Audi', 'BMW'], ad.make, borderColor),
+                          ['Audi', 'BMW'], ad?.make, borderColor),
                     ]),
                     const SizedBox(height: 7),
 
                     _buildFormRow([
                       _buildTitledDropdownField(context, s.model, ['S5', 'A8'],
-                          ad.model, borderColor),
+                          ad?.model, borderColor),
                       _buildTitledDropdownField(context, s.trim,
-                          ['Tsfi', 'TDI'], ad.trim, borderColor),
+                          ['Tsfi', 'TDI'], ad?.trim, borderColor),
                       _buildTitledTextField(
-                          s.price, ad.price, borderColor, currentLocale,
+                          s.price, ad?.price ?? '', borderColor, currentLocale,
                           controller: _priceController, isNumber: true),
                     ]),
                     const SizedBox(height: 7),
@@ -422,7 +424,7 @@ class _CarsRentSaveAdScreenState extends State<CarsRentSaveAdScreen> {
                         SizedBox(width: 8.w),
                         Expanded(
                           child: Text(
-                            ad.location.toString(),
+                            ad?.location ?? '',
                             style: TextStyle(
                                 fontSize: 14.sp,
                                 color: KTextColor,

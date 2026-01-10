@@ -75,7 +75,7 @@ class UnifiedDropdown<T> extends StatelessWidget {
                         displayNamer: displayNamer,
                       ),
                     );
-                    if (result != null || result == null) {
+                    if (result != null) {
                       onConfirm(result);
                     }
                   },

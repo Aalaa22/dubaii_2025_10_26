@@ -332,7 +332,7 @@ class _ElectronicScreenState extends State<ElectronicScreen>
                           ),
                           SizedBox(height: 4.h),
                           UnifiedSearchButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // تحقق من صحة الإدخال: يجب اختيار الإمارة ونوع القسم قبل الانتقال
                               if ((_selectedEmirate == null ||
                                       _selectedEmirate!.isEmpty) ||
@@ -360,8 +360,14 @@ class _ElectronicScreenState extends State<ElectronicScreen>
                                 filters['section_type'] = _selectedSectionType!;
                               }
 
-                              context.push('/electronic_search',
+                              await context.push('/electronic_search',
                                   extra: filters);
+                                  
+                              // مسح الاختيارات بعد العودة من صفحة البحث
+                              setState(() {
+                                _selectedEmirate = null;
+                                _selectedSectionType = null;
+                              });
                             },
                           ),
     // Hiding offer box as per user request

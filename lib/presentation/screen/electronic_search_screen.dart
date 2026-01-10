@@ -20,6 +20,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:advertising_app/data/web_services/location_service.dart';
+import 'package:location/location.dart' as loc;
+import 'dart:math' as math;
 
 const Color KTextColor = Color.fromRGBO(0, 30, 91, 1);
 const Color KPrimaryColor = Color.fromRGBO(1, 84, 126, 1);
@@ -40,6 +43,10 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
   String? _priceFrom, _priceTo;
   List<String> _selectedSections = [];
   List<String> _selectedProducts = [];
+  bool _isLoadingLocation = false;
+  loc.LocationData? _currentUserLocation;
+  bool _isSortActive = false;
+
   @override
   bool get wantKeepAlive => true;
   @override
@@ -133,6 +140,79 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
+    var p = 0.017453292519943295; // Math.PI / 180
+    var c = math.cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * math.asin(math.sqrt(a)); // 2 * R; R = 6371 km
+  }
+
+  Future<void> _toggleSort(bool value) async {
+    if (value) {
+      setState(() {
+        _isLoadingLocation = true;
+      });
+
+      try {
+        // Ensure service is enabled
+        await LocationService().requestLocationService();
+
+        // Check permission
+        final hasPermission = await LocationService().checkLocationPermission();
+
+        if (hasPermission == loc.PermissionStatus.granted || hasPermission == loc.PermissionStatus.grantedLimited) {
+          final locationData = await LocationService().getCurrentLocationData();
+          if (locationData != null) {
+            setState(() {
+              _currentUserLocation = locationData;
+              _isSortActive = true;
+              _isLoadingLocation = false;
+            });
+          } else {
+            setState(() {
+              _isLoadingLocation = false;
+              _isSortActive = false;
+            });
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content:
+                    Text('خدمة الموقع غير مفعلة')),
+              );
+            }
+          }
+        } else {
+          setState(() {
+            _isLoadingLocation = false;
+            _isSortActive = false;
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تم رفض إذن الوصول للموقع')),
+            );
+          }
+        }
+      } catch (e) {
+        setState(() {
+          _isLoadingLocation = false;
+          _isSortActive = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error getting location: $e')),
+          );
+        }
+      }
+    } else {
+      setState(() {
+        _isSortActive = false;
+      });
+    }
   }
 
   void _handleScroll() {
@@ -236,8 +316,26 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
           child: Consumer<ElectronicsAdProvider>(
             builder: (context, provider, child) {
               final allAds = provider.ads;
-              allAds.sort(
-                  (a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+              if (_isSortActive && _currentUserLocation != null) {
+                allAds.sort((a, b) {
+                  if (a.latitude == null || a.longitude == null) return 1;
+                  if (b.latitude == null || b.longitude == null) return -1;
+                  final distA = _calculateDistance(
+                      _currentUserLocation!.latitude!,
+                      _currentUserLocation!.longitude!,
+                      a.latitude!,
+                      a.longitude!);
+                  final distB = _calculateDistance(
+                      _currentUserLocation!.latitude!,
+                      _currentUserLocation!.longitude!,
+                      b.latitude!,
+                      b.longitude!);
+                  return distA.compareTo(distB);
+                });
+              } else {
+                allAds.sort(
+                    (a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+              }
               final premiumStarAds = allAds
                   .where((ad) => ad.priority == AdPriority.PremiumStar)
                   .toList();
@@ -349,9 +447,17 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                                                     scale: isSmallScreen
                                                         ? 0.8
                                                         : .9,
-                                                    child: Switch(
-                                                        value: false,
-                                                        onChanged: (val) {},
+                                                child: _isLoadingLocation
+                                                    ? SizedBox(
+                                                        height: 20.h,
+                                                        width: 20.w,
+                                                        child: CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                            color: KPrimaryColor))
+                                                    : Switch(
+                                                        value: _isSortActive,
+                                                        onChanged: (val) =>
+                                                            _toggleSort(val),
                                                         activeColor:
                                                             Colors.white,
                                                         activeTrackColor:
@@ -393,7 +499,112 @@ class _ElectronicSearchScreenState extends State<ElectronicSearchScreen>
                       ),
                     ),
                   ),
-                  // ... (AnimatedPositioned remains the same)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  top: _showFloatingFilterBar ? 0 : -160.h,
+                  left: 0,
+                  right: 0,
+                  child: Material(
+                    elevation: 6,
+                    color: Colors.white,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 18.w, vertical: 10.h),
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(color: Colors.grey.shade300))),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                              onTap: () => context.pop(),
+                              child: Row(children: [
+                                Icon(Icons.arrow_back_ios,
+                                    color: KTextColor, size: 17.sp),
+                                Transform.translate(
+                                    offset: Offset(-3.w, 0),
+                                    child: Text(s!.back,
+                                        style: TextStyle(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500,
+                                            color: KTextColor)))
+                              ])),
+                          SizedBox(height: 8.h),
+                          _buildFiltersRow(),
+                          SizedBox(height: 4.h),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              bool isSmallScreen =
+                                  MediaQuery.of(context).size.width <= 370;
+                              return Row(children: [
+                                Text('${s.ad} ${provider.totalAds}',
+                                    style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: KTextColor,
+                                        fontWeight: FontWeight.w400)),
+                                SizedBox(width: isSmallScreen ? 35.w : 30.w),
+                                Expanded(
+                                    child: Container(
+                                        height: 37.h,
+                                        padding:
+                                            EdgeInsetsDirectional.symmetric(
+                                                horizontal:
+                                                    isSmallScreen ? 8.w : 12.w),
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: const Color(0xFF08C2C9)),
+                                            borderRadius:
+                                                BorderRadius.circular(8.r)),
+                                        child: Row(children: [
+                                          SvgPicture.asset(
+                                              'assets/icons/locationicon.svg',
+                                              width: 18.w,
+                                              height: 18.h),
+                                          SizedBox(
+                                              width:
+                                                  isSmallScreen ? 12.w : 15.w),
+                                          Expanded(
+                                              child: Text(s.sort,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: KTextColor,
+                                                      fontSize: 12.sp))),
+                                          SizedBox(
+                                              width:
+                                                  isSmallScreen ? 35.w : 32.w,
+                                              child: _isLoadingLocation
+                                                  ? SizedBox(
+                                                      height: 20.h,
+                                                      width: 20.w,
+                                                      child: CircularProgressIndicator(
+                                                          strokeWidth: 2,
+                                                          color: KPrimaryColor))
+                                                  : Switch(
+                                                      value: _isSortActive,
+                                                      onChanged: (val) =>
+                                                          _toggleSort(val),
+                                                      activeColor: Colors.white,
+                                                      activeTrackColor:
+                                                          const Color(
+                                                              0xFF08C2C9),
+                                                      inactiveThumbColor:
+                                                          isSmallScreen
+                                                              ? Colors.white
+                                                              : Colors.grey,
+                                                      inactiveTrackColor:
+                                                          Colors.grey[300]))
+                                        ])))
+                              ]);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
                 ],
               );
             },
